@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../../shared/db/model";
+import { sequelize } from "./index";
 
 export const User = sequelize.define("User", {
   id: {
@@ -14,5 +14,17 @@ export const User = sequelize.define("User", {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
   },
 });

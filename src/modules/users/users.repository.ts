@@ -1,5 +1,4 @@
-import sequelize from "../../shared/db/model";
-import { User } from "./user.model";
+import { User } from "../../database/models/user.model";
 
 export const getUsers = async () => {
   return await User.findAll();
