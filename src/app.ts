@@ -3,8 +3,8 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "./config";
-import sequelize from "./shared/db/model";
 import { routesLoader } from "./loaders/routes.loaders";
+import logger from "./shared/util/logger";
 
 const startServer = async () => {
   const app = express();
@@ -23,7 +23,7 @@ const startServer = async () => {
   routesLoader(app);
 
   app.listen(port, () => {
-    console.log(`Server is running on ${port}`);
+    logger.info(`Server listening at http://localhost:${port}`);
   });
 };
 
