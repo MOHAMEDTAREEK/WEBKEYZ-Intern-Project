@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize";
 import path from "path";
 
 const env = process.env.NODE_ENV || "development";
-const configPath = path.join(__dirname, "../../../config/config.json");
+const configPath = path.join(__dirname, "../../../dbconfig/config.json");
 const config = require(configPath)[env];
 
 const sequelize = config.url
