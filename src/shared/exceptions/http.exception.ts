@@ -1,15 +1,14 @@
 import { HttpStatus } from "../enums/http-Status.enum";
 
 export class HttpException extends Error {
-  public status: HttpStatus;
   public response: string;
-  public details: any;
+  public status: HttpStatus;
 
-  constructor(status: HttpStatus, response: string) {
+  constructor(response: string, status: HttpStatus) {
     {
       super(response);
-      this.status = status;
       this.response = response;
+      this.status = status;
     }
   }
 }

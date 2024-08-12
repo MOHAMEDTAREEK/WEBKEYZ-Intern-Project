@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../exceptions/http.exception";
-import logger from "../util/logger";
 import { HttpStatus } from "../enums/http-Status.enum";
+import logger from "../util/logger";
 
 export const errorHandlerMiddleware = (
   error: HttpException,
@@ -16,7 +16,6 @@ export const errorHandlerMiddleware = (
       logger.error(
         `${status} - ${message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
       );
-
       return res.status(status).send({
         status,
         message,

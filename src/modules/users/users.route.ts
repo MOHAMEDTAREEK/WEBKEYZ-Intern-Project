@@ -1,6 +1,10 @@
 import { Router } from "express";
-import { getUsers } from "./users.controller";
+import { error, getUsers } from "./users.controller";
 import { createUser } from "./users.controller";
+import { HttpException } from "../../shared/exceptions/http.exception";
+import { HttpStatus } from "../../shared/enums/http-Status.enum";
+import { validationMiddleware } from "../../shared/middleware/validation.middleware";
+import { userSchema } from "./user.schema";
 
 const router = Router();
 
@@ -32,6 +36,8 @@ router.get("/", getUsers);
  *         description: Successful response
  *
  */
-router.post("/", createUser);
+router.post("/", validationMiddleware(userSchema, "body"), createUser);
+
+router.get("/error", error);
 
 export default router;
