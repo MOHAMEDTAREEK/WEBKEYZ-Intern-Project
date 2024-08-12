@@ -3,6 +3,7 @@ import { error, getUsers } from "./users.controller";
 import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { userSchema } from "./user.schema";
+import asyncWrapper from "../../shared/util/async-wrapper";
 
 const router = Router();
 
@@ -17,7 +18,7 @@ const router = Router();
  *         description: Successful response
  *
  */
-router.get("/", getUsers);
+router.get("/", asyncWrapper(getUsers));
 
 /**
  * @swagger
@@ -36,6 +37,6 @@ router.get("/", getUsers);
  */
 router.post("/", validationMiddleware(userSchema, "body"), createUser);
 
-router.get("/error", error);
+router.get("/error", asyncWrapper(error));
 
 export default router;

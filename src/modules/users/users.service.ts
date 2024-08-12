@@ -1,7 +1,9 @@
+import { HttpStatus } from "../../shared/enums/http-Status.enum";
+import { BaseError } from "../../shared/exceptions/base.error";
 import * as userRepository from "./users.repository";
+
 export const getUsers = async () => {
-  const users = await userRepository.getUsers();
-  return users;
+  throw new BaseError("Resource not found", HttpStatus.NOT_FOUND);
 };
 export const createUser = async (userData: any) => {
   const createdUser = await userRepository.createUser(userData);

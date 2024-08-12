@@ -20,9 +20,5 @@ export const error = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    throw new BaseError("Resource not found", HttpStatus.NOT_FOUND);
-  } catch (error) {
-    next(error);
-  }
+  throw new BaseError("Resource not found", HttpStatus.NOT_FOUND);
 };
