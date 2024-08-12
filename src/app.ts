@@ -7,6 +7,11 @@ import swaggerUI from "swagger-ui-express";
 import swaggerSpec from "./config/swagger";
 import { middlewareLoader } from "./loaders/middleware.loaders";
 
+/**
+ * Starts the server and listens for incoming requests.
+ *
+ * @returns {Promise<void>} A promise that resolves when the server is started.
+ */
 const startServer = async () => {
   const app = express();
   const port = process.env.PORT;

@@ -5,6 +5,10 @@ import { validationMiddleware } from "../../shared/middleware/validation.middlew
 import { userSchema } from "./user.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
 
+/**
+ * Defines routes for user-related operations.
+ */
+
 const router = Router();
 
 /**

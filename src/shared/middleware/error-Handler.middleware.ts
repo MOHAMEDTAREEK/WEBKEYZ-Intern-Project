@@ -3,6 +3,13 @@ import { BaseError } from "../exceptions/base.error";
 import { HttpStatus } from "../enums/http-Status.enum";
 import logger from "../util/logger";
 
+/**
+ * Middleware function to handle errors in the application.
+ * Logs the error details and sends an appropriate response back to the client.
+ * If the error is an instance of BaseError, it logs the status, message, URL, method, and IP.
+ * If the error is not an instance of BaseError, it logs the error details, URL, method, IP, and the error object.
+ * If an error occurs during the process, it passes the error to the next middleware.
+ */
 export const errorHandlerMiddleware = (
   error: BaseError,
   req: Request,

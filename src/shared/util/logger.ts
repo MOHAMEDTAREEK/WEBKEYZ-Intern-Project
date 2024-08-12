@@ -1,6 +1,11 @@
 import { createLogger, format, transports } from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 
+/**
+ * Creates a logger instance with specified configurations.
+ * @returns {Logger} The configured logger instance.
+ */
+
 const { combine, timestamp, printf, colorize } = format;
 
 const logFormat = printf(({ level, message, timestamp }) => {

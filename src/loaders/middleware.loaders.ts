@@ -4,6 +4,11 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import config from "../config";
+
+/**
+ * Middleware loader function to set up various middleware for the Express application.
+ * @param {Application} app - The Express application instance.
+ */
 export const middlewareLoader = async (app: Application) => {
   app.use(
     cors({
@@ -14,5 +19,4 @@ export const middlewareLoader = async (app: Application) => {
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan("dev"));
   app.use(helmet());
-  
 };

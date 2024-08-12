@@ -1,8 +1,22 @@
 const path = require("path");
 
+/**
+ * Configuration object for Sequelize.
+ * @typedef {Object} SequelizeConfig
+ * @property {string} config - The path to the config file.
+ * @property {string} models-path - The path to the models directory.
+ * @property {string} seeders-path - The path to the seeders directory.
+ * @property {string} migrations-path - The path to the migrations directory.
+ */
+
+/**
+ * The Sequelize configuration.
+ * @type {SequelizeConfig}
+ */
+
 module.exports = {
   config: path.resolve(".", "config", "config.json"),
-  "models-path": path.resolve("./src/database/models"),
-  "seeders-path": path.resolve("./src/database/seeders"),
-  "migrations-path": path.resolve("./src/database/migrations"),
+  "models-path": path.resolve("./*/database/models"),
+  "seeders-path": path.resolve("./*/database/seeders"),
+  "migrations-path": path.resolve("./*/database/migrations"),
 };
