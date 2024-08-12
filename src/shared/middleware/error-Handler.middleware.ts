@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../exceptions/http.exception";
+import { BaseError } from "../exceptions/base.error";
 import { HttpStatus } from "../enums/http-Status.enum";
 import logger from "../util/logger";
 
 export const errorHandlerMiddleware = (
-  error: HttpException,
+  error: BaseError,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    if (error instanceof HttpException) {
+    if (error instanceof BaseError) {
       const status = error.status || 500;
       const message = error.response || "Something went wrong";
       logger.error(

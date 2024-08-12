@@ -1,8 +1,6 @@
 import { Router } from "express";
 import { error, getUsers } from "./users.controller";
 import { createUser } from "./users.controller";
-import { HttpException } from "../../shared/exceptions/http.exception";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { userSchema } from "./user.schema";
 

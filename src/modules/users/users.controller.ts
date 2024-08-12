@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import * as userServise from "./users.service";
-import { HttpException } from "../../shared/exceptions/http.exception";
+import { BaseError } from "../../shared/exceptions/base.error";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 
 export const getUsers = async (req: Request, res: Response) => {
@@ -21,7 +21,7 @@ export const error = async (
   next: NextFunction
 ) => {
   try {
-    throw new HttpException("Resource not found", HttpStatus.NOT_FOUND);
+    throw new BaseError("Resource not found", HttpStatus.NOT_FOUND);
   } catch (error) {
     next(error);
   }

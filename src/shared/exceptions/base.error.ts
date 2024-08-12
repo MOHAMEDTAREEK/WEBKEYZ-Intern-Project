@@ -1,6 +1,6 @@
 import { HttpStatus } from "../enums/http-Status.enum";
 
-export class HttpException extends Error {
+export class BaseError extends Error {
   public response: string;
   public status: HttpStatus;
 
