@@ -1,9 +1,8 @@
 import * as bcrypt from "bcrypt";
 import * as userRepository from "../users/users.repository";
-import * as userService from "../users/users.service"; // Add this import statement
+import * as userService from "../users/users.service";
 import config from "../../config";
 import jwt from "jsonwebtoken";
-import { BaseError } from "../../shared/exceptions/base.error";
 export const signUp = async (userData: any) => {
   const user = await userRepository.createUser(userData);
   const tokens = await getTokens(user.id, user.email);

@@ -1,7 +1,6 @@
 import * as authService from "./auth.service";
 import * as userService from "../users/users.service"; // Add this line to import the 'userService' module
 import { Request, Response } from "express";
-import config from "../../config";
 export const signUp = async (req: Request, res: Response) => {
   const userData = req.body;
   const userExists = await userService.getUserByEmail(userData.email);
