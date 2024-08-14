@@ -1,5 +1,6 @@
 import { Application } from "express";
 import usersRouter from "../modules/users/users.route";
+import authRouter from "../modules/auth/auth.route";
 
 /**
  * Loads routes for the Express application.
@@ -8,5 +9,6 @@ import usersRouter from "../modules/users/users.route";
  * @param {Application} app - The Express application instance.
  */
 export const routesLoader = async (app: Application) => {
-  app.use("/users", usersRouter);
+  app.use("/user", usersRouter);
+  app.use("/auth", authRouter);
 };
