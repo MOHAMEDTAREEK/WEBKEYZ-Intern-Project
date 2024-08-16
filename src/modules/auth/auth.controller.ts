@@ -2,9 +2,19 @@ import * as authService from "./auth.service";
 import * as userService from "../users/users.service";
 import { Request, Response } from "express";
 import { BaseError } from "../../shared/exceptions/base.error";
+import { SignupDto } from "./dtos/signup.dto";
+import { LoginDto } from "./dtos/login.dto";
 
+/**
+ * Handles user sign up by checking if the user already exists, signing up the user, setting cookies for tokens,
+ * and returning the user and tokens in the response.
+ *
+ * @param {Request} req - The request object containing user data in the body.
+ * @param {Response} res - The response object to send back the user and tokens.
+ * @returns {Promise<void>} A promise that resolves when the user sign up process is completed.
+ */
 export const signUp = async (req: Request, res: Response) => {
-  const userData = req.body;
+  const userData: SignupDto = req.body;
   const userExists = await userService.getUserByEmail(userData.email);
   if (userExists) {
     return res.status(400).send("User already exists");
@@ -23,9 +33,17 @@ export const signUp = async (req: Request, res: Response) => {
   return res.send({ user, tokens });
 };
 
+/**
+ * Handles user login by logging in the user, setting cookies for tokens, and returning the user and tokens in the response.
+ *
+ * @param {Request} req - The request object containing user data in the body.
+ * @param {Response} res - The response object to send back the user and tokens.
+ * @returns {Promise<void>} A promise that resolves when the user login process is completed.
+ */
+
 export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const { user, tokens } = await authService.logIn(email, password);
+  const userData: LoginDto = req.body;
+  const { user, tokens } = await authService.logIn(userData);
 
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
@@ -38,6 +56,14 @@ export const login = async (req: Request, res: Response) => {
   return res.send({ user, tokens });
 };
 
+/**
+ * Handles refreshing user tokens by validating the refresh token, generating new tokens, setting new cookies,
+ * and returning the new tokens in the response.
+ *
+ * @param {Request} req - The request object containing the refresh token in cookies.
+ * @param {Response} res - The response object to send back the new tokens.
+ * @returns {Promise<void>} A promise that resolves when the token refresh process is completed.
+ */
 export const refreshTokens = async (req: Request, res: Response) => {
   const { refreshToken } = req.cookies;
 

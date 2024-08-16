@@ -4,7 +4,15 @@ import * as userService from "../users/users.service";
 import config from "../../config";
 import jwt from "jsonwebtoken";
 import { BaseError } from "../../shared/exceptions/base.error";
-export const signUp = async (userData: any) => {
+import { SignupDto } from "./dtos/signup.dto";
+import { LoginDto } from "./dtos/login.dto";
+
+/**
+ * Handles user sign up by creating a new user, generating tokens, and updating the refresh token.
+ * @param userData - Data for user sign up including name, email, and password.
+ * @returns An object containing the newly created user and generated tokens.
+ */
+export const signUp = async (userData: SignupDto) => {
   const user = await userRepository.createUser(userData);
   const tokens = await getTokens(user.id, user.email);
 
@@ -13,8 +21,16 @@ export const signUp = async (userData: any) => {
   return { user, tokens };
 };
 
-export const logIn = async (email: string, password: string) => {
-  const user = await userService.validateCredentials(email, password);
+/**
+ * Handles user login by validating credentials, generating tokens, and updating the refresh token.
+ * @param userData - Data for user login including email and password.
+ * @returns An object containing the user details and generated tokens.
+ */
+export const logIn = async (userData: LoginDto) => {
+  const user = await userService.validateCredentials(
+    userData.email,
+    userData.password
+  );
 
   const tokens = await getTokens(user.id, user.email);
 
@@ -22,6 +38,11 @@ export const logIn = async (email: string, password: string) => {
   return { user, tokens };
 };
 
+/**
+ * Refreshes tokens based on the provided refresh token, verifies the user, and updates the refresh token.
+ * @param refreshToken - The refresh token used to generate new access and refresh tokens.
+ * @returns An object with the new refresh token and access token.
+ */
 export const refreshTokens = async (refreshToken: string) => {
   const decoded = jwt.verify(
     refreshToken,
@@ -42,6 +63,7 @@ export const refreshTokens = async (refreshToken: string) => {
   if (!isRefreshTokenValid) {
     throw new BaseError("Invalid refresh token", 401);
   }
+
   const tokens = await getTokens(user.id, user.email);
   await updateRefreshToken(user.id, tokens.refreshToken);
 
@@ -50,6 +72,12 @@ export const refreshTokens = async (refreshToken: string) => {
     newAccessToken: tokens.accessToken,
   };
 };
+
+/**
+ * Updates the refresh token for a specific user by hashing and storing it in the database.
+ * @param userId - The ID of the user for whom the refresh token is being updated.
+ * @param refreshToken - The new refresh token to be stored.
+ */
 
 export const updateRefreshToken = async (
   userId: number,
@@ -60,6 +88,13 @@ export const updateRefreshToken = async (
     refreshToken: hashedRefreshToken,
   });
 };
+
+/**
+ * Generates new access and refresh tokens for a user based on user ID and email.
+ * @param userId - The ID of the user for whom tokens are being generated.
+ * @param email - The email of the user for whom tokens are being generated.
+ * @returns An object with the newly generated access and refresh tokens.
+ */
 
 export const getTokens = async (
   userId: number,

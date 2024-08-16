@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { error, getUsers } from "./users.controller";
+import { getUserByEmail, getUserById, getUsers } from "./users.controller";
 import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
-import { userSchema } from "./user.schema";
+import { userSchema } from "./schemas/user.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
 
 /**
@@ -20,27 +20,56 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Successful response
- *
+ *       500:
+ *         description: Internal server error
  */
 router.get("/", asyncWrapper(getUsers));
 
 /**
  * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     description: Get a user by their ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the user.
+ *         schema:
+ *           type: string
+ *           example: 123456789
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ *
+ */
+router.get("/:id", asyncWrapper(getUserById));
+
+router.get("/email/:email", asyncWrapper(getUserByEmail));
+/**
+ * @swagger
  * /users/:
  *   post:
- *     summary: Create a resource
- *     description: Create a new resource.
+ *     summary: Create a user
+ *     description: Create a new user.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *     responses:
- *       200:
- *         description: Successful response
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Invalid request body
+ *       500:
+ *         description: Internal server error
  *
  */
 router.post("/", validationMiddleware(userSchema, "body"), createUser);
-
-router.get("/error", asyncWrapper(error));
 
 export default router;

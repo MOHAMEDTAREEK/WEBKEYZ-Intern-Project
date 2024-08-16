@@ -9,6 +9,6 @@ import authRouter from "../modules/auth/auth.route";
  * @param {Application} app - The Express application instance.
  */
 export const routesLoader = async (app: Application) => {
-  app.use("/user", usersRouter);
+  app.use("/users", usersRouter);
   app.use("/auth", authRouter);
 };
