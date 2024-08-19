@@ -15,9 +15,12 @@ export const authMiddleware = async (
   }
 
   try {
-    const decoded = jwt.verify(accessToken, config.accessToken.secret);
+    const decoded = jwt.verify(
+      accessToken,
+      config.accessToken.secret
+    ) as jwt.JwtPayload;
 
-    const userId = parseInt(decoded.sub as string, 10);
+    const userId = decoded.userId;
     if (!userId) {
       return res.status(403).json({ message: "Invalid access token" });
     }
