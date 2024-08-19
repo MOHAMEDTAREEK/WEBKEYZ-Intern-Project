@@ -63,13 +63,14 @@ export const refreshTokens = async (refreshToken: string) => {
   if (!isRefreshTokenValid) {
     throw new BaseError("Invalid refresh token", 401);
   }
+  const payload = { userId: user.id, email: user.email };
 
-  const tokens = await getTokens(user.id, user.email);
-  await updateRefreshToken(user.id, tokens.refreshToken);
+  const accessToken = jwt.sign(payload, config.accessToken.secret, {
+    expiresIn: config.accessToken.expiresIn,
+  });
 
   return {
-    newRefreshToken: tokens.refreshToken,
-    newAccessToken: tokens.accessToken,
+    newAccessToken: accessToken,
   };
 };
 
@@ -77,6 +78,7 @@ export const refreshTokens = async (refreshToken: string) => {
  * Updates the refresh token for a specific user by hashing and storing it in the database.
  * @param userId - The ID of the user for whom the refresh token is being updated.
  * @param refreshToken - The new refresh token to be stored.
+ * @returns A promise that resolves when the refresh token is updated.
  */
 
 export const updateRefreshToken = async (

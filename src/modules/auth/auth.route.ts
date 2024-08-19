@@ -3,7 +3,6 @@ import { validationMiddleware } from "../../shared/middleware/validation.middlew
 import { registerSchema } from "./schemas/register.schema";
 import { loginSchema } from "./schemas/login.schema";
 import { login, refreshTokens, signUp } from "./auth.controller";
-import { refreshTokensSchema } from "./schemas/refresh-tokens.schema";
 
 /**
  * Defines the routes for user authentication operations.
@@ -13,9 +12,5 @@ const router = Router();
 
 router.post("/login", validationMiddleware(loginSchema), login);
 router.post("/signup", validationMiddleware(registerSchema), signUp);
-router.post(
-  "/refresh-token",
-  validationMiddleware(refreshTokensSchema),
-  refreshTokens
-);
+router.post("/refresh-token", refreshTokens);
 export default router;

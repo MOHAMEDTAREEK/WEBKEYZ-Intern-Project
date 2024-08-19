@@ -11,9 +11,12 @@ import { LoginDto } from "./dtos/login.dto";
  *
  * @param {Request} req - The request object containing user data in the body.
  * @param {Response} res - The response object to send back the user and tokens.
- * @returns {Promise<void>} A promise that resolves when the user sign up process is completed.
+ * @returns {Promise<Response>} A promise that resolves when the user sign up process is completed.
  */
-export const signUp = async (req: Request, res: Response) => {
+export const signUp = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const userData: SignupDto = req.body;
   const userExists = await userService.getUserByEmail(userData.email);
   if (userExists) {
@@ -38,10 +41,10 @@ export const signUp = async (req: Request, res: Response) => {
  *
  * @param {Request} req - The request object containing user data in the body.
  * @param {Response} res - The response object to send back the user and tokens.
- * @returns {Promise<void>} A promise that resolves when the user login process is completed.
+ * @returns {Promise<Response>} A promise that resolves when the user login process is completed.
  */
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<Response> => {
   const userData: LoginDto = req.body;
   const { user, tokens } = await authService.logIn(userData);
 
@@ -62,27 +65,24 @@ export const login = async (req: Request, res: Response) => {
  *
  * @param {Request} req - The request object containing the refresh token in cookies.
  * @param {Response} res - The response object to send back the new tokens.
- * @returns {Promise<void>} A promise that resolves when the token refresh process is completed.
+ * @returns {Promise<Response>} A promise that resolves when the token refresh process is completed.
  */
-export const refreshTokens = async (req: Request, res: Response) => {
+export const refreshTokens = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
     throw new BaseError("Refresh token is missing", 400);
   }
-  const { newRefreshToken, newAccessToken } =
-    await authService.refreshTokens(refreshToken);
+  const { newAccessToken } = await authService.refreshTokens(refreshToken);
 
-  res.cookie("refreshToken", newRefreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
   res.cookie("accessToken", newAccessToken, {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
   });
 
-  return res.send({ newRefreshToken, newAccessToken });
+  return res.send({ newAccessToken });
 };
