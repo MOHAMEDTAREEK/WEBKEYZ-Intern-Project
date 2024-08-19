@@ -17,4 +17,9 @@ export default {
     expiresIn: 1000 * 60 * 60 * 24 * 7 * 4, // 4 weeks
   },
   cookieSecret: process.env.COOKIE_SECRET,
+  resetToken: {
+    secret: process.env.JWT_RESET_SECRET,
+    expiresIn: "1h",
+  },
+
 };

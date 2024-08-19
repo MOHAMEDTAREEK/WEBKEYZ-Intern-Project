@@ -66,7 +66,7 @@ export const updateUserById = async (userId: number, updatedData: any) => {
 
 /**
  * Deletes a user by ID from the database.
- * @param {number} userId - The ID of the user to delete.
+ * @param {number} email - The ID of the user to delete.
  */
 export const validateCredentials = async (email: string, password: string) => {
   const user: IUser = (await User.findOne({

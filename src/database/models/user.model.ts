@@ -26,6 +26,14 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    resetToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    roles: {
+      type: DataTypes.ENUM("admin", "hr", "user"),
+      allowNull: false,
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -38,7 +46,7 @@ const User = sequelize.define(
     },
   },
   {
-    tableName: "user", // Specify the table name
+    tableName: "user",
   }
 );
 

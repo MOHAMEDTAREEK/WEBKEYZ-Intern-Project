@@ -102,7 +102,7 @@ export const getTokens = async (
   userId: number,
   email: string
 ): Promise<{ accessToken: string; refreshToken: string }> => {
-  const payload = { userId, email };
+  const payload = { userId, email, role: "admin" };
 
   const accessToken = jwt.sign(payload, config.accessToken.secret, {
     expiresIn: config.accessToken.expiresIn,
@@ -112,4 +112,38 @@ export const getTokens = async (
   });
 
   return { accessToken, refreshToken };
+};
+
+export const generateResetToken = async (userId: number, email: string) => {
+  const payload = { userId, email };
+  const resetToken = jwt.sign(payload, config.resetToken.secret, {
+    expiresIn: config.resetToken.expiresIn,
+  });
+  await userRepository.updateUserById(userId, { resetToken: resetToken });
+
+  return resetToken;
+};
+
+export const resetPassword = async (userId: number, password: string) => {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await userRepository.updateUserById(userId, { password: hashedPassword });
+
+  return "Password reset successfully";
+};
+export const verifyResetToken = async (resetToken: string) => {
+  const decoded = jwt.verify(
+    resetToken,
+    config.resetToken.secret
+  ) as jwt.JwtPayload;
+
+  if (!decoded) {
+    throw new BaseError("Invalid reset token", 400);
+  }
+  const user = await userRepository.getUserById(decoded.userId);
+
+  if (!user) {
+    throw new BaseError("User not found", 404);
+  }
+
+  return user;
 };

@@ -4,6 +4,9 @@ import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { userSchema } from "./schemas/user.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
+import { authorizeRole } from "../../shared/middleware/authorization.middleware";
+import { UserRole } from "../../shared/enums/user-Role.enum";
+import { authMiddleware } from "../../shared/middleware/auth.middleware";
 
 /**
  * Defines routes for user-related operations.
@@ -23,7 +26,12 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get("/", asyncWrapper(getUsers));
+router.get(
+  "/",
+  authMiddleware,
+  authorizeRole([UserRole.Admin]),
+  asyncWrapper(getUsers)
+);
 
 /**
  * @swagger

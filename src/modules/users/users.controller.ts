@@ -3,6 +3,7 @@ import * as userServise from "./users.service";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import { CreateUserDto } from "./dtos/create-user.dto";
+import { sendEmail } from "../../shared/util/send-email";
 
 /**
  * Retrieves all users and sends them as a response.
@@ -12,6 +13,7 @@ import { CreateUserDto } from "./dtos/create-user.dto";
  */
 export const getUsers = async (req: Request, res: Response) => {
   const users = await userServise.getUsers();
+
   res.send(users);
 };
 

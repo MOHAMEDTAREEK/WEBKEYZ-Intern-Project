@@ -6,6 +6,7 @@ import { sequelizeErrorHandlerMiddleware } from "./shared/middleware/Sequelize-E
 import swaggerUI from "swagger-ui-express";
 import swaggerSpec from "./config/swagger";
 import { middlewareLoader } from "./loaders/middleware.loaders";
+import { sendEmail } from "./shared/util/send-email";
 
 /**
  * Starts the server and listens for incoming requests.

@@ -1,9 +1,11 @@
 import * as authService from "./auth.service";
 import * as userService from "../users/users.service";
+import * as userRepository from "../users/users.repository";
 import { Request, Response } from "express";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
+import { sendEmail } from "../../shared/util/send-email";
 
 /**
  * Handles user sign up by checking if the user already exists, signing up the user, setting cookies for tokens,
@@ -85,4 +87,50 @@ export const refreshTokens = async (
   });
 
   return res.send({ newAccessToken });
+};
+export const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  const user = await userRepository.getUserByEmail(email);
+  if (!user) {
+    throw new BaseError("User not found", 404);
+  }
+  const userId = user.dataValues.id;
+  const userEmail = user.dataValues.email;
+  const resetToken = await authService.generateResetToken(userId, userEmail);
+  await sendEmail(
+    email,
+    `Click the following link to reset your password: http://localhost:3000/reset-password/:${resetToken}`
+  );
+  return res.send(resetToken);
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const { newPassword } = req.body;
+  const { token } = req.params;
+  const userData = await authService.verifyResetToken(token);
+  if (!userData) {
+    throw new BaseError("Invalid or expired token", 400);
+  }
+
+  await authService.resetPassword(userData.id, newPassword);
+  return res.send("Password reset successfully");
+};
+
+export const resetPasswordWithoutToken = async (
+  req: Request,
+  res: Response
+) => {
+  const { email, newPassword } = req.body;
+  const user = await userRepository.getUserByEmail(email);
+  if (!user) {
+    throw new BaseError("User not found", 404);
+  }
+  await authService.resetPassword(user.dataValues.id, newPassword);
+  return res.send("Password reset successfully");
+};
+
+export const logout = async (req: Request, res: Response) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  return res.send("Logged out successfully");
 };
