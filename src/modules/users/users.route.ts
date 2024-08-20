@@ -78,6 +78,6 @@ router.get("/email/:email", asyncWrapper(getUserByEmail));
  *         description: Internal server error
  *
  */
-router.post("/", validationMiddleware(userSchema, "body"), createUser);
+router.post("/", validationMiddleware(userSchema), createUser);
 
 export default router;

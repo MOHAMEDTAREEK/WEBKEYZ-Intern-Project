@@ -12,7 +12,8 @@ import {
   resetPasswordWithoutToken,
   signUp,
 } from "./auth.controller";
-import verifyUser from "../../shared/middleware/verfiy-user.middleware";
+import { emailCheckingSchema } from "./schemas/email-checking.schema";
+import { resetPasswordSchema } from "./schemas/reset-password.schema";
 
 /**
  * Defines the routes for user authentication operations.
@@ -20,15 +21,25 @@ import verifyUser from "../../shared/middleware/verfiy-user.middleware";
  */
 const router = Router();
 
-//router.use(verifyUser);
-
 router.post("/signup", validationMiddleware(registerSchema), signUp);
 router.post("/login", validationMiddleware(loginSchema), login);
 router.post("/refresh-token", refreshTokens);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
-router.post("/reset-password", resetPasswordWithoutToken);
+router.post(
+  "/forgot-password",
+  validationMiddleware(emailCheckingSchema),
+  forgotPassword
+);
+router.post(
+  "/reset-password/:token",
+  validationMiddleware(resetPasswordSchema),
+  resetPassword
+);
+router.post(
+  "/reset-password",
+  validationMiddleware(resetPasswordSchema),
+  resetPasswordWithoutToken
+);
 router.post("/logout", logout);
-router.post("/invite-hr", inviteHr);
+router.post("/invite-hr", validationMiddleware(emailCheckingSchema), inviteHr);
 
 export default router;

@@ -1,28 +1,43 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
 
-/**
- * Middleware function that validates data in the request object based on a Joi schema.
- * If validation fails, it sends a response with error details; otherwise, it proceeds to the next middleware.
- *
- * @param schema - The Joi schema used for validation.
- * @param target - The target location in the request object where the data to validate is located (default is "body").
- */
-type ValidationTarget = "body" | "params" | "query";
+type ValidationTargets = {
+  body?: Joi.ObjectSchema;
+  params?: Joi.ObjectSchema;
+  query?: Joi.ObjectSchema;
+};
 
-export const validationMiddleware = (
-  schema: Joi.ObjectSchema,
-  target: ValidationTarget = "body"
-) => {
+export const validationMiddleware = (schemas: ValidationTargets) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const dataToValidate = req[target];
-    const { error } = schema.validate(dataToValidate, { abortEarly: false });
+    const validationErrors: string[] = [];
 
-    if (error) {
-      const errors = error.details.map((detail) => detail.message);
-      return res.status(400).json({ errors });
+    // Utility function to validate a specific part of the request
+    const validatePart = (
+      schema: Joi.ObjectSchema | undefined,
+      data: any,
+      part: string
+    ) => {
+      if (schema) {
+        const { error } = schema.validate(data, { abortEarly: false });
+        if (error) {
+          validationErrors.push(
+            ...error.details.map((detail) => `${part}: ${detail.message}`)
+          );
+        }
+      }
+    };
+
+    // Validate each part of the request
+    validatePart(schemas.body, req.body, "body");
+    validatePart(schemas.params, req.params, "params");
+    validatePart(schemas.query, req.query, "query");
+
+    // If there are validation errors, respond with 400 and the detailed error messages
+    if (validationErrors.length > 0) {
+      return res.status(400).json({ errors: validationErrors });
     }
 
+    // Proceed to the next middleware or route handler if validation passes
     next();
   };
 };

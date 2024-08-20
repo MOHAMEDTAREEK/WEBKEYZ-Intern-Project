@@ -1,8 +1,15 @@
 import nodemailer from "nodemailer";
 
-export const sendEmail = async (to: string, text: string) => {
+/**
+ * Asynchronous function to send an email using nodemailer.
+ *
+ * @param {string} to - The email address to send the email to.
+ * @param {string} text - The text content of the email.
+ * @returns {Promise<void>} A Promise that resolves once the email is sent successfully.
+ * @throws {Error} If an error occurs while sending the email.
+ */
+export const sendEmail = async (to: string, text: string): Promise<void> => {
   try {
-    // Create a test account from Ethereal (for testing purposes)
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -11,21 +18,19 @@ export const sendEmail = async (to: string, text: string) => {
       },
     });
 
-    // Define email options
     let mailOptions = {
       from: '"Support" <support@example.com>', // Sender address
-      to: to, // Receiver's email
+      to: to,
       subject: "Reset Password",
-      text: text, // Plain text body
+      text: text,
     };
 
-    // Send the email
     let info = await transporter.sendMail(mailOptions);
 
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   } catch (err) {
     console.error("Error occurred while sending email: ", err);
-    throw err; // Optionally, throw error to be handled by caller
+    throw err;
   }
 };

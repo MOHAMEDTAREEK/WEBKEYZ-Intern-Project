@@ -118,9 +118,20 @@ export const forgotPassword = async (
   return res.send(resetToken);
 };
 
+/**
+ * Resets the password for a user based on the provided token and new password.
+ *
+ * @param req - The request object containing the new password in the body and the token in the parameters.
+ * @param res - The response object to send the result of the password reset.
+ * @throws BaseError when the token is invalid or expired.
+ * @returns A success message upon successful password reset.
+ */
 export const resetPassword = async (req: Request, res: Response) => {
   const { newPassword } = req.body;
   const { token } = req.params;
+  if (!token) {
+    throw new BaseError("Token is required", 400);
+  }
   const userData = await authService.verifyResetToken(token);
   if (!userData) {
     throw new BaseError("Invalid or expired token", 400);

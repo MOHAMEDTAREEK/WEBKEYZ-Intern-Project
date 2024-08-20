@@ -2,7 +2,17 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import config from "../../config";
 import * as usersService from "../../modules/users/users.service";
+import { BaseError } from "../exceptions/base.error";
 
+/**
+ * Middleware function to authenticate user requests using JWT access tokens.
+ * Verifies the access token provided in the request cookies and checks its validity.
+ * If the access token is missing, expired, invalid, or the user is not found, appropriate errors are thrown.
+ * If the access token is valid, the user information is added to the request object for further processing.
+ * @param req - The Express Request object.
+ * @param res - The Express Response object.
+ * @param next - The Express NextFunction to pass control to the next middleware.
+ */
 export const authMiddleware = async (
   req: Request,
   res: Response,
@@ -11,7 +21,7 @@ export const authMiddleware = async (
   const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
-    return res.status(403).json({ message: "Access token is required" });
+    throw new BaseError("Access token is required", 403);
   }
 
   try {
@@ -22,12 +32,12 @@ export const authMiddleware = async (
 
     const userId = decoded.userId;
     if (!userId) {
-      return res.status(403).json({ message: "Invalid access token" });
+      throw new BaseError("Invalid access token", 403);
     }
 
     const user = await usersService.getUserById(userId);
     if (!user) {
-      return res.status(403).json({ message: "User not found" });
+      throw new BaseError("User not found", 404);
     }
 
     req.user = user;
@@ -35,11 +45,11 @@ export const authMiddleware = async (
     next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({ message: "Access token expired" });
+      throw new BaseError("Access token expired", 401);
     } else if (err instanceof jwt.JsonWebTokenError) {
-      return res.status(403).json({ message: "Invalid access token" });
+      throw new BaseError("Invalid access token", 403);
     } else {
-      return res.status(500).json({ message: "Internal server error" });
+      throw new BaseError("Internal server error", 500);
     }
   }
 };
