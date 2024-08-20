@@ -88,7 +88,21 @@ export const refreshTokens = async (
 
   return res.send({ newAccessToken });
 };
-export const forgotPassword = async (req: Request, res: Response) => {
+
+/**
+ * Handles the process of resetting a user's password.
+ * Retrieves the user's email from the request body, generates a reset token,
+ * sends a password reset link to the user's email, and returns the reset token.
+ * Throws a 'BaseError' if the user is not found in the system.
+ *
+ * @param {Request} req - The request object containing the user's email.
+ * @param {Response} res - The response object to send the reset token or error.
+ * @returns {Promise<Response>} - A promise that resolves once the reset token is sent.
+ */
+export const forgotPassword = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { email } = req.body;
   const user = await userRepository.getUserByEmail(email);
   if (!user) {
@@ -116,10 +130,18 @@ export const resetPassword = async (req: Request, res: Response) => {
   return res.send("Password reset successfully");
 };
 
+/**
+ * Reset the password for a user without requiring a token.
+ *
+ * @param {Request} req - The request object containing the user's email and new password.
+ * @param {Response} res - The response object to send the result of the password reset.
+ * @returns {Promise<Response>} A promise that resolves once the password is successfully reset.
+ * @throws {BaseError} Throws an error if the user is not found.
+ */
 export const resetPasswordWithoutToken = async (
   req: Request,
   res: Response
-) => {
+): Promise<Response> => {
   const { email, newPassword } = req.body;
   const user = await userRepository.getUserByEmail(email);
   if (!user) {
@@ -129,12 +151,30 @@ export const resetPasswordWithoutToken = async (
   return res.send("Password reset successfully");
 };
 
-export const logout = async (req: Request, res: Response) => {
+/**
+ * Clears the access and refresh tokens from the response cookies to log out the user.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns  {Promise<Response>} A message indicating successful logout.
+ */
+export const logout = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   return res.send("Logged out successfully");
 };
 
+/**
+ * Asynchronously invites an HR user by email.
+ *
+ * @param req - The request object containing the email in the body.
+ * @param res - The response object to send the result.
+ * @returns A success message if the invitation is sent successfully.
+ * @throws BaseError if the user already exists with status code 400.
+ */
 export const inviteHr = async (req: Request, res: Response) => {
   const { email } = req.body;
   const user = await userRepository.getUserByEmail(email);

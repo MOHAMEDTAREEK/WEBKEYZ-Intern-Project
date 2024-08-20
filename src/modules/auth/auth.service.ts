@@ -114,6 +114,12 @@ export const getTokens = async (
   return { accessToken, refreshToken };
 };
 
+/**
+ * Generates a reset token for a user identified by the provided userId and email.
+ * @param userId - The unique identifier of the user.
+ * @param email - The email address of the user.
+ * @returns The generated reset token.
+ */
 export const generateResetToken = async (userId: number, email: string) => {
   const payload = { userId, email };
   const resetToken = jwt.sign(payload, config.resetToken.secret, {
@@ -124,12 +130,28 @@ export const generateResetToken = async (userId: number, email: string) => {
   return resetToken;
 };
 
+/**
+ * Resets the password for a user.
+ *
+ * @param {number} userId - The ID of the user whose password is being reset.
+ * @param {string} password - The new password to set for the user.
+ * @returns {string} A message indicating the success of the password reset.
+ */
 export const resetPassword = async (userId: number, password: string) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   await userRepository.updateUserById(userId, { password: hashedPassword });
 
   return "Password reset successfully";
 };
+
+/**
+ * Verifies the reset token by decoding it using the secret from the configuration.
+ * Throws a BaseError with status 400 if the reset token is invalid.
+ * Throws a BaseError with status 404 if the user associated with the decoded token is not found.
+ *
+ * @param resetToken The token to be verified.
+ * @returns The user associated with the reset token.
+ */
 export const verifyResetToken = async (resetToken: string) => {
   const decoded = jwt.verify(
     resetToken,
@@ -147,6 +169,13 @@ export const verifyResetToken = async (resetToken: string) => {
 
   return user;
 };
+
+/**
+ * Creates a new HR user with a random password and saves the user data in the database.
+ *
+ * @param email - The email address of the HR user.
+ * @returns An object containing the newly created HR user and the randomly generated password.
+ */
 
 export const inviteHr = async (email: string) => {
   const randomPassword = Math.random().toString(36).slice(-8);

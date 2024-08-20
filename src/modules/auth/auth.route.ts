@@ -22,8 +22,8 @@ const router = Router();
 
 //router.use(verifyUser);
 
-router.post("/login", validationMiddleware(loginSchema), login);
 router.post("/signup", validationMiddleware(registerSchema), signUp);
+router.post("/login", validationMiddleware(loginSchema), login);
 router.post("/refresh-token", refreshTokens);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
