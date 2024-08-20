@@ -2,15 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import { UserRole } from "../enums/user-Role.enum";
 
 /**
- * Middleware function to authorize user roles for accessing a resource.
- * @param roles - An array of user roles allowed to access the resource.
+ * Middleware function to authorize user role for accessing a resource.
+ * @param role - An array of user role allowed to access the resource.
  * @returns A middleware function that checks if the user's role is authorized to access the resource.
  */
-export const authorizeRole = (roles: UserRole[]) => {
+export const authorizeRole = (role: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const userRole = req.user?.roles as UserRole;
+    const userRole = req.user?.role as UserRole;
 
-    if (!userRole || !roles.includes(userRole)) {
+    if (!userRole || !role.includes(userRole)) {
       return res.status(403).json({
         message: "Forbidden: You do not have access to this resource",
       });

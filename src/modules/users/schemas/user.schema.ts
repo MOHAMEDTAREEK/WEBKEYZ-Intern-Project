@@ -5,6 +5,6 @@ export const userSchema = {
     name: joi.string().required(),
     email: joi.string().email().required(),
     password: joi.string().required(),
-    roles: joi.string().valid("admin", "hr", "user").required(),
+    role: joi.string().valid("admin", "hr", "user").optional(),
   }),
 };

@@ -182,7 +182,7 @@ export const inviteHr = async (email: string) => {
 
   const userData = {
     email,
-    roles: "hr",
+    role: "hr",
     name: "hrUser",
     password: randomPassword,
   };
