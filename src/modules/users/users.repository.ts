@@ -3,6 +3,8 @@ import { IUser, IUserWithoutPassword } from "./user.interface";
 import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
+import fs from "fs";
+import path from "path";
 
 /**
  * Retrieves all users from the database.
@@ -79,4 +81,33 @@ export const validateCredentials = async (email: string, password: string) => {
   user.password = undefined;
 
   return user;
+};
+
+/**
+ * Saves an image to the specified directory after sanitizing the filename.
+ *
+ * @param imageBuffer The image data to be saved as a Buffer.
+ * @param filename The name of the file to be saved.
+ * @returns An object containing the sanitized filename and the full path where the image is saved.
+ */
+export const saveImage = async (imageBuffer: Buffer, filename: string) => {
+  const uploadsDir = path.join(__dirname, "../../uploads", filename);
+
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  const sanitizedFilename = filename.replace(/[^\w.-]/g, "_");
+  const outputPath = path.join(uploadsDir, sanitizedFilename);
+
+  if (fs.existsSync(outputPath) && fs.lstatSync(outputPath).isDirectory()) {
+    throw new BaseError(
+      `A directory with the name "${sanitizedFilename}" already exists.`,
+      400
+    );
+  }
+
+  await fs.promises.writeFile(outputPath, imageBuffer);
+
+  return { filename: sanitizedFilename, path: outputPath };
 };

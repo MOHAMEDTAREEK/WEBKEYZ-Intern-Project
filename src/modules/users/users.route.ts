@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { getUserByEmail, getUserById, getUsers } from "./users.controller";
+import {
+  getUserByEmail,
+  getUserById,
+  getUsers,
+  uploadImage,
+} from "./users.controller";
 import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { userSchema } from "./schemas/user.schema";
@@ -7,6 +12,7 @@ import asyncWrapper from "../../shared/util/async-wrapper";
 import { authorizeRole } from "../../shared/middleware/authorization.middleware";
 import { UserRole } from "../../shared/enums/user-Role.enum";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
+import { upload } from "../../shared/middleware/image-upload.middleware";
 
 /**
  * Defines routes for user-related operations.
@@ -79,5 +85,6 @@ router.get("/email/:email", asyncWrapper(getUserByEmail));
  *
  */
 router.post("/", validationMiddleware(userSchema), createUser);
+router.post("/upload", upload.single("image"), asyncWrapper(uploadImage));
 
 export default router;

@@ -1,6 +1,7 @@
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { IUserWithoutPassword } from "./user.interface";
 import * as userRepository from "./users.repository";
+import sharp from "sharp";
 
 /**
  * Retrieves all users from the database.
@@ -48,4 +49,26 @@ export const validateCredentials = async (email: string, password: string) => {
   const user = await userRepository.validateCredentials(email, password);
 
   return user;
+};
+
+/**
+ * Processes an image file by resizing it to 800x600, converting it to JPEG format with 80% quality,
+ * and saving the processed image to the database.
+ *
+ * @param file - The image file to be processed.
+ * @returns A Promise that resolves with the saved image data.
+ */
+export const processImage = async (file: Express.Multer.File) => {
+  const imageBuffer = await sharp(file.buffer)
+    .resize(800, 600)
+    .toFormat("jpeg")
+    .jpeg({ quality: 80 })
+    .toBuffer();
+
+  const savedImage = await userRepository.saveImage(
+    imageBuffer,
+    file.originalname
+  );
+
+  return savedImage;
 };
