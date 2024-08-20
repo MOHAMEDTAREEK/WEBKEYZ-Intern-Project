@@ -23,6 +23,9 @@ dependencies:
   express:
     specifier: ^4.19.2
     version: 4.19.2
+  faker:
+    specifier: ^6.6.6
+    version: 6.6.6
   helmet:
     specifier: ^7.1.0
     version: 7.1.0
@@ -2072,6 +2075,10 @@ packages:
     dependencies:
       type: 2.7.3
     dev: true
+
+  /faker@6.6.6:
+    resolution: {integrity: sha512-9tCqYEDHI5RYFQigXFwF1hnCwcWCOJl/hmll0lr5D2Ljjb0o4wphb69wikeJDz5qCEzXCoPvG6ss5SDP6IfOdg==}
+    dev: false
 
   /fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}

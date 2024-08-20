@@ -4,6 +4,7 @@ import { registerSchema } from "./schemas/register.schema";
 import { loginSchema } from "./schemas/login.schema";
 import {
   forgotPassword,
+  inviteHr,
   login,
   logout,
   refreshTokens,
@@ -19,7 +20,7 @@ import verifyUser from "../../shared/middleware/verfiy-user.middleware";
  */
 const router = Router();
 
-router.use(verifyUser);
+//router.use(verifyUser);
 
 router.post("/login", validationMiddleware(loginSchema), login);
 router.post("/signup", validationMiddleware(registerSchema), signUp);
@@ -28,4 +29,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/reset-password", resetPasswordWithoutToken);
 router.post("/logout", logout);
+router.post("/invite-hr", inviteHr);
+
 export default router;

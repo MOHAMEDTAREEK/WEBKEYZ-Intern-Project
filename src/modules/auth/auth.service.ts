@@ -147,3 +147,18 @@ export const verifyResetToken = async (resetToken: string) => {
 
   return user;
 };
+
+export const inviteHr = async (email: string) => {
+  const randomPassword = Math.random().toString(36).slice(-8);
+
+  const userData = {
+    email,
+    roles: "hr",
+    name: "hrUser",
+    password: randomPassword,
+  };
+
+  const newUser = await userRepository.createUser(userData);
+
+  return { newUser, password: randomPassword };
+};

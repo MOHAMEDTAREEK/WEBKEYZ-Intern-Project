@@ -134,3 +134,17 @@ export const logout = async (req: Request, res: Response) => {
   res.clearCookie("refreshToken");
   return res.send("Logged out successfully");
 };
+
+export const inviteHr = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  const user = await userRepository.getUserByEmail(email);
+  if (user) {
+    throw new BaseError("User already exists", 400);
+  }
+  const newHr = await authService.inviteHr(email);
+  await sendEmail(
+    email,
+    `Hi Hr this is your new temp password please login with it ${newHr.password}`
+  );
+  return res.send("Invitation sent successfully");
+};
