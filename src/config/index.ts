@@ -21,5 +21,4 @@ export default {
     secret: process.env.JWT_RESET_SECRET,
     expiresIn: "1h",
   },
-
 };

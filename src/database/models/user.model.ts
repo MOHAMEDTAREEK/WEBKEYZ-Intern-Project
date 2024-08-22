@@ -1,5 +1,6 @@
 import { DataTypes, Sequelize } from "sequelize";
 import { sequelize } from "./index";
+import UserImage from "./user-image.modle";
 const User = sequelize.define(
   "User",
   {
@@ -49,5 +50,6 @@ const User = sequelize.define(
     tableName: "user",
   }
 );
-
+User.hasOne(UserImage, { foreignKey: "user_id", sourceKey: "id" });
+UserImage.belongsTo(User, { foreignKey: "user_id", targetKey: "id" });
 export default User;

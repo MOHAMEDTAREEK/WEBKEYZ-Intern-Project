@@ -1,5 +1,6 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import {
+  get,
   getUserByEmail,
   getUserById,
   getUsers,
@@ -38,6 +39,8 @@ router.get(
   // authorizeRole([UserRole.Admin]),
   asyncWrapper(getUsers)
 );
+
+router.get("/test", get);
 
 /**
  * @swagger
@@ -85,6 +88,10 @@ router.get("/email/:email", asyncWrapper(getUserByEmail));
  *
  */
 router.post("/", validationMiddleware(userSchema), createUser);
-router.post("/upload", upload.single("image"), asyncWrapper(uploadImage));
+router.post(
+  "/upload/:userId",
+  upload.single("image"),
+  asyncWrapper(uploadImage)
+);
 
 export default router;

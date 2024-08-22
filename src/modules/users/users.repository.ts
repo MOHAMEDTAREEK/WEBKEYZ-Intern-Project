@@ -5,6 +5,8 @@ import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import fs from "fs";
 import path from "path";
+import UserImage from "../../database/models/user-image.modle";
+import { HttpStatus } from "../../shared/enums/http-Status.enum";
 
 /**
  * Retrieves all users from the database.
@@ -23,6 +25,10 @@ export const getUserById = async (
   const user: IUserWithoutPassword = (await User.findByPk(userId, {
     attributes: {
       exclude: ["password"],
+    },
+    include: {
+      model: UserImage,
+      attributes: ["image"], 
     },
   })) as unknown as IUserWithoutPassword;
   return user;
@@ -90,24 +96,22 @@ export const validateCredentials = async (email: string, password: string) => {
  * @param filename The name of the file to be saved.
  * @returns An object containing the sanitized filename and the full path where the image is saved.
  */
-export const saveImage = async (imageBuffer: Buffer, filename: string) => {
-  const uploadsDir = path.join(__dirname, "../../uploads", filename);
-
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-  }
-
+export const saveImage = async (
+  imageBuffer: Buffer,
+  filename: string,
+  user_id: number
+) => {
   const sanitizedFilename = filename.replace(/[^\w.-]/g, "_");
-  const outputPath = path.join(uploadsDir, sanitizedFilename);
-
-  if (fs.existsSync(outputPath) && fs.lstatSync(outputPath).isDirectory()) {
-    throw new BaseError(
-      `A directory with the name "${sanitizedFilename}" already exists.`,
-      400
-    );
+  console.log(user_id);
+  const userExists = await User.findByPk(user_id);
+  if (!userExists) {
+    throw new BaseError("User does not exist", HttpStatus.BAD_REQUEST);
   }
 
-  await fs.promises.writeFile(outputPath, imageBuffer);
-
-  return { filename: sanitizedFilename, path: outputPath };
+  const userImage = await UserImage.create({
+    user_id: user_id,
+    image: imageBuffer,
+    filename: sanitizedFilename,
+  });
+  return { id: userImage.dataValues.id, filename: sanitizedFilename };
 };

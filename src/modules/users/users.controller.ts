@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import * as userServise from "./users.service";
+import * as userService from "./users.service";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { sendEmail } from "../../shared/util/send-email";
-
+import fs from "fs";
 /**
  * Retrieves all users and sends them as a response.
  *
@@ -16,7 +16,7 @@ export const getUsers = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const users = await userServise.getUsers();
+  const users = await userService.getUsers();
 
   return res.send(users);
 };
@@ -34,7 +34,7 @@ export const createUser = async (
 ): Promise<Response> => {
   const userData: CreateUserDto = req.body;
 
-  const createdUser = await userServise.createUser(userData);
+  const createdUser = await userService.createUser(userData);
   return res.send(createdUser);
 };
 
@@ -51,7 +51,7 @@ export const getUserById = async (
   res: Response
 ): Promise<Response> => {
   const userId = parseInt(req.params.id);
-  const user = await userServise.getUserById(userId);
+  const user = await userService.getUserById(userId);
   return res.send(user);
 };
 
@@ -67,7 +67,7 @@ export const getUserByEmail = async (
   res: Response
 ): Promise<Response> => {
   const email = req.body.email;
-  const user = await userServise.getUserByEmail(email);
+  const user = await userService.getUserByEmail(email);
   return res.send(user);
 };
 /**
@@ -86,9 +86,21 @@ export const uploadImage = async (
   if (!req.file) {
     throw new BaseError("No file uploaded", HttpStatus.BAD_REQUEST);
   }
-
+  const userId = parseInt(req.params.userId);
+  console.log(userId);
   const file = req.file;
-  const processedImage = await userServise.processImage(file);
+  const processedImage = await userService.processImage(file, userId);
 
   return res.send({ processedImage });
+};
+
+export const get = async (req: Request, res: Response) => {
+  const imageBuffer = Buffer.from([
+    105, 109, 97, 103, 101, 95, 98, 108, 111, 98, 95, 100, 97, 116, 97,
+  ]);
+
+  fs.writeFile("output_image.png", imageBuffer, (err) => {
+    if (err) throw err;
+    console.log("Image saved as output_image.png");
+  });
 };

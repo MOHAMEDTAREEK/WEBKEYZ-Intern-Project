@@ -58,7 +58,10 @@ export const validateCredentials = async (email: string, password: string) => {
  * @param file - The image file to be processed.
  * @returns A Promise that resolves with the saved image data.
  */
-export const processImage = async (file: Express.Multer.File) => {
+export const processImage = async (
+  file: Express.Multer.File,
+  user_id: number
+) => {
   const imageBuffer = await sharp(file.buffer)
     .resize(800, 600)
     .toFormat("jpeg")
@@ -67,7 +70,8 @@ export const processImage = async (file: Express.Multer.File) => {
 
   const savedImage = await userRepository.saveImage(
     imageBuffer,
-    file.originalname
+    file.originalname,
+    user_id
   );
 
   return savedImage;
