@@ -94,13 +94,3 @@ export const uploadImage = async (
   return res.send({ processedImage });
 };
 
-export const get = async (req: Request, res: Response) => {
-  const imageBuffer = Buffer.from([
-    105, 109, 97, 103, 101, 95, 98, 108, 111, 98, 95, 100, 97, 116, 97,
-  ]);
-
-  fs.writeFile("output_image.png", imageBuffer, (err) => {
-    if (err) throw err;
-    console.log("Image saved as output_image.png");
-  });
-};

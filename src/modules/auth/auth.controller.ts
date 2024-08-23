@@ -199,3 +199,13 @@ export const inviteHr = async (req: Request, res: Response) => {
   );
   return res.send("Invitation sent successfully");
 };
+
+export const googleAuthCallback = (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) {
+    return res.status(401).json({ message: "Authentication failed" });
+  }
+  const token = authService.getGoogleToken(user);
+  res.cookie("jwt", token, { httpOnly: true });
+  res.redirect("/users/");
+};

@@ -1,6 +1,5 @@
 import { Router, Response } from "express";
 import {
-  get,
   getUserByEmail,
   getUserById,
   getUsers,
@@ -39,8 +38,6 @@ router.get(
   // authorizeRole([UserRole.Admin]),
   asyncWrapper(getUsers)
 );
-
-router.get("/test", get);
 
 /**
  * @swagger

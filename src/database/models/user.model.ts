@@ -10,9 +10,13 @@ const User = sequelize.define(
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    name: {
+    firstName: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     email: {
       type: DataTypes.STRING,
@@ -21,7 +25,11 @@ const User = sequelize.define(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+    },
+    profilePicture: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     refreshToken: {
       type: DataTypes.STRING,
@@ -34,6 +42,7 @@ const User = sequelize.define(
     role: {
       type: DataTypes.ENUM("admin", "hr", "user"),
       allowNull: false,
+      defaultValue: "user",
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -44,6 +53,11 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.fn("now"),
+    },
+    googleId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
     },
   },
   {

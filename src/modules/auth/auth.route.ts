@@ -4,6 +4,7 @@ import { registerSchema } from "./schemas/register.schema";
 import { loginSchema } from "./schemas/login.schema";
 import {
   forgotPassword,
+  googleAuthCallback,
   inviteHr,
   login,
   logout,
@@ -14,6 +15,7 @@ import {
 } from "./auth.controller";
 import { emailCheckingSchema } from "./schemas/email-checking.schema";
 import { resetPasswordSchema } from "./schemas/reset-password.schema";
+import passport from "passport";
 
 /**
  * Defines the routes for user authentication operations.
@@ -41,5 +43,16 @@ router.post(
 );
 router.post("/logout", logout);
 router.post("/invite-hr", validationMiddleware(emailCheckingSchema), inviteHr);
+
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  googleAuthCallback
+);
 
 export default router;

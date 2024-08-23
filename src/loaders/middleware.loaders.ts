@@ -5,7 +5,9 @@ import morgan from "morgan";
 import helmet from "helmet";
 import config from "../config";
 import cookieParser from "cookie-parser";
-/**  
+import session from "express-session";
+import passport from "../config/passport";
+/**
  * Middleware loader function to set up various middleware for the Express application.
  * @param {Application} app - The Express application instance.
  */
@@ -20,6 +22,15 @@ export const middlewareLoader = async (app: Application) => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET!,
+      resave: false,
+      saveUninitialized: false,
+    })
+  );
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   app.use(
     cookieParser(config.cookieSecret, {

@@ -191,3 +191,11 @@ export const inviteHr = async (email: string) => {
 
   return { newUser, password: randomPassword };
 };
+
+export const getGoogleToken = async (user: any) => {
+  const payload = {
+    id: user.id,
+    email: user.email,
+  };
+  return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, { expiresIn: "1h" });
+};
