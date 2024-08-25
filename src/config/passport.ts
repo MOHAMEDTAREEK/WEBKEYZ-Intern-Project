@@ -32,13 +32,6 @@ passport.use(
     }
   )
 );
-GoogleStrategy.prototype.authorizationParams = function () {
-  return {
-    access_type: "offline",
-    prompt: "consent",
-  };
-};
-
 passport.serializeUser((user, done) => {
   done(null, (user as any).user.id);
 });

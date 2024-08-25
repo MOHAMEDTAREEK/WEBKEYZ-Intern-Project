@@ -200,20 +200,26 @@ export const inviteHr = async (req: Request, res: Response) => {
   return res.send("Invitation sent successfully");
 };
 
-export const googleAuthCallback = async (req: Request, res: Response) => {
+/**
+ * Handles the Google authentication callback.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<Response>} A promise that resolves once the Google authentication process is completed.
+ */
+export const googleAuthCallback = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { user, accessToken } = req.user as any;
   if (!user) {
     return res.status(401).json({ message: "Authentication failed" });
   }
 
-  // Generate your own JWT token
   const token = await authService.getGoogleToken(user);
 
-  // Set the JWT and Google access token in cookies
   res.cookie("jwt", token, { httpOnly: true });
   res.cookie("googleAccessToken", accessToken, { httpOnly: true });
 
   res.redirect("/users/");
 };
-
-

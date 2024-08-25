@@ -4,7 +4,6 @@ import { BaseError } from "../../shared/exceptions/base.error";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { sendEmail } from "../../shared/util/send-email";
-import fs from "fs";
 /**
  * Retrieves all users and sends them as a response.
  *
@@ -94,6 +93,13 @@ export const uploadImage = async (
   return res.send({ processedImage });
 };
 
+/**
+ * Asynchronous function to delete a user.
+ *
+ * @param req - The request object containing the user id in the parameters.
+ * @param res - The response object to send back the deleted user.
+ * @returns A promise that resolves to the response containing the deleted user.
+ */
 export const deleteUser = async (
   req: Request,
   res: Response

@@ -116,6 +116,12 @@ export const saveImage = async (
   return { id: userImage.dataValues.id, filename: sanitizedFilename };
 };
 
+/**
+ * Deletes a user by their ID.
+ *
+ * @param {number} userId - The ID of the user to delete.
+ * @throws {BaseError} When the user is not found.
+ */
 export const deleteUser = async (userId: number) => {
   const user = await User.findByPk(userId);
   if (!user) throw new BaseError("User not found", 404);

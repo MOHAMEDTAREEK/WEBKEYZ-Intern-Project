@@ -194,6 +194,11 @@ export const inviteHr = async (email: string) => {
   return { newUser, password: randomPassword };
 };
 
+/**
+ * Generates a Google token for the specified user.
+ * @param user The user object containing id and email properties.
+ * @returns A JWT token with the user's id and email, valid for 1 hour.
+ */
 export const getGoogleToken = async (user: any) => {
   const payload = {
     id: user.id,
