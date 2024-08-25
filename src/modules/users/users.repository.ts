@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import UserImage from "../../database/models/user-image.modle";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
+import logger from "../../shared/util/logger";
 
 /**
  * Retrieves all users from the database.
@@ -56,12 +57,20 @@ export const getUserByEmail = async (email: string) => {
 export const createUser = async (
   userData: CreateUserDto
 ): Promise<IUserWithoutPassword> => {
-  const hasedPassword = await bcrypt.hash(userData.password, 10);
-  const user: IUserWithoutPassword = (await User.create({
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+  // Create the user in the database
+  const user = await User.create({
     ...userData,
-    password: hasedPassword,
-  })) as unknown as IUserWithoutPassword;
-  return user;
+    password: hashedPassword,
+  });
+
+  // Logging
+  logger.info(`User with email ${userData.email} created successfully.`);
+
+  // Return user data without password
+  const { password, ...userWithoutPassword } = user.toJSON();
+  return userWithoutPassword as IUserWithoutPassword;
 };
 
 /**

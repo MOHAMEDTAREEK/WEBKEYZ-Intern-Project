@@ -4,6 +4,7 @@ import { registerSchema } from "./schemas/register.schema";
 import { loginSchema } from "./schemas/login.schema";
 import {
   forgotPassword,
+  getAccessToken,
   googleAuthCallback,
   inviteHr,
   login,
@@ -54,4 +55,6 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/login" }),
   googleAuthCallback
 );
+
+router.post("/token", getAccessToken)
 export default router;

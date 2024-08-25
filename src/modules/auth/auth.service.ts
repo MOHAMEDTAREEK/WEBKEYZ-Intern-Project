@@ -8,6 +8,9 @@ import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { UserAttributes } from "../../shared/interfaces/user.Interface";
 import User from "../../database/models/user.model";
+import { OAuth2Client } from "google-auth-library";
+import { profile } from "console";
+import passport from "passport";
 
 /**
  * Handles user sign up by creating a new user, generating tokens, and updating the refresh token.
@@ -185,7 +188,8 @@ export const inviteHr = async (email: string) => {
   const userData = {
     email,
     role: "hr",
-    name: "hrUser",
+    firstName: "hr",
+    lastName: "User",
     password: randomPassword,
   };
 
@@ -205,4 +209,59 @@ export const getGoogleToken = async (user: any) => {
     email: user.email,
   };
   return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, { expiresIn: "1h" });
+};
+
+/**
+ * Retrieves user data from a Google token.
+ *
+ * @param {string} token - The Google token to decode and extract user data from.
+ * @returns {Promise<UserAttributes>} A promise that resolves with the user data object.
+ */
+export const getUserDataFromToken = async (token: string) => {
+  const decodedUserData = await verifyGoogleToken(token);
+  if (!decodedUserData) {
+    return new BaseError("Invalid token", 400);
+  }
+
+  const userData = {
+    email: decodedUserData.email,
+    firstName: decodedUserData.given_name,
+    lastName: decodedUserData.family_name,
+    profilePicture: decodedUserData.picture,
+    role: "user",
+    password: "sadasdas",
+  };
+  console.log(userData);
+  const user = await userRepository.createUser(userData);
+
+  return user;
+};
+
+/**
+ * Verifies a Google token by fetching user information from Google API.
+ *
+ * @param {string} token - The Google token to be verified.
+ * @returns {Promise<object>} The user information fetched from Google.
+ * @throws {BaseError} If failed to fetch user info from Google.
+ */
+
+export const verifyGoogleToken = async (token: string) => {
+  const response = await fetch(
+    "https://www.googleapis.com/oauth2/v3/userinfo",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new BaseError(
+      `Failed to fetch user info from Google: ${response.statusText}`,
+      400
+    );
+  }
+
+  const userInfo = await response.json();
+  return userInfo;
 };

@@ -6,6 +6,7 @@ import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { sendEmail } from "../../shared/util/send-email";
+import { send } from "process";
 
 /**
  * Handles user sign up by checking if the user already exists, signing up the user, setting cookies for tokens,
@@ -222,4 +223,25 @@ export const googleAuthCallback = async (
   res.cookie("googleAccessToken", accessToken, { httpOnly: true });
 
   res.redirect("/users/");
+};
+
+/**
+ * Retrieves the access token from the request body and returns the user data associated with the token.
+ * If the access token is missing in the request body, it sends a 400 status with a message indicating the requirement.
+ *
+ * @param {Request} req - The request object containing the access token in the body.
+ * @param {Response} res - The response object to send back the user data or error message.
+ * @returns {Promise<Response>} - A promise that resolves with the user data or an error response.
+ */
+
+export const getAccessToken = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { idToken } = req.body;
+  if (!idToken) {
+    return res.status(400).json({ message: "Access token is required" });
+  }
+  const user = await authService.getUserDataFromToken(idToken);
+  res.status(201).send(user);
 };
