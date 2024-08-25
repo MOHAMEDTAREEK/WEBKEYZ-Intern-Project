@@ -7,6 +7,11 @@ type ValidationTargets = {
   query?: Joi.ObjectSchema;
 };
 
+/**
+ * Middleware function that validates the request data based on the provided schemas.
+ * @param schemas Object containing Joi schemas for request body, parameters, and query
+ * @returns Express middleware function to handle request validation
+ */
 export const validationMiddleware = (schemas: ValidationTargets) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const validationErrors: string[] = [];
@@ -18,7 +23,7 @@ export const validationMiddleware = (schemas: ValidationTargets) => {
       part: string
     ) => {
       if (schema) {
-        const { error } = schema.validate(data, { abortEarly: false });
+        const { error } = schema.validate(data, { abortEarly: true });
         if (error) {
           validationErrors.push(
             ...error.details.map((detail) => `${part}: ${detail.message}`)
@@ -37,7 +42,6 @@ export const validationMiddleware = (schemas: ValidationTargets) => {
       return res.status(400).json({ errors: validationErrors });
     }
 
-    // Proceed to the next middleware or route handler if validation passes
     next();
   };
 };

@@ -12,7 +12,11 @@ import { HttpStatus } from "../../shared/enums/http-Status.enum";
  * Retrieves all users from the database.
  */
 export const getUsers = async () => {
-  return await User.findAll();
+  const users = await User.findAll();
+  if (!users) {
+    throw new BaseError("No users found", HttpStatus.NOT_FOUND);
+  }
+  return users;
 };
 
 /**

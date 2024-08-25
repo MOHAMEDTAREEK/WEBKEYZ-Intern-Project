@@ -1,23 +1,45 @@
-import { deleteUser } from "../modules/users/users.controller";
 import { Request, Response } from "express";
 import * as userService from "../modules/users/users.service";
-import * as userRepository from "../modules/users/users.repository"; // Import the userRepository object
-import Model from "sequelize/types/model";
-import { getUsers } from "../modules/users/users.repository";
+import { getUsers } from "../modules/users/users.controller";
 
-describe("User", () => {
-  it("should return a list of users when repository has users", async () => {
-    const mockUsers = [
-      { id: 1, name: "John Doe" },
-      { id: 2, name: "Jane Doe" },
-    ];
-    jest
-      .spyOn(userRepository, "getUsers")
-      .mockResolvedValue(mockUsers as unknown as Model<any, any>[]);
+describe("UserController", () => {
+  describe("getUsers", () => {
+    it("should return all users", async () => {
+      const req = {} as Request;
+      const res = {
+        send: jest.fn(),
+      } as unknown as Response;
 
-    const result = await getUsers();
+      const mockUsers = [
+        { id: 1, name: "John Doe" },
+        { id: 2, name: "Jane Doe" },
+      ];
+      jest.spyOn(userService, "getUsers").mockResolvedValue(mockUsers as any);
 
-    expect(result).toEqual(mockUsers);
-    expect(userRepository.getUsers).toHaveBeenCalledTimes(1);
+      await getUsers(req, res);
+
+      expect(userService.getUsers).toHaveBeenCalled();
+      expect(res.send).toHaveBeenCalledWith(mockUsers);
+    });
+    it("should return an empty array if no users are found", async () => {
+      const req = {} as Request;
+      const res = {
+        send: jest.fn(),
+      } as unknown as Response;
+      jest.spyOn(userService, "getUsers").mockResolvedValue([] as any);
+      await getUsers(req, res);
+      expect(userService.getUsers).toHaveBeenCalled();
+      expect(res.send).toHaveBeenCalledWith([]);
+    });
+    it("should throw an error if userService.getUsers throws an error", async () => {
+      const req = {} as Request;
+      const res = {
+        send: jest.fn(),
+      } as unknown as Response;
+      jest
+        .spyOn(userService, "getUsers")
+        .mockRejectedValue(new Error("Failed to get users"));
+      await expect(getUsers(req, res)).rejects.toThrow("Failed to get users");
+    });
   });
 });

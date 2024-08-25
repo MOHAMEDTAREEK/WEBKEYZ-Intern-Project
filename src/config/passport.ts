@@ -2,6 +2,13 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../database/models/user.model";
 
+/**
+ * Initializes passport with Google OAuth 2.0 authentication strategy.
+ * Uses GoogleStrategy from 'passport-google-oauth20' to handle Google OAuth authentication.
+ * Retrieves or creates a user in the database based on the Google profile information.
+ * Serializes and deserializes the user object for session management.
+ * @returns {PassportStatic} The configured passport instance.
+ */
 passport.use(
   new GoogleStrategy(
     {
