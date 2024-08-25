@@ -28,7 +28,7 @@ export const getUserById = async (
     },
     include: {
       model: UserImage,
-      attributes: ["image"], 
+      attributes: ["image"],
     },
   })) as unknown as IUserWithoutPassword;
   return user;
@@ -114,4 +114,11 @@ export const saveImage = async (
     filename: sanitizedFilename,
   });
   return { id: userImage.dataValues.id, filename: sanitizedFilename };
+};
+
+export const deleteUser = async (userId: number) => {
+  const user = await User.findByPk(userId);
+  if (!user) throw new BaseError("User not found", 404);
+  await user.destroy();
+  return user;
 };

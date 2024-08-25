@@ -94,3 +94,11 @@ export const uploadImage = async (
   return res.send({ processedImage });
 };
 
+export const deleteUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const userId = parseInt(req.params.id);
+  const user = await userService.deleteUser(userId);
+  return res.send(user);
+};

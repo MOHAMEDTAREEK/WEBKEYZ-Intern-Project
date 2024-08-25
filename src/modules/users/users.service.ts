@@ -76,3 +76,12 @@ export const processImage = async (
 
   return savedImage;
 };
+
+/**
+ * Deletes a user from the database by ID.
+ * @param {number} userId - The ID of the user to delete.
+ */
+export const deleteUser = async (userId: number) => {
+  const deletedUser = await userRepository.deleteUser(userId);
+  return deletedUser;
+};

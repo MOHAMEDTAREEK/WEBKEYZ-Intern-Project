@@ -1,5 +1,6 @@
 import { Router, Response } from "express";
 import {
+  deleteUser,
   getUserByEmail,
   getUserById,
   getUsers,
@@ -13,6 +14,7 @@ import { authorizeRole } from "../../shared/middleware/authorization.middleware"
 import { UserRole } from "../../shared/enums/user-Role.enum";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { upload } from "../../shared/middleware/image-upload.middleware";
+import { googleAuth } from "../../shared/middleware/googleAuth.middleware";
 
 /**
  * Defines routes for user-related operations.
@@ -36,6 +38,7 @@ router.get(
   "/",
   // authMiddleware,
   // authorizeRole([UserRole.Admin]),
+  //googleAuth,
   asyncWrapper(getUsers)
 );
 
@@ -90,5 +93,7 @@ router.post(
   upload.single("image"),
   asyncWrapper(uploadImage)
 );
+
+router.delete("/delete/:id", asyncWrapper(deleteUser));
 
 export default router;

@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
+import { UserAttributes } from "../../shared/interfaces/user.Interface";
+import User from "../../database/models/user.model";
 
 /**
  * Handles user sign up by creating a new user, generating tokens, and updating the refresh token.

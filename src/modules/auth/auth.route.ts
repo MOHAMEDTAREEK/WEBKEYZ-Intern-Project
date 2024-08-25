@@ -54,5 +54,4 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/login" }),
   googleAuthCallback
 );
-
 export default router;
