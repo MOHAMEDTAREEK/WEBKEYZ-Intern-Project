@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { authorizeRole } from "../../shared/middleware/authorization.middleware";
-import { UserRole } from "../../shared/enums/user-Role.enum";
+import { authorizeRole } from "../../src/shared/middleware/authorization.middleware";
+import { UserRole } from "../../src/shared/enums/user-Role.enum";
 
 describe("authorizeRole Middleware", () => {
   let mockRequest: Partial<Request>;

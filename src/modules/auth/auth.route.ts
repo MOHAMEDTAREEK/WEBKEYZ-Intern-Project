@@ -13,6 +13,7 @@ import {
   customResetPassword,
   customResetPasswordWithoutToken,
   customSignUp,
+  getGoogleRefreshToken,
 } from "./auth.controller";
 import { emailCheckingSchema } from "./schemas/email-checking.schema";
 import { resetPasswordSchema } from "./schemas/reset-password.schema";
@@ -265,7 +266,7 @@ router.get(
 
 /**
  * @swagger
- * /auth/token:
+ * /auth/signup/access-token:
  *   post:
  *     summary: Get access token
  *     tags: [Auth]
@@ -286,6 +287,8 @@ router.get(
  *       400:
  *         description: Invalid request
  */
-router.post("/token", getGoogleAccessToken);
+router.post("/signup/access-token", getGoogleAccessToken);
+
+router.post("/login/refresh-token", getGoogleRefreshToken);
 
 export default router;

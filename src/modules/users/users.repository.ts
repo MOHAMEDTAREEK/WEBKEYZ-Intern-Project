@@ -141,3 +141,13 @@ export const deleteUser = async (userId: number) => {
   await user.destroy();
   return user;
 };
+
+export const getUserByRefreshToken = async (refreshToken: string) => {
+  const user = (await User.findOne({
+    where: {
+      refreshToken,
+    },
+  })) as unknown as IUserWithoutPassword;
+
+  return user;
+};

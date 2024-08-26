@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
-import { validationMiddleware } from "../../shared/middleware/validation.middleware";
+import { validationMiddleware } from "../../src/shared/middleware/validation.middleware";
 
 describe("validationMiddleware", () => {
   let req: Partial<Request>;

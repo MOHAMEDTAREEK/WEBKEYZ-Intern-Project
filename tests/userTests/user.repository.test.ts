@@ -4,17 +4,17 @@ import {
   getUserByEmail,
   getUserById,
   getUsers,
-} from "../../modules/users/users.repository";
-import User from "../../database/models/user.model";
-import { BaseError } from "../../shared/exceptions/base.error";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
-import UserImage from "../../database/models/user-image.modle";
+} from "../../src/modules/users/users.repository";
+import User from "../../src/database/models/user.model";
+import { BaseError } from "../../src/shared/exceptions/base.error";
+import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
+import UserImage from "../../src/database/models/user-image.modle";
 import bcrypt from "bcrypt";
-import logger from "../../shared/util/logger";
+import logger from "../../src/shared/util/logger";
 
-jest.mock("../../database/models/user.model");
+jest.mock("../../src/database/models/user.model");
 jest.mock("bcrypt");
-jest.mock("../../shared/util/logger");
+jest.mock("../../src/shared/util/logger");
 
 describe("User Repository", () => {
   beforeEach(() => {

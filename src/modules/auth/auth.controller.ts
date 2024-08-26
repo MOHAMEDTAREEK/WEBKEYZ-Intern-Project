@@ -46,7 +46,10 @@ export const customSignUp = async (
  * @returns {Promise<Response>} A promise that resolves when the user login process is completed.
  */
 
-export const customLogin = async (req: Request, res: Response): Promise<Response> => {
+export const customLogin = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const userData: LoginDto = req.body;
   const { user, tokens } = await authService.logIn(userData);
 
@@ -243,4 +246,24 @@ export const getGoogleAccessToken = async (
   }
   const user = await authService.getUserDataFromToken(idToken);
   res.status(201).send(user);
+};
+
+export const getGoogleRefreshToken = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(400).json({ message: "Refresh token is required" });
+  }
+  const tokens = await authService.getCustomTokens(refreshToken);
+  res.cookie("refreshToken", tokens.refreshToken, {
+    httpOnly: true,
+    secure: true,
+  });
+  res.cookie("accessToken", tokens.accessToken, {
+    httpOnly: true,
+    secure: true,
+  });
+  return res.send({ tokens });
 };

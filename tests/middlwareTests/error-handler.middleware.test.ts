@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { errorHandlerMiddleware } from "../../shared/middleware/error-Handler.middleware"; // Adjust the path accordingly
-import { BaseError } from "../../shared/exceptions/base.error";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
-import logger from "../../shared/util/logger";
+import { errorHandlerMiddleware } from "../../src/shared/middleware/error-Handler.middleware"; // Adjust the path accordingly
+import { BaseError } from "../../src/shared/exceptions/base.error";
+import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
+import logger from "../../src/shared/util/logger";
 
 // Mock the logger to avoid actual logging during tests
-jest.mock("../../shared/util/logger");
+jest.mock("../../src/shared/util/logger");
 
 describe("errorHandlerMiddleware", () => {
   let req: Partial<Request>;

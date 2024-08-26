@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { ValidationError, DatabaseError, ValidationErrorItem } from "sequelize";
-import { sequelizeErrorHandlerMiddleware } from "../../shared/middleware/Sequelize-Error-Handler.middleware"; // Adjust the path accordingly
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
-import logger from "../../shared/util/logger";
+import { sequelizeErrorHandlerMiddleware } from "../../src/shared/middleware/Sequelize-Error-Handler.middleware"; // Adjust the path accordingly
+import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
+import logger from "../../src/shared/util/logger";
 import { DatabaseErrorParent } from "sequelize/types/errors/database-error";
 
 // Mock the logger to avoid actual logging during tests
-jest.mock("../../shared/util/logger");
+jest.mock("../../src/shared/util/logger");
 
 describe("sequelizeErrorHandlerMiddleware", () => {
   let req: Partial<Request>;

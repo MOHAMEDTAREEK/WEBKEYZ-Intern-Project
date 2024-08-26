@@ -3,6 +3,7 @@ import * as userRepository from "../users/users.repository";
 import * as userService from "../users/users.service";
 import config from "../../config";
 import jwt from "jsonwebtoken";
+import axios from "axios";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
@@ -134,10 +135,13 @@ export const generateResetToken = async (userId: number, email: string) => {
  * Resets the password for a user.
  *
  * @param {number} userId - The ID of the user whose password is being reset.
- * @param {string} password - The new password to set for the user.
+ * @param Promise<string> password - The new password to set for the user.
  * @returns {string} A message indicating the success of the password reset.
  */
-export const resetPassword = async (userId: number, password: string) => {
+export const resetPassword = async (
+  userId: number,
+  password: string
+): Promise<string> => {
   const hashedPassword = await bcrypt.hash(password, 10);
   await userRepository.updateUserById(userId, { password: hashedPassword });
 
@@ -232,11 +236,23 @@ export const getUserDataFromToken = async (token: string): Promise<any> => {
   return user;
 };
 
+export const getCustomTokens = async (refreshToken: string) => {
+  const verifyToken = await verifyRefreshToken(refreshToken);
+  if (!verifyToken) {
+    throw new BaseError("Invalid refresh token", 400);
+  }
+
+  const user = await userRepository.getUserByRefreshToken(refreshToken);
+
+  const tokens = await getTokens(user.id, user.email);
+  await updateRefreshToken(user.id, tokens.refreshToken);
+  return tokens;
+};
+
 /**
  * Verifies a Google token by fetching user information from Google API.
  *
  * @param {string} token - The Google token to be verified.
- * @returns {Promise<object>} The user information fetched from Google.
  * @throws {BaseError} If failed to fetch user info from Google.
  */
 
@@ -259,4 +275,21 @@ export const verifyGoogleToken = async (token: string) => {
 
   const userInfo = await response.json();
   return userInfo;
+};
+
+export const verifyRefreshToken = async (token: string) => {
+  const response = await axios.post(
+    "https://oauth2.googleapis.com/token",
+    null,
+    {
+      params: {
+        grant_type: "refresh_token",
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        refresh_token: refreshTokens,
+      },
+    }
+  );
+  console.log("Token is valid:", response.data);
+  return true;
 };

@@ -4,15 +4,15 @@ import {
   getUserByEmail,
   getUserById,
   getUsers,
-} from "../../modules/users/users.controller"; // Adjust path as needed
-import * as userService from "../../modules/users/users.service"; // Adjust path as needed
+} from "../../src/modules/users/users.controller"; // Adjust path as needed
+import * as userService from "../../src/modules/users/users.service"; // Adjust path as needed
 import { Request, Response } from "express";
-import { BaseError } from "../../shared/exceptions/base.error";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
+import { BaseError } from "../../src/shared/exceptions/base.error";
+import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
 
 // Add missing import statements here
 
-jest.mock("../../modules/users/users.service"); // Mock the userService module
+jest.mock("../../src/modules/users/users.service"); // Mock the userService module
 
 describe("User Controller", () => {
   let mockRequest: Partial<Request>;

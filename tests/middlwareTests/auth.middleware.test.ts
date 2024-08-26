@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { authMiddleware } from "../../shared/middleware/auth.middleware"; 
-import * as usersService from "../../modules/users/users.service";
-import { BaseError } from "../../shared/exceptions/base.error";
+import { authMiddleware } from "../../src/shared/middleware/auth.middleware";
+import * as usersService from "../../src/modules/users/users.service";
+import { BaseError } from "../../src/shared/exceptions/base.error";
 
 jest.mock("jsonwebtoken");
-jest.mock("../../modules/users/users.service");
+jest.mock("../../src/modules/users/users.service");
 
 describe("authMiddleware", () => {
   let req: Partial<Request>;
@@ -108,6 +108,3 @@ describe("authMiddleware", () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
-
-
-

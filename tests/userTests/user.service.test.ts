@@ -4,11 +4,11 @@ import {
   getUserByEmail,
   getUserById,
   getUsers,
-} from "../../modules/users/users.service";
-import * as userRepository from "../../modules/users/users.repository";
-import { BaseError } from "../../shared/exceptions/base.error";
+} from "../../src/modules/users/users.service";
+import * as userRepository from "../../src/modules/users/users.repository";
+import { BaseError } from "../../src/shared/exceptions/base.error";
 
-jest.mock("../../modules/users/users.repository");
+jest.mock("../../src/modules/users/users.repository");
 
 describe("User Service", () => {
   beforeEach(() => {
