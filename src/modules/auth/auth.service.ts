@@ -6,11 +6,6 @@ import jwt from "jsonwebtoken";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
-import { UserAttributes } from "../../shared/interfaces/user.Interface";
-import User from "../../database/models/user.model";
-import { OAuth2Client } from "google-auth-library";
-import { profile } from "console";
-import passport from "passport";
 
 /**
  * Handles user sign up by creating a new user, generating tokens, and updating the refresh token.
@@ -215,9 +210,9 @@ export const getGoogleToken = async (user: any) => {
  * Retrieves user data from a Google token.
  *
  * @param {string} token - The Google token to decode and extract user data from.
- * @returns {Promise<UserAttributes>} A promise that resolves with the user data object.
+ * @returns {Promise<any>} A promise that resolves to the user data decoded from the token.
  */
-export const getUserDataFromToken = async (token: string) => {
+export const getUserDataFromToken = async (token: string): Promise<any> => {
   const decodedUserData = await verifyGoogleToken(token);
   if (!decodedUserData) {
     return new BaseError("Invalid token", 400);

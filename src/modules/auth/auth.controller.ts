@@ -6,7 +6,6 @@ import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { sendEmail } from "../../shared/util/send-email";
-import { send } from "process";
 
 /**
  * Handles user sign up by checking if the user already exists, signing up the user, setting cookies for tokens,
@@ -16,7 +15,7 @@ import { send } from "process";
  * @param {Response} res - The response object to send back the user and tokens.
  * @returns {Promise<Response>} A promise that resolves when the user sign up process is completed.
  */
-export const signUp = async (
+export const customSignUp = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -47,7 +46,7 @@ export const signUp = async (
  * @returns {Promise<Response>} A promise that resolves when the user login process is completed.
  */
 
-export const login = async (req: Request, res: Response): Promise<Response> => {
+export const customLogin = async (req: Request, res: Response): Promise<Response> => {
   const userData: LoginDto = req.body;
   const { user, tokens } = await authService.logIn(userData);
 
@@ -70,7 +69,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
  * @param {Response} res - The response object to send back the new tokens.
  * @returns {Promise<Response>} A promise that resolves when the token refresh process is completed.
  */
-export const refreshTokens = async (
+export const customRefreshTokens = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -100,7 +99,7 @@ export const refreshTokens = async (
  * @param {Response} res - The response object to send the reset token or error.
  * @returns {Promise<Response>} - A promise that resolves once the reset token is sent.
  */
-export const forgotPassword = async (
+export const customForgotPassword = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -127,7 +126,7 @@ export const forgotPassword = async (
  * @throws BaseError when the token is invalid or expired.
  * @returns A success message upon successful password reset.
  */
-export const resetPassword = async (req: Request, res: Response) => {
+export const customResetPassword = async (req: Request, res: Response) => {
   const { newPassword } = req.body;
   const { token } = req.params;
   if (!token) {
@@ -150,7 +149,7 @@ export const resetPassword = async (req: Request, res: Response) => {
  * @returns {Promise<Response>} A promise that resolves once the password is successfully reset.
  * @throws {BaseError} Throws an error if the user is not found.
  */
-export const resetPasswordWithoutToken = async (
+export const customResetPasswordWithoutToken = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -170,7 +169,7 @@ export const resetPasswordWithoutToken = async (
  * @param {Response} res - The response object.
  * @returns  {Promise<Response>} A message indicating successful logout.
  */
-export const logout = async (
+export const customIogout = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -187,7 +186,7 @@ export const logout = async (
  * @returns A success message if the invitation is sent successfully.
  * @throws BaseError if the user already exists with status code 400.
  */
-export const inviteHr = async (req: Request, res: Response) => {
+export const customInviteHr = async (req: Request, res: Response) => {
   const { email } = req.body;
   const user = await userRepository.getUserByEmail(email);
   if (user) {
@@ -234,7 +233,7 @@ export const googleAuthCallback = async (
  * @returns {Promise<Response>} - A promise that resolves with the user data or an error response.
  */
 
-export const getAccessToken = async (
+export const getGoogleAccessToken = async (
   req: Request,
   res: Response
 ): Promise<Response> => {

@@ -36,6 +36,9 @@ export const getUserById = async (
       attributes: ["image"],
     },
   })) as unknown as IUserWithoutPassword;
+  if (!user) {
+    throw new BaseError("User not found", HttpStatus.NOT_FOUND);
+  }
   return user;
 };
 
@@ -59,16 +62,13 @@ export const createUser = async (
 ): Promise<IUserWithoutPassword> => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-  // Create the user in the database
   const user = await User.create({
     ...userData,
     password: hashedPassword,
   });
 
-  // Logging
   logger.info(`User with email ${userData.email} created successfully.`);
 
-  // Return user data without password
   const { password, ...userWithoutPassword } = user.toJSON();
   return userWithoutPassword as IUserWithoutPassword;
 };

@@ -15,85 +15,176 @@ import { UserRole } from "../../shared/enums/user-Role.enum";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { upload } from "../../shared/middleware/image-upload.middleware";
 import { googleAuth } from "../../shared/middleware/googleAuth.middleware";
-
-/**
- * Defines routes for user-related operations.
- */
+import { idCheckingSchema } from "./schemas/idChecking.schema";
 
 const router = Router();
 
 /**
  * @swagger
- * /users/:
+ * tags:
+ *   name: Users
+ *   description: User management API
+ */
+
+/**
+ * @swagger
+ * /users:
  *   get:
- *     summary: Get all users
- *     description: Get all users.
+ *     summary: Retrieve all users
+ *     tags: [Users]
  *     responses:
  *       200:
- *         description: Successful response
- *       500:
- *         description: Internal server error
+ *         description: List of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/users/User'
+ *       404:
+ *         description: No users found
  */
-router.get(
-  "/",
-  // authMiddleware,
-  // authorizeRole([UserRole.Admin]),
-  //googleAuth,
-  asyncWrapper(getUsers)
-);
+router.get("/", asyncWrapper(getUsers));
 
 /**
  * @swagger
  * /users/{id}:
  *   get:
- *     summary: Get user by ID
- *     description: Get a user by their ID.
+ *     summary: Retrieve a user by ID
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: The ID of the user.
  *         schema:
- *           type: string
- *           example: 123456789
+ *           type: integer
  *     responses:
  *       200:
- *         description: Successful response
+ *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/users/User'
  *       404:
  *         description: User not found
- *       500:
- *         description: Internal server error
- *
  */
-router.get("/:id", asyncWrapper(getUserById));
+router.get(
+  "/:id",
+  validationMiddleware(idCheckingSchema),
+  asyncWrapper(getUserById)
+);
 
-router.get("/email/:email", asyncWrapper(getUserByEmail));
 /**
  * @swagger
- * /users/:
+ * /users/email/{email}:
+ *   get:
+ *     summary: Retrieve a user by email
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/users/User'
+ *       404:
+ *         description: User not found
+ */
+router.get("/email/:email", asyncWrapper(getUserByEmail));
+
+/**
+ * @swagger
+ * /users:
  *   post:
- *     summary: Create a user
- *     description: Create a new user.
+ *     summary: Create a new user
+ *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateUserDto'
  *     responses:
  *       201:
- *         description: User created successfully
+ *         description: User created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/users/User'
  *       400:
- *         description: Invalid request body
- *       500:
- *         description: Internal server error
- *
+ *         description: Invalid input
  */
 router.post("/", validationMiddleware(userSchema), createUser);
+
+/**
+ * @swagger
+ * /users/upload/{userId}:
+ *   post:
+ *     summary: Upload a profile image for a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Image uploaded and processed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 processedImage:
+ *                   type: object
+ *       400:
+ *         description: No file uploaded
+ */
 router.post(
   "/upload/:userId",
   upload.single("image"),
   asyncWrapper(uploadImage)
 );
 
+/**
+ * @swagger
+ * /users/delete/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: User deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/users/User'
+ *       404:
+ *         description: User not found
+ */
 router.delete("/delete/:id", asyncWrapper(deleteUser));
 
 export default router;

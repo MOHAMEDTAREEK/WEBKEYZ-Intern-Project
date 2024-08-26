@@ -3,7 +3,6 @@ import * as userService from "./users.service";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import { CreateUserDto } from "./dtos/create-user.dto";
-import { sendEmail } from "../../shared/util/send-email";
 /**
  * Retrieves all users and sends them as a response.
  *
@@ -34,6 +33,12 @@ export const createUser = async (
   const userData: CreateUserDto = req.body;
 
   const createdUser = await userService.createUser(userData);
+  if (!createdUser) {
+    throw new BaseError(
+      "Failed to create user",
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
   return res.send(createdUser);
 };
 
@@ -50,7 +55,11 @@ export const getUserById = async (
   res: Response
 ): Promise<Response> => {
   const userId = parseInt(req.params.id);
+
   const user = await userService.getUserById(userId);
+  if (!user) {
+    return res.status(HttpStatus.NOT_FOUND).send("User not found");
+  }
   return res.send(user);
 };
 
@@ -67,6 +76,9 @@ export const getUserByEmail = async (
 ): Promise<Response> => {
   const email = req.body.email;
   const user = await userService.getUserByEmail(email);
+  if (!user) {
+    return res.status(HttpStatus.NOT_FOUND).send("User not found");
+  }
   return res.send(user);
 };
 /**
