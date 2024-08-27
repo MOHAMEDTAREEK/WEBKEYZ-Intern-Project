@@ -32,10 +32,17 @@ export const logIn = async (userData: LoginDto) => {
     userData.email,
     userData.password
   );
+  if (!user) {
+    throw new BaseError("Invalid credentials", 401);
+  }
 
   const tokens = await getTokens(user.id, user.email);
+  if (!tokens) {
+    throw new BaseError("Error generating tokens", 500);
+  }
 
   await updateRefreshToken(user.id, tokens.refreshToken);
+
   return { user, tokens };
 };
 
@@ -90,6 +97,7 @@ export const updateRefreshToken = async (
   await userRepository.updateUserById(userId, {
     refreshToken: hashedRefreshToken,
   });
+  
 };
 
 /**

@@ -50,18 +50,23 @@ export const customLogin = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const userData: LoginDto = req.body;
-  const { user, tokens } = await authService.logIn(userData);
+  try {
+    const userData: LoginDto = req.body;
+    const { user, tokens } = await authService.logIn(userData);
 
-  res.cookie("refreshToken", tokens.refreshToken, {
-    httpOnly: true,
-    secure: true,
-  });
-  res.cookie("accessToken", tokens.accessToken, {
-    httpOnly: true,
-    secure: true,
-  });
-  return res.send({ user, tokens });
+    res.cookie("refreshToken", tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    res.cookie("accessToken", tokens.accessToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    return res.send({ user, tokens });
+  } catch (error) {
+    const statusCode = (error as Error).message === "Invalid credentials" ? 401 : 500;
+    return res.status(statusCode).send((error as Error).message);
+  }
 };
 
 /**

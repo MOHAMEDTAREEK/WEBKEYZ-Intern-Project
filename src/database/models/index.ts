@@ -11,7 +11,23 @@ const configPath = path.join(__dirname, "../../../dbconfig/config.json");
 const config = require(configPath)[env];
 
 const sequelize = config.url
-  ? new Sequelize(config.url, config)
-  : new Sequelize(config.database, config.username, config.password, config);
+  ? new Sequelize(config.url, {
+      ...config,
+      pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
+    })
+  : new Sequelize(config.database, config.username, config.password, {
+      ...config,
+      pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
+    });
 
 export { Sequelize, sequelize };

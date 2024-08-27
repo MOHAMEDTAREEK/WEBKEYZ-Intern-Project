@@ -18,6 +18,7 @@ import {
 import { emailCheckingSchema } from "./schemas/email-checking.schema";
 import { resetPasswordSchema } from "./schemas/reset-password.schema";
 import passport from "passport";
+import asyncWrapper from "../../shared/util/async-wrapper";
 
 /**
  * Defines the routes for user authentication operations.
@@ -50,7 +51,11 @@ const router = Router();
  *       400:
  *         description: Validation error
  */
-router.post("/signup", validationMiddleware(registerSchema), customSignUp);
+router.post(
+  "/signup",
+  validationMiddleware(registerSchema),
+  asyncWrapper(customSignUp)
+);
 
 /**
  * @swagger
@@ -72,7 +77,11 @@ router.post("/signup", validationMiddleware(registerSchema), customSignUp);
  *       401:
  *         description: Unauthorized
  */
-router.post("/login", validationMiddleware(loginSchema), customLogin);
+router.post(
+  "/login",
+  validationMiddleware(loginSchema),
+  asyncWrapper(customLogin)
+);
 
 /**
  * @swagger
@@ -86,7 +95,7 @@ router.post("/login", validationMiddleware(loginSchema), customLogin);
  *       401:
  *         description: Unauthorized
  */
-router.post("/refresh-token", customRefreshTokens);
+router.post("/refresh-token", asyncWrapper(customRefreshTokens));
 
 /**
  * @swagger
@@ -109,7 +118,7 @@ router.post("/refresh-token", customRefreshTokens);
 router.post(
   "/forgot-password",
   validationMiddleware(emailCheckingSchema),
-  customForgotPassword
+  asyncWrapper(customForgotPassword)
 );
 
 /**
@@ -142,7 +151,7 @@ router.post(
 router.post(
   "/reset-password/:token",
   validationMiddleware(resetPasswordSchema),
-  customResetPassword
+  asyncWrapper(customResetPassword)
 );
 
 /**
@@ -168,7 +177,7 @@ router.post(
 router.post(
   "/reset-password",
   validationMiddleware(resetPasswordSchema),
-  customResetPasswordWithoutToken
+  asyncWrapper(customResetPasswordWithoutToken)
 );
 
 /**
@@ -181,7 +190,7 @@ router.post(
  *       200:
  *         description: Successfully logged out
  */
-router.post("/logout", customIogout);
+router.post("/logout", asyncWrapper(customIogout));
 
 /**
  * @swagger
@@ -204,7 +213,7 @@ router.post("/logout", customIogout);
 router.post(
   "/invite-hr",
   validationMiddleware(emailCheckingSchema),
-  customInviteHr
+  asyncWrapper(customInviteHr)
 );
 
 /**
@@ -261,7 +270,7 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
-  googleAuthCallback
+  asyncWrapper(googleAuthCallback)
 );
 
 /**
@@ -287,8 +296,8 @@ router.get(
  *       400:
  *         description: Invalid request
  */
-router.post("/signup/access-token", getGoogleAccessToken);
+router.post("/signup/access-token", asyncWrapper(getGoogleAccessToken));
 
-router.post("/login/refresh-token", getGoogleRefreshToken);
+router.post("/login/refresh-token", asyncWrapper(getGoogleRefreshToken));
 
 export default router;
