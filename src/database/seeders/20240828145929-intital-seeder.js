@@ -16,8 +16,8 @@ module.exports = {
             "$2b$10$dS.q.ZreZ/mwRBh7DQzZoOUpGqKi1BAiPkLhB50H2XmCD/jq3d.Fm",
           email: "shrok@gmail.com",
           role: "user",
-          created_at: new Date(),
-          updated_at: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ],
       { ignoreDuplicates: true }
