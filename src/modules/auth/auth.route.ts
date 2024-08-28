@@ -3,16 +3,16 @@ import { validationMiddleware } from "../../shared/middleware/validation.middlew
 import { registerSchema } from "./schemas/register.schema";
 import { loginSchema } from "./schemas/login.schema";
 import {
-  customForgotPassword,
+  // customForgotPassword,
   getGoogleAccessToken,
   googleAuthCallback,
-  customInviteHr,
-  customLogin,
-  customIogout,
-  customRefreshTokens,
-  customResetPassword,
-  customResetPasswordWithoutToken,
-  customSignUp,
+  // customInviteHr,
+  // customLogin,
+  // customIogout,
+  // customRefreshTokens,
+  // customResetPassword,
+  // customResetPasswordWithoutToken,
+  // customSignUp,
   getGoogleRefreshToken,
 } from "./auth.controller";
 import { emailCheckingSchema } from "./schemas/email-checking.schema";
@@ -51,11 +51,11 @@ const router = Router();
  *       400:
  *         description: Validation error
  */
-router.post(
-  "/signup",
-  validationMiddleware(registerSchema),
-  asyncWrapper(customSignUp)
-);
+// router.post(
+//   "/signup",
+//   validationMiddleware(registerSchema),
+//   asyncWrapper(customSignUp)
+// );
 
 /**
  * @swagger
@@ -77,11 +77,11 @@ router.post(
  *       401:
  *         description: Unauthorized
  */
-router.post(
-  "/login",
-  validationMiddleware(loginSchema),
-  asyncWrapper(customLogin)
-);
+// router.post(
+//   "/login",
+//   validationMiddleware(loginSchema),
+//   asyncWrapper(customLogin)
+// );
 
 /**
  * @swagger
@@ -95,7 +95,7 @@ router.post(
  *       401:
  *         description: Unauthorized
  */
-router.post("/refresh-token", asyncWrapper(customRefreshTokens));
+// router.post("/refresh-token", asyncWrapper(customRefreshTokens));
 
 /**
  * @swagger
@@ -115,11 +115,11 @@ router.post("/refresh-token", asyncWrapper(customRefreshTokens));
  *       400:
  *         description: Validation error
  */
-router.post(
-  "/forgot-password",
-  validationMiddleware(emailCheckingSchema),
-  asyncWrapper(customForgotPassword)
-);
+// router.post(
+//   "/forgot-password",
+//   validationMiddleware(emailCheckingSchema),
+//   asyncWrapper(customForgotPassword)
+// );
 
 /**
  * @swagger
@@ -148,11 +148,11 @@ router.post(
  *       401:
  *         description: Unauthorized
  */
-router.post(
-  "/reset-password/:token",
-  validationMiddleware(resetPasswordSchema),
-  asyncWrapper(customResetPassword)
-);
+// router.post(
+//   "/reset-password/:token",
+//   validationMiddleware(resetPasswordSchema),
+//   asyncWrapper(customResetPassword)
+// );
 
 /**
  * @swagger
@@ -174,11 +174,11 @@ router.post(
  *       401:
  *         description: Unauthorized
  */
-router.post(
-  "/reset-password",
-  validationMiddleware(resetPasswordSchema),
-  asyncWrapper(customResetPasswordWithoutToken)
-);
+// router.post(
+//   "/reset-password",
+//   validationMiddleware(resetPasswordSchema),
+//   asyncWrapper(customResetPasswordWithoutToken)
+// );
 
 /**
  * @swagger
@@ -190,7 +190,7 @@ router.post(
  *       200:
  *         description: Successfully logged out
  */
-router.post("/logout", asyncWrapper(customIogout));
+// router.post("/logout", asyncWrapper(customIogout));
 
 /**
  * @swagger
@@ -210,11 +210,11 @@ router.post("/logout", asyncWrapper(customIogout));
  *       400:
  *         description: Validation error
  */
-router.post(
-  "/invite-hr",
-  validationMiddleware(emailCheckingSchema),
-  asyncWrapper(customInviteHr)
-);
+// router.post(
+//   "/invite-hr",
+//   validationMiddleware(emailCheckingSchema),
+//   asyncWrapper(customInviteHr)
+// );
 
 /**
  * @swagger

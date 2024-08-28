@@ -34,7 +34,7 @@ passport.use(
 
         done(null, { user, accessToken });
       } catch (error) {
-        done(error, null);
+        done(error, undefined);
       }
     }
   )

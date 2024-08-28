@@ -27,7 +27,7 @@ export const authMiddleware = async (
   try {
     const decoded = jwt.verify(
       accessToken,
-      config.accessToken.secret
+      config.accessToken.secret || ""
     ) as jwt.JwtPayload;
 
     const userId = decoded.userId;

@@ -97,7 +97,7 @@ export const validateCredentials = async (email: string, password: string) => {
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) throw new BaseError("Invalid credentials", 401);
 
-  user.password = undefined;
+  user.password = "";
 
   return user;
 };

@@ -17,7 +17,7 @@ export const googleAuth = (req: Request, res: Response, next: NextFunction) => {
     return new BaseError("Token is required", 401);
   }
 
-  jwt.verify(token, config.accessToken.secret, (err: any, user: any) => {
+  jwt.verify(token, config.accessToken.secret || "", (err: any, user: any) => {
     if (err) {
       return new BaseError("Invalid token", 403);
     }
