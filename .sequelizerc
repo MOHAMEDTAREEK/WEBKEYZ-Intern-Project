@@ -13,10 +13,16 @@ const path = require("path");
  * The Sequelize configuration.
  * @type {SequelizeConfig}
  */
+let dir = "src";
+if (process.env.NODE_ENV === "development") {
+  dir = "src";
+} else {
+  dir = "dist";
+}
 
 module.exports = {
   config: path.resolve(".", "dbconfig", "config.json"),
-  "models-path": path.resolve("./src/database/models"),
-  "seeders-path": path.resolve("./src/database/seeders"),
-  "migrations-path": path.resolve("./src/database/migrations"),
+  "models-path": path.resolve(dir, "database", "models"),
+  "seeders-path": path.resolve(dir, "database", "seeders"),
+  "migrations-path": path.resolve(dir, "database", "migrations"),
 };

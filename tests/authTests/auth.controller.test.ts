@@ -8,6 +8,7 @@ import {
   customResetPassword,
   customResetPasswordWithoutToken,
   customSignUp,
+  getGoogleAccessToken,
 } from "../../src/modules/auth/auth.controller";
 import * as userService from "../../src/modules/users/users.service";
 import * as authService from "../../src/modules/auth/auth.service";
@@ -15,7 +16,7 @@ import * as userRepository from "../../src/modules/users/users.repository";
 import { LoginDto } from "@modules/auth/dtos/login.dto";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import { sendEmail } from "../../src/shared/util/send-email";
-import { inviteHr } from "../../src/modules/auth/auth.service";
+import { googleAuthCallback } from "../../src/modules/auth/auth.controller";
 
 jest.mock("../../src/modules/users/users.service");
 jest.mock("../../src/modules/auth/auth.service");
@@ -31,17 +32,21 @@ describe("auth Controller", () => {
   let send: jest.Mock;
   let cookie: jest.Mock;
   let clearCookie: jest.Mock;
+  let mockRedirect: jest.Mock;
 
   beforeEach(() => {
     status = jest.fn().mockReturnThis();
     send = jest.fn().mockReturnThis();
     cookie = jest.fn().mockReturnThis();
     clearCookie = jest.fn().mockReturnThis();
+    mockRedirect = jest.fn();
     res = {
       status,
       send,
       cookie,
       clearCookie,
+      redirect: mockRedirect,
+      json: jest.fn().mockReturnThis(),
     };
   });
   afterEach(() => {
@@ -451,5 +456,100 @@ describe("auth Controller", () => {
       expect(send).toHaveBeenCalledWith("Logged out successfully");
     });
   });
-  describe("inviteHr Controller", () => {});
+  describe("inviteHr Controller", () => {
+    beforeEach(() => {
+      req = {
+        body: { email: "test@example.com" },
+      };
+      jest.clearAllMocks();
+    });
+    it("should throw an error if the user already exists", async () => {
+      (userRepository.getUserByEmail as jest.Mock).mockResolvedValue(true);
+
+      await expect(
+        customInviteHr(req as Request, res as Response)
+      ).rejects.toThrow(new BaseError("User already exists", 400));
+    });
+
+    it("should invite a new HR user and send an email", async () => {
+      const newUser = { email: "test@example.com", password: "tempPassword" };
+
+      (userRepository.getUserByEmail as jest.Mock).mockResolvedValue(null);
+      (authService.inviteHr as jest.Mock).mockResolvedValue(newUser);
+      (sendEmail as jest.Mock).mockResolvedValue(undefined);
+
+      await customInviteHr(req as Request, res as Response);
+
+      expect(authService.inviteHr).toHaveBeenCalledWith("test@example.com");
+      expect(sendEmail).toHaveBeenCalledWith(
+        "test@example.com",
+        `Hi Hr this is your new temp password please login with it ${newUser.password}`
+      );
+      expect(send).toHaveBeenCalledWith("Invitation sent successfully");
+    });
+    it("should handle error when sendEmail fails", async () => {
+      const newUser = { email: "test@example.com", password: "tempPassword" };
+
+      (userRepository.getUserByEmail as jest.Mock).mockResolvedValue(null);
+      (authService.inviteHr as jest.Mock).mockResolvedValue(newUser);
+      (sendEmail as jest.Mock).mockRejectedValue(
+        new Error("Failed to send email")
+      );
+
+      await expect(
+        customInviteHr(req as Request, res as Response)
+      ).rejects.toThrow("Failed to send email");
+    });
+
+    it("should return 200 status and success message when HR is invited successfully", async () => {
+      const newUser = { email: "test@example.com", password: "tempPassword" };
+
+      (userRepository.getUserByEmail as jest.Mock).mockResolvedValue(null);
+      (authService.inviteHr as jest.Mock).mockResolvedValue(newUser);
+      (sendEmail as jest.Mock).mockResolvedValue(undefined);
+
+      await customInviteHr(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(send).toHaveBeenCalledWith("Invitation sent successfully");
+    });
+  });
+  describe("getGoogleAccessToken", () => {
+    it("should return 400 if idToken is not provided", async () => {
+      await getGoogleAccessToken(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Access token is required",
+      });
+    });
+    it("should return user data when idToken is provided", async () => {
+      const mockUser = { id: "123", email: "test@example.com" };
+      req.body.idToken = "valid-token";
+
+      (authService.getUserDataFromToken as jest.Mock).mockResolvedValue(
+        mockUser
+      );
+
+      await getGoogleAccessToken(req as Request, res as Response);
+
+      expect(authService.getUserDataFromToken).toHaveBeenCalledWith(
+        "valid-token"
+      );
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.send).toHaveBeenCalledWith(mockUser);
+    });
+
+    it("should handle errors thrown by getUserDataFromToken", async () => {
+      req.body.idToken = "invalid-token";
+
+      (authService.getUserDataFromToken as jest.Mock).mockRejectedValue(
+        new Error("Invalid token")
+      );
+
+      await expect(
+        getGoogleAccessToken(req as Request, res as Response)
+      ).rejects.toThrow("Invalid token");
+    });
+  });
 });

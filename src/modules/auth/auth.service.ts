@@ -7,6 +7,7 @@ import axios from "axios";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
+import { UserRole } from "../../shared/enums/user-Role.enum";
 
 /**
  * Handles user sign up by creating a new user, generating tokens, and updating the refresh token.
@@ -97,7 +98,6 @@ export const updateRefreshToken = async (
   await userRepository.updateUserById(userId, {
     refreshToken: hashedRefreshToken,
   });
-  
 };
 
 /**
@@ -194,12 +194,15 @@ export const inviteHr = async (email: string) => {
 
   const userData = {
     email,
-    role: "hr",
+    role: UserRole.HR,
     firstName: "hr",
     lastName: "User",
     password: randomPassword,
   };
-
+  const userExists = await userRepository.getUserByEmail(email);
+  if (userExists) {
+    throw new BaseError("User already exists", 400);
+  }
   const newUser = await userRepository.createUser(userData);
 
   return { newUser, password: randomPassword };
@@ -235,7 +238,7 @@ export const getUserDataFromToken = async (token: string): Promise<any> => {
     firstName: decodedUserData.given_name,
     lastName: decodedUserData.family_name,
     profilePicture: decodedUserData.picture,
-    role: "user",
+    role: UserRole.User,
     password: "sadasdas",
   };
   console.log(userData);

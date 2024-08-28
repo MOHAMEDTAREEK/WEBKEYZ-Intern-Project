@@ -1,3 +1,5 @@
+import { UserRole } from "../../shared/enums/user-Role.enum";
+
 export interface IUser {
   id: number;
   firstName: string;
@@ -5,6 +7,7 @@ export interface IUser {
   password: string;
   email: string;
   refreshToken: string | null;
+  role: UserRole;
 }
 
 export type OptionalUser = IUser | null;

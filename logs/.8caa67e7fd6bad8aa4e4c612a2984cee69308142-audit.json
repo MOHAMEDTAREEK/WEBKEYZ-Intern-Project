@@ -1,0 +1,60 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "logs\\.8caa67e7fd6bad8aa4e4c612a2984cee69308142-audit.json",
+    "files": [
+        {
+            "date": 1723814284130,
+            "name": "logs\\2024-08-16-error.log",
+            "hash": "0e58641caea015d2569c67c38b1f817970ae5d7d7cde6c7c40107de15d224cfd"
+        },
+        {
+            "date": 1724057530235,
+            "name": "logs\\2024-08-19-error.log",
+            "hash": "38368ac73b5b926effaa734d25229cc18ae553abefb11336b9f8fab70c60e539"
+        },
+        {
+            "date": 1724144840125,
+            "name": "logs\\2024-08-20-error.log",
+            "hash": "fc0a0f6d339d73f52fc8b47d942332c6424b557642aa6df9198e6c72f3ccf8ae"
+        },
+        {
+            "date": 1724235007508,
+            "name": "logs\\2024-08-21-error.log",
+            "hash": "246a4095123ee7ec6c9eb3c5f813379fd6cbd8bba95365c63aa2279af0bed83e"
+        },
+        {
+            "date": 1724430000899,
+            "name": "logs\\2024-08-23-error.log",
+            "hash": "904d7f78a09188050dea2cb55bf238e3169e2cb8d67d674025d5ffc554568903"
+        },
+        {
+            "date": 1724513439024,
+            "name": "logs\\2024-08-24-error.log",
+            "hash": "0fafcc1b2e62dbc7fc40b390eae2fe2e7665a6ee6654acd0049907f0407c69b9"
+        },
+        {
+            "date": 1724570852207,
+            "name": "logs\\2024-08-25-error.log",
+            "hash": "dc98282c713222b1f527e940c29d740f53d82940d678d7900b784c40768f8e62"
+        },
+        {
+            "date": 1724659518792,
+            "name": "logs\\2024-08-26-error.log",
+            "hash": "b079de81e7a56372e8b1be69bbcc4554871929d59233703cd7912b7d4b1a5902"
+        },
+        {
+            "date": 1724750774385,
+            "name": "logs\\2024-08-27-error.log",
+            "hash": "43f9f00b9581b088349fd10b9ae186a8f582567b92b518206103445fcb06e279"
+        },
+        {
+            "date": 1724838305525,
+            "name": "logs\\2024-08-28-error.log",
+            "hash": "fc705edfe7bd2baebf1641e9eb284da36cdcd5e247d30a0acd280fe515b8d25a"
+        }
+    ],
+    "hashType": "sha256"
+}

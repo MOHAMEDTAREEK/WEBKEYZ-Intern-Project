@@ -12,7 +12,7 @@
     "typeRoots": ["node_modules/@types", "src/common/types"],
     "sourceMap": true,
     "resolveJsonModule": true,
-    "outDir": "./build",
+    "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

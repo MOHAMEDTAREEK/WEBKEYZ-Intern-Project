@@ -11,6 +11,7 @@ import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
 import UserImage from "../../src/database/models/user-image.modle";
 import bcrypt from "bcrypt";
 import logger from "../../src/shared/util/logger";
+import { UserRole } from "../../src/shared/enums/user-Role.enum";
 
 jest.mock("../../src/database/models/user.model");
 jest.mock("bcrypt");
@@ -108,6 +109,7 @@ describe("User Repository", () => {
         password: "password123",
         firstName: "John",
         lastName: "Doe",
+        role: UserRole.User,
       };
       const hashedPassword = "hashedpassword";
 
@@ -145,6 +147,7 @@ describe("User Repository", () => {
         password: "password123",
         firstName: "John",
         lastName: "Doe",
+        role: UserRole.User,
       };
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashedpassword");
       (User.create as jest.Mock).mockRejectedValue(new Error("Creation error"));

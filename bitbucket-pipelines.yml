@@ -1,0 +1,50 @@
+image: node:20
+
+definitions:
+  steps:
+    - step: &install-and-build
+        name: Install dependencies & Build app
+        caches:
+          - node
+        script:
+          - npm install --quiet
+          - npm run tsc-build
+        artifacts:
+          - dist/**
+    - step: &create-heroku-compressed-file
+        name: Create compressed file
+
+        script:
+          - tar czfv application.tgz dist package.json package-lock.json .sequelizerc tsconfig.json
+        artifacts:
+          - application.tgz
+
+pipelines:
+  # steps that applied on each branch
+  branches:
+    development:
+      - step: *install-and-build
+      - step: *create-heroku-compressed-file
+      - step:
+          name: "Deploy to Development environment (Heroku)"
+          deployment: Development
+          script:
+            - export NODE_ENV="devepoment"
+            - pipe: atlassian/heroku-deploy:0.1.1
+              variables:
+                HEROKU_API_KEY: $HEROKU_API_KEY
+                HEROKU_APP_NAME: "wk-intern2024-backend-dev"
+                ZIP_FILE: "application.tgz"
+    test:
+      - step: *install-and-build
+      - step: *create-heroku-compressed-file
+      - step:
+          name: "Deploy to Test environment (Heroku)"
+          deployment: Test
+          script:
+            - export NODE_ENV="test"
+            - pipe: atlassian/heroku-deploy:0.1.1
+              variables:
+                HEROKU_API_KEY: $HEROKU_API_KEY
+                HEROKU_APP_NAME: "wk-intern2024-backend-test"
+                ZIP_FILE: "application.tgz"

@@ -298,6 +298,29 @@ router.get(
  */
 router.post("/signup/access-token", asyncWrapper(getGoogleAccessToken));
 
+/**
+ * @swagger
+ * /auth/login/refresh-token:
+ *   post:
+ *     summary: Get refresh token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *             required:
+ *               - refreshToken
+ *     responses:
+ *       200:
+ *         description: Refresh token issued
+ *       400:
+ *         description: Invalid request
+ */
 router.post("/login/refresh-token", asyncWrapper(getGoogleRefreshToken));
 
 export default router;

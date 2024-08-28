@@ -64,7 +64,8 @@ export const customLogin = async (
     });
     return res.send({ user, tokens });
   } catch (error) {
-    const statusCode = (error as Error).message === "Invalid credentials" ? 401 : 500;
+    const statusCode =
+      (error as Error).message === "Invalid credentials" ? 401 : 500;
     return res.status(statusCode).send((error as Error).message);
   }
 };
@@ -205,7 +206,7 @@ export const customInviteHr = async (req: Request, res: Response) => {
     email,
     `Hi Hr this is your new temp password please login with it ${newHr.password}`
   );
-  return res.send("Invitation sent successfully");
+  return res.status(200).send("Invitation sent successfully");
 };
 
 /**

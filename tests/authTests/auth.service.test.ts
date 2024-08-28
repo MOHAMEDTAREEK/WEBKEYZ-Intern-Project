@@ -6,6 +6,7 @@ import * as userService from "../../src/modules/users/users.service"; // Add thi
 import config from "../../src/config/index";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import { refreshTokens } from "../../src/modules/auth/auth.service";
+import { UserRole } from "../../src/shared/enums/user-Role.enum";
 
 jest.mock("../../src/modules/users/users.repository");
 jest.mock("../../src/modules/users/users.service");
@@ -22,6 +23,7 @@ describe("Auth Service", () => {
       password: "password123",
       firstName: "John",
       lastName: "Doe",
+      role: UserRole.User,
     };
 
     it("should create a new user, generate tokens, and update the refresh token", async () => {
@@ -128,6 +130,7 @@ describe("Auth Service", () => {
       lastName: "Doe",
       password: "password",
       refreshToken: "refresh",
+      role: UserRole.User,
     };
     const mockTokens = { accessToken: "access", refreshToken: "refresh" };
 
@@ -361,7 +364,7 @@ describe("Auth Service", () => {
     });
   });
   describe("resetPassword Service", () => {
-    test("should reset password successfully", async () => {
+    it("should reset password successfully", async () => {
       const mockUserId = 1;
       const mockHashedPassword = "hashedPassword";
       (bcrypt.hash as jest.Mock).mockResolvedValue(mockHashedPassword);
@@ -376,21 +379,25 @@ describe("Auth Service", () => {
       expect(result).toBe("Password reset successfully");
     });
 
-    test("should handle errors from bcrypt.hash", async () => {
+    it("should handle errors from bcrypt.hash", async () => {
       const error = new Error("Hashing failed");
       (bcrypt.hash as jest.Mock).mockRejectedValue(error);
 
-      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(error);
+      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(
+        error
+      );
       expect(userRepository.updateUserById).not.toHaveBeenCalled();
     });
 
-    test("should handle errors from userRepository.updateUserById", async () => {
+    it("should handle errors from userRepository.updateUserById", async () => {
       const mockHashedPassword = "hashedPassword";
       (bcrypt.hash as jest.Mock).mockResolvedValue(mockHashedPassword);
       const error = new Error("Update failed");
       (userRepository.updateUserById as jest.Mock).mockRejectedValue(error);
 
-      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(error);
+      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(
+        error
+      );
     });
 
     test("should handle unexpected errors", async () => {
@@ -399,6 +406,128 @@ describe("Auth Service", () => {
 
       await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(
         unexpectedError
+      );
+    });
+  });
+  describe("inviteHr", () => {
+    it("should generate a random password and create a new HR user", async () => {
+      const email = "test@example.com";
+      const mockCreateUser = jest
+        .fn()
+        .mockResolvedValue({ id: 1, email, role: "hr" });
+      (userRepository.createUser as jest.Mock) = mockCreateUser;
+
+      const result = await authService.inviteHr(email);
+
+      expect(result.password).toHaveLength(8);
+      expect(userRepository.createUser).toHaveBeenCalledWith({
+        email,
+        role: "hr",
+        firstName: "hr",
+        lastName: "User",
+        password: result.password,
+      });
+      expect(result.newUser).toEqual({ id: 1, email, role: "hr" });
+    });
+    it("should throw an error if HR user already exists", async () => {
+      (userRepository.getUserByEmail as jest.Mock).mockResolvedValue(true);
+
+      await expect(authService.inviteHr("test@example.com")).rejects.toThrow(
+        "User already exists"
+      );
+    });
+    it("should verify role is HR when inviting a new HR user", async () => {
+      const email = "hr@example.com";
+      const mockUser = {
+        id: 1,
+        email,
+        role: UserRole.HR,
+        firstName: "hr",
+        lastName: "User",
+      };
+      const randomPassword = "randomPass";
+
+      jest.spyOn(userRepository, "getUserByEmail").mockResolvedValue(null);
+      jest.spyOn(userRepository, "createUser").mockResolvedValue({
+        id: 1,
+        email: "test@example.com",
+        role: UserRole.HR,
+        firstName: "hr",
+        lastName: "User",
+        refreshToken: null as null,
+      });
+      jest.spyOn(Math, "random").mockReturnValue(0.123456789);
+
+      const result = await authService.inviteHr(email);
+
+      expect(userRepository.getUserByEmail).toHaveBeenCalledWith(email);
+      expect(userRepository.createUser).toHaveBeenCalledWith(
+        expect.objectContaining({ email, role: UserRole.HR })
+      );
+      expect(result.newUser.role).toBe(UserRole.HR);
+    });
+  });
+  describe("getUserDataFromToken", () => {
+    const mockToken = "valid-google-token";
+    const mockDecodedUserData = {
+      email: "test@example.com",
+      firstName: "John",
+      lastName: "Doe",
+      refreshToken: "refreshToken",
+      picture: "http://example.com/picture.jpg",
+    };
+
+    beforeEach(() => {
+      jest.spyOn(console, "log").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("should create user with correct data when token is valid", async () => {
+      jest
+        .spyOn(authService, "verifyGoogleToken")
+        .mockResolvedValue(mockDecodedUserData);
+      const mockUser = { id: 1, ...mockDecodedUserData, role: UserRole.User };
+      jest.spyOn(userRepository, "createUser").mockResolvedValue(mockUser);
+
+      const result = await authService.getUserDataFromToken(mockToken);
+
+      expect(userRepository.createUser).toHaveBeenCalledWith({
+        email: mockDecodedUserData.email,
+        profilePicture: mockDecodedUserData.picture,
+        role: UserRole.User,
+        password: "sadasdas",
+      });
+      expect(result).toEqual(mockUser);
+    });
+
+    it("should log user data before creating user", async () => {
+      jest
+        .spyOn(authService, "verifyGoogleToken")
+        .mockResolvedValue(mockDecodedUserData);
+      jest.spyOn(userRepository, "createUser").mockResolvedValue({} as any);
+
+      await authService.getUserDataFromToken(mockToken);
+
+      expect(console.log).toHaveBeenCalledWith({
+        email: mockDecodedUserData.email,
+        profilePicture: mockDecodedUserData.picture,
+        role: UserRole.User,
+        password: "sadasdas",
+      });
+    });
+
+    it("should handle errors from createUser", async () => {
+      jest
+        .spyOn(authService, "verifyGoogleToken")
+        .mockResolvedValue(mockDecodedUserData);
+      const error = new Error("Database error");
+      jest.spyOn(userRepository, "createUser").mockRejectedValue(error);
+
+      await expect(authService.getUserDataFromToken(mockToken)).rejects.toThrow(
+        error
       );
     });
   });

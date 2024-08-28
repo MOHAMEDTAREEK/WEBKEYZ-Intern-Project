@@ -181,7 +181,7 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/users/User'
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  */
