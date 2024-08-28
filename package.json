@@ -8,7 +8,7 @@
     "tsc-build": "tsc",
     "build": "npx sequelize-cli db:migrate --url $JAWSDB_URL; npx sequelize-cli db:seed:all --url $JAWSDB_URL",
     "build:watch": "tsc -w",
-    "start": "ts-node -r tsconfig-paths/register --files tsconfig-paths/register src/app.ts",
+    "start": "node dist/app.js",
     "start:dev": "ts-node-dev --respawn --transpile-only --no-notify --files --ignore-watch node_modules src/app.ts"
   },
   "keywords": [],
