@@ -1,16 +1,12 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "ES2016",
+    "target": "ES2020",
+    "rootDir": "./src",
     "incremental": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "paths": {
-      "@modules/*": ["./src/modules/*"],
-      "@common/*": ["./src/common/*"]
-    },
-    "typeRoots": ["node_modules/@types", "src/common/types"],
-    "sourceMap": true,
+     "sourceMap": true,
     "resolveJsonModule": true,
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -18,6 +14,7 @@
     "strict": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+  },
+  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.d.ts"]
 }
