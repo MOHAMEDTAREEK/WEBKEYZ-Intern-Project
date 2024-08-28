@@ -15,7 +15,7 @@ definitions:
         name: Create compressed file
 
         script:
-          - tar czfv application.tgz dist package.json package-lock.json .sequelizerc tsconfig.json
+          - tar czfv application.tgz dist package.json .sequelizerc tsconfig.json
         artifacts:
           - application.tgz
 
