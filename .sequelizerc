@@ -13,8 +13,9 @@ const path = require("path");
  * The Sequelize configuration.
  * @type {SequelizeConfig}
  */
+
 let dir = "src";
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === "local") {
   dir = "src";
 } else {
   dir = "dist";

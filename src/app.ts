@@ -6,16 +6,15 @@ import { sequelizeErrorHandlerMiddleware } from "./shared/middleware/Sequelize-E
 import swaggerUI from "swagger-ui-express";
 import swaggerSpec from "./config/swagger";
 import { middlewareLoader } from "./loaders/middleware.loaders";
-import { sendEmail } from "./shared/util/send-email";
 
 /**
  * Starts the server and listens for incoming requests.
  *
- * @returns {Promise<void>} A promise that resolves when the server is started.
+ * @returns  A promise that resolves when the server is started.
  */
 const startServer = async () => {
   const app = express();
-  const port = process.env.PORT;
+  const port = process.env.PORT || 3000;
 
   middlewareLoader(app);
   routesLoader(app);

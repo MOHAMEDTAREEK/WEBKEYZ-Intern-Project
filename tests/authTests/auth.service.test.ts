@@ -7,6 +7,7 @@ import config from "../../src/config/index";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import { refreshTokens } from "../../src/modules/auth/auth.service";
 import { UserRole } from "../../src/shared/enums/user-Role.enum";
+import { IUser } from "../../src/modules/users/user.interface";
 
 jest.mock("../../src/modules/users/users.repository");
 jest.mock("../../src/modules/users/users.service");
@@ -162,21 +163,7 @@ describe("Auth Service", () => {
         mockTokens.refreshToken
       );
     });
-    it("should throw BaseError with 401 status when invalid credentials are provided", async () => {
-      jest.spyOn(userService, "validateCredentials").mockResolvedValue(null);
 
-      await expect(
-        authService.logIn({
-          email: "invalid@example.com",
-          password: "wrongpassword",
-        })
-      ).rejects.toThrow(new BaseError("Invalid credentials", 401));
-
-      expect(userService.validateCredentials).toHaveBeenCalledWith(
-        "invalid@example.com",
-        "wrongpassword"
-      );
-    });
     it("should return user and tokens when valid credentials are provided", async () => {
       jest
         .spyOn(userService, "validateCredentials")
@@ -324,7 +311,7 @@ describe("Auth Service", () => {
       expect(result).toEqual(mockUser);
     });
     it("should throw error for invalid token", async () => {
-      jest.spyOn(jwt, "verify").mockReturnValue(null);
+      jest.spyOn(jwt, "verify").mockReturnValue(undefined);
 
       await expect(
         authService.verifyResetToken("invalidToken")

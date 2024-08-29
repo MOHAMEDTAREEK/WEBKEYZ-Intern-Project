@@ -31,6 +31,10 @@ const configuration: any = {
     ...defaultConfig,
     logging: false, // console.log
   },
+  local: {
+    ...defaultConfig,
+    logging: false,
+  },
   test: defaultConfig,
 };
 const env = process.env.NODE_ENV || "development";

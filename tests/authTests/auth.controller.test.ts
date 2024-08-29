@@ -9,6 +9,7 @@ import {
   customResetPasswordWithoutToken,
   customSignUp,
   getGoogleAccessToken,
+  getGoogleRefreshToken,
 } from "../../src/modules/auth/auth.controller";
 import * as userService from "../../src/modules/users/users.service";
 import * as authService from "../../src/modules/auth/auth.service";
@@ -277,7 +278,7 @@ describe("auth Controller", () => {
         "test@example.com",
         `Click the following link to reset your password: http://localhost:3000/reset-password/:${mockResetToken}`
       );
-      expect(send).toHaveBeenCalledWith(mockResetToken);
+      expect(send).toHaveBeenCalledWith({ resetToken: mockResetToken });
     });
 
     it("should handle errors from authService.generateResetToken", async () => {
@@ -321,8 +322,8 @@ describe("auth Controller", () => {
       (authService.verifyResetToken as jest.Mock).mockResolvedValue(mockUser);
       (authService.resetPassword as jest.Mock).mockResolvedValue(undefined);
 
-      req.body.newPassword = "newPassword";
-      req.params.token = "validToken";
+      req.body.password = "newPassword";
+      (req.params as { token: string }).token = "validToken";
 
       await customResetPassword(req as Request, res as Response);
 
@@ -332,7 +333,7 @@ describe("auth Controller", () => {
     });
 
     it("should throw error if token is missing", async () => {
-      req.params.token = "";
+      (req.params as { token?: string }).token = "";
 
       await expect(
         customResetPassword(req as Request, res as Response)
@@ -343,7 +344,7 @@ describe("auth Controller", () => {
       (authService.verifyResetToken as jest.Mock).mockResolvedValue(null);
 
       req.body.newPassword = "newPassword";
-      req.params.token = "invalidToken";
+      (req.params as { token: string }).token = "InvalidToken";
 
       await expect(
         customResetPassword(req as Request, res as Response)
@@ -355,7 +356,7 @@ describe("auth Controller", () => {
       (authService.verifyResetToken as jest.Mock).mockRejectedValue(error);
 
       req.body.newPassword = "newPassword";
-      req.params.token = "validToken";
+      (req.params as { token?: string }).token = "validToken";
 
       await expect(
         customResetPassword(req as Request, res as Response)
@@ -370,7 +371,7 @@ describe("auth Controller", () => {
       (authService.resetPassword as jest.Mock).mockRejectedValue(error);
 
       req.body.newPassword = "newPassword";
-      req.params.token = "validToken";
+      (req.params as { token?: string }).token = "validToken";
 
       await expect(
         customResetPassword(req as Request, res as Response)
@@ -379,7 +380,7 @@ describe("auth Controller", () => {
     });
   });
 
-  describe(customResetPasswordWithoutToken, () => {
+  describe("customResetPasswordWithoutToken", () => {
     it("should reset password successfully", async () => {
       const mockUser = { dataValues: { id: 1 } };
       (userRepository.getUserByEmail as jest.Mock).mockResolvedValue(mockUser);
@@ -550,6 +551,159 @@ describe("auth Controller", () => {
       await expect(
         getGoogleAccessToken(req as Request, res as Response)
       ).rejects.toThrow("Invalid token");
+    });
+  });
+  describe("googleAccessToken", () => {
+    it("should return user data when idToken is valid", async () => {
+      const req = { body: { idToken: "valid-token" } } as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      } as unknown as Response;
+      const user = { id: 1, name: "John Doe" };
+
+      jest.spyOn(authService, "getUserDataFromToken").mockResolvedValue(user);
+
+      await getGoogleAccessToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.send).toHaveBeenCalledWith(user);
+    });
+    it("should return 400 status code when idToken is missing", async () => {
+      const req = { body: {} } as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      } as unknown as Response;
+
+      await getGoogleAccessToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Access token is required",
+      });
+    });
+    it("should return error message when idToken is missing", async () => {
+      const req = { body: {} } as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      } as unknown as Response;
+
+      await getGoogleAccessToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Access token is required",
+      });
+    });
+  });
+  describe("getGoogleRefreshToken", () => {
+    it("should retrieve and set new tokens when a valid refresh token is provided", async () => {
+      const req = {
+        body: { refreshToken: "valid-refresh-token" },
+      } as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+        cookie: jest.fn(),
+        send: jest.fn(),
+      } as unknown as Response;
+
+      const tokens = {
+        refreshToken: "new-refresh-token",
+        accessToken: "new-access-token",
+      };
+
+      jest.spyOn(authService, "getCustomTokens").mockResolvedValue(tokens);
+
+      await getGoogleRefreshToken(req, res);
+
+      expect(authService.getCustomTokens).toHaveBeenCalledWith(
+        "valid-refresh-token"
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        "refreshToken",
+        "new-refresh-token",
+        { httpOnly: true, secure: true }
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        "accessToken",
+        "new-access-token",
+        { httpOnly: true, secure: true }
+      );
+      expect(res.send).toHaveBeenCalledWith({ tokens });
+    });
+    it("should return 400 when refresh token is missing", async () => {
+      const req = {
+        body: {},
+      } as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      } as unknown as Response;
+
+      await getGoogleRefreshToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Refresh token is required",
+      });
+    });
+    // Responds with the correct tokens in the response body
+    it("should respond with correct tokens in the response body when a valid refresh token is provided", async () => {
+      const req = {
+        body: { refreshToken: "valid-refresh-token" },
+      } as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+        cookie: jest.fn(),
+        send: jest.fn(),
+      } as unknown as Response;
+
+      const tokens = {
+        refreshToken: "new-refresh-token",
+        accessToken: "new-access-token",
+      };
+
+      jest.spyOn(authService, "getCustomTokens").mockResolvedValue(tokens);
+
+      await getGoogleRefreshToken(req, res);
+
+      expect(authService.getCustomTokens).toHaveBeenCalledWith(
+        "valid-refresh-token"
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        "refreshToken",
+        "new-refresh-token",
+        { httpOnly: true, secure: true }
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        "accessToken",
+        "new-access-token",
+        { httpOnly: true, secure: true }
+      );
+      expect(res.send).toHaveBeenCalledWith({ tokens });
+    });
+    // Handles invalid or expired refresh tokens
+    it("should return error message when no refresh token is provided", async () => {
+      const req = {
+        body: { refreshToken: "" },
+      } as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      } as unknown as Response;
+
+      await getGoogleRefreshToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Refresh token is required",
+      });
+      expect(res.send).not.toHaveBeenCalled();
     });
   });
 });

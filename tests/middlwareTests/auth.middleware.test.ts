@@ -34,7 +34,7 @@ describe("authMiddleware", () => {
   });
 
   it("should throw an error if accessToken is invalid", async () => {
-    req.cookies.accessToken = "invalidToken";
+    (req.cookies as any).accessToken = "invalidToken";
 
     (jwt.verify as jest.Mock).mockImplementation(() => {
       throw new jwt.JsonWebTokenError("Invalid token");
@@ -47,7 +47,7 @@ describe("authMiddleware", () => {
   });
 
   it("should throw an error if accessToken is expired", async () => {
-    req.cookies.accessToken = "expiredToken";
+    (req.cookies as any).accessToken = "expiredToken";
 
     (jwt.verify as jest.Mock).mockImplementation(() => {
       throw new jwt.TokenExpiredError("jwt expired", new Date());
@@ -60,7 +60,7 @@ describe("authMiddleware", () => {
   });
 
   it("should throw an error if userId is not found in decoded token", async () => {
-    req.cookies.accessToken = "validToken";
+    (req.cookies as any).accessToken = "validToken";
 
     (jwt.verify as jest.Mock).mockReturnValue({}); // No userId in the payload
 
@@ -71,7 +71,7 @@ describe("authMiddleware", () => {
   });
 
   it("should throw an error if user is not found in the database", async () => {
-    req.cookies.accessToken = "validToken";
+    (req.cookies as any).accessToken = "validToken";
 
     (jwt.verify as jest.Mock).mockReturnValue({ userId: "123" });
     (usersService.getUserById as jest.Mock).mockResolvedValue(null); // No user found
@@ -84,7 +84,7 @@ describe("authMiddleware", () => {
 
   it("should add user to the request object and call next if everything is valid", async () => {
     const mockUser = { id: "123", name: "Test User" };
-    req.cookies.accessToken = "validToken";
+    (req.cookies as any).accessToken = "validToken";
 
     (jwt.verify as jest.Mock).mockReturnValue({ userId: "123" });
     (usersService.getUserById as jest.Mock).mockResolvedValue(mockUser);
@@ -96,7 +96,7 @@ describe("authMiddleware", () => {
   });
 
   it("should throw an internal server error for any other error", async () => {
-    req.cookies.accessToken = "validToken";
+    (req.cookies as any).accessToken = "validToken";
 
     (jwt.verify as jest.Mock).mockImplementation(() => {
       throw new Error("Some unexpected error");

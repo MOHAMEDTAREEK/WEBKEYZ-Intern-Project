@@ -10,12 +10,9 @@ import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { userSchema } from "./schemas/user.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
-import { authorizeRole } from "../../shared/middleware/authorization.middleware";
-import { UserRole } from "../../shared/enums/user-Role.enum";
-import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { upload } from "../../shared/middleware/image-upload.middleware";
-import { googleAuth } from "../../shared/middleware/googleAuth.middleware";
 import { idCheckingSchema } from "./schemas/idChecking.schema";
+import { emailCheckingSchema } from "../auth/schemas/email-checking.schema";
 
 const router = Router();
 
@@ -48,6 +45,44 @@ router.get("/", asyncWrapper(getUsers));
 
 /**
  * @swagger
+ * /users/email:
+ *
+ *   get:
+ *     summary: Get user by email
+ *     description: Retrieve user details by email.
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EmailCheckingSchema'
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 email:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *       404:
+ *         description: User not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+  "/email",
+  validationMiddleware(emailCheckingSchema),
+  asyncWrapper(getUserByEmail)
+);
+/**
+ * @swagger
  * /users/{id}:
  *   get:
  *     summary: Retrieve a user by ID
@@ -73,30 +108,6 @@ router.get(
   validationMiddleware(idCheckingSchema),
   asyncWrapper(getUserById)
 );
-
-/**
- * @swagger
- * /users/email/{email}:
- *   get:
- *     summary: Retrieve a user by email
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: email
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/users/User'
- *       404:
- *         description: User not found
- */
-router.get("/email/:email", asyncWrapper(getUserByEmail));
 
 /**
  * @swagger

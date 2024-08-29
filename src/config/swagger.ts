@@ -6,19 +6,27 @@ import swaggerJSDoc, { Options } from "swagger-jsdoc";
 const swaggerDefinition = {
   openapi: "3.0.0",
   info: {
-    title: "My API",
+    title: "WebKeyz Intern",
     version: "1.0.0",
-    description: "My API Description",
+    description: "WebKeyz Sociaty APIs",
   },
   components: {
+    cookieAuth: {
+      type: "apiKey",
+      in: "cookie",
+      name: "accessToken",
+      description: "JWT token used for authentication stored in cookies",
+    },
+
     schemas: {
       RegisterSchema: {
         type: "object",
-        required: ["email", "password", "name"],
+        required: ["firstName", "lastName", "email", "password"],
         properties: {
           email: { type: "string", format: "email" },
           password: { type: "string", format: "password" },
-          name: { type: "string", example: "John Doe" },
+          firstName: { type: "string", example: "John" },
+          lastName: { type: "string", example: "Doe" },
         },
       },
       LoginSchema: {
@@ -38,9 +46,10 @@ const swaggerDefinition = {
       },
       ResetPasswordSchema: {
         type: "object",
-        required: ["password"],
+        required: ["password", "email"],
         properties: {
           password: { type: "string", format: "password" },
+          email: { type: "string", format: "email" },
         },
       },
       User: {
@@ -70,6 +79,13 @@ const swaggerDefinition = {
           },
         },
       },
+      UserEmail: {
+        type: "object",
+        required: ["email"],
+        properties: {
+          email: { type: "string", format: "email" },
+        },
+      },
       CreateUserDto: {
         type: "object",
         required: ["email", "password", "firstName", "lastName"],
@@ -84,7 +100,7 @@ const swaggerDefinition = {
           },
           firstName: {
             type: "string",
-            example: "John ",
+            example: "John",
           },
           lastName: {
             type: "string",
@@ -97,9 +113,16 @@ const swaggerDefinition = {
   host: "localhost:3000",
 };
 
+let path = "./*/modules/**/*.route.js";
+
+if (process.env.NODE_ENV === "local") {
+  path = "./*/modules/**/*.route.ts";
+} else {
+  path = path;
+}
 const options: Options = {
   swaggerDefinition,
-  apis: ["./*/modules/**/*.route.ts"],
+  apis: [path],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

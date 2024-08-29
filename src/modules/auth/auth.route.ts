@@ -3,16 +3,16 @@ import { validationMiddleware } from "../../shared/middleware/validation.middlew
 import { registerSchema } from "./schemas/register.schema";
 import { loginSchema } from "./schemas/login.schema";
 import {
-  // customForgotPassword,
+  customForgotPassword,
   getGoogleAccessToken,
   googleAuthCallback,
-  // customInviteHr,
-  // customLogin,
-  // customIogout,
-  // customRefreshTokens,
-  // customResetPassword,
-  // customResetPasswordWithoutToken,
-  // customSignUp,
+  customInviteHr,
+  customLogin,
+  customIogout,
+  customRefreshTokens,
+  customResetPassword,
+  customResetPasswordWithoutToken,
+  customSignUp,
   getGoogleRefreshToken,
 } from "./auth.controller";
 import { emailCheckingSchema } from "./schemas/email-checking.schema";
@@ -44,18 +44,19 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/RegisterSchema'
+ *             $ref: '#/components/schemas/RegisterSchema'
  *     responses:
  *       201:
  *         description: Successfully signed up
  *       400:
  *         description: Validation error
  */
-// router.post(
-//   "/signup",
-//   validationMiddleware(registerSchema),
-//   asyncWrapper(customSignUp)
-// );
+
+router.post(
+  "/signup",
+  validationMiddleware(registerSchema),
+  asyncWrapper(customSignUp)
+);
 
 /**
  * @swagger
@@ -68,20 +69,27 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/LoginSchema'
+ *             $ref: '#/components/schemas/LoginSchema'
  *     responses:
  *       200:
  *         description: Successfully logged in
+ *         headers:
+ *           Set-Cookie:
+ *             description: Set-Cookie header with tokens
+ *             schema:
+ *               type: string
+ *               example: accessToken=yourAccessToken; refreshToken=yourRefreshToken
  *       400:
  *         description: Validation error
  *       401:
  *         description: Unauthorized
  */
-// router.post(
-//   "/login",
-//   validationMiddleware(loginSchema),
-//   asyncWrapper(customLogin)
-// );
+
+router.post(
+  "/login",
+  validationMiddleware(loginSchema),
+  asyncWrapper(customLogin)
+);
 
 /**
  * @swagger
@@ -89,13 +97,24 @@ const router = Router();
  *   post:
  *     summary: Refresh access token
  *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Successfully refreshed token
+ *         headers:
+ *           Set-Cookie:
+ *             description: Set-Cookie header with new access token
+ *             schema:
+ *               type: string
+ *               example: accessToken=newAccessToken
+ *       400:
+ *         description: Refresh token is missing
  *       401:
  *         description: Unauthorized
  */
-// router.post("/refresh-token", asyncWrapper(customRefreshTokens));
+
+router.post("/refresh-token", asyncWrapper(customRefreshTokens));
 
 /**
  * @swagger
@@ -108,18 +127,34 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/EmailCheckingSchema'
+ *             $ref: '#/components/schemas/EmailCheckingSchema'
  *     responses:
  *       200:
- *         description: Password reset link sent
+ *         description: Password reset link sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 resetToken:
+ *                   type: string
+ *                   example: "yourResetToken"
+ *         headers:
+ *           Set-Cookie:
+ *             description: Optional - Set-Cookie header with reset token if stored in cookies
+ *             schema:
+ *               type: string
+ *               example: resetToken=yourResetToken; HttpOnly; Secure
  *       400:
  *         description: Validation error
+ *       404:
+ *         description: User not found
  */
-// router.post(
-//   "/forgot-password",
-//   validationMiddleware(emailCheckingSchema),
-//   asyncWrapper(customForgotPassword)
-// );
+router.post(
+  "/forgot-password",
+  validationMiddleware(emailCheckingSchema),
+  asyncWrapper(customForgotPassword)
+);
 
 /**
  * @swagger
@@ -139,20 +174,43 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/ResetPasswordSchema'
+ *             $ref: '#/components/schemas/ResetPasswordSchema'
  *     responses:
  *       200:
  *         description: Password successfully reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Password reset successfully
  *       400:
- *         description: Validation error
+ *         description: Validation error or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Invalid or expired token
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Unauthorized
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: User not found
  */
-// router.post(
-//   "/reset-password/:token",
-//   validationMiddleware(resetPasswordSchema),
-//   asyncWrapper(customResetPassword)
-// );
+
+router.post(
+  "/reset-password/:token",
+  validationMiddleware(resetPasswordSchema),
+  asyncWrapper(customResetPassword)
+);
 
 /**
  * @swagger
@@ -165,7 +223,7 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/ResetPasswordSchema'
+ *             $ref: '#/components/schemas/ResetPasswordSchema'
  *     responses:
  *       200:
  *         description: Password successfully reset
@@ -174,11 +232,11 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-// router.post(
-//   "/reset-password",
-//   validationMiddleware(resetPasswordSchema),
-//   asyncWrapper(customResetPasswordWithoutToken)
-// );
+router.post(
+  "/reset-password",
+  validationMiddleware(resetPasswordSchema),
+  asyncWrapper(customResetPasswordWithoutToken)
+);
 
 /**
  * @swagger
@@ -189,8 +247,9 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Successfully logged out
+ * 
  */
-// router.post("/logout", asyncWrapper(customIogout));
+router.post("/logout", asyncWrapper(customIogout));
 
 /**
  * @swagger
@@ -203,18 +262,18 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/EmailCheckingSchema'
+ *             $ref: '#/components/schemas/EmailCheckingSchema'
  *     responses:
  *       200:
  *         description: Invitation sent
  *       400:
  *         description: Validation error
  */
-// router.post(
-//   "/invite-hr",
-//   validationMiddleware(emailCheckingSchema),
-//   asyncWrapper(customInviteHr)
-// );
+router.post(
+  "/invite-hr",
+  validationMiddleware(emailCheckingSchema),
+  asyncWrapper(customInviteHr)
+);
 
 /**
  * @swagger
@@ -286,7 +345,7 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               token:
+ *               idToken:
  *                 type: string
  *             required:
  *               - token
