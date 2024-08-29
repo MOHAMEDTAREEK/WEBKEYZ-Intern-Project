@@ -37,7 +37,7 @@ const router = Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/users/User'
+ *                 $ref: '#/components/schemas/User'
  *       404:
  *         description: No users found
  */
@@ -99,7 +99,7 @@ router.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/users/User'
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  */
@@ -127,7 +127,7 @@ router.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/users/User'
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid input
  */

@@ -1,5 +1,5 @@
 const path = require("path");
-
+require("dotenv").config();
 /**
  * Configuration object for Sequelize.
  * @typedef {Object} SequelizeConfig
@@ -14,11 +14,10 @@ const path = require("path");
  * @type {SequelizeConfig}
  */
 
-let dir = "src";
+let dir = "dist";
+
 if (process.env.NODE_ENV === "local") {
   dir = "src";
-} else {
-  dir = "dist";
 }
 
 module.exports = {
@@ -27,3 +26,4 @@ module.exports = {
   "seeders-path": path.resolve(dir, "database", "seeders"),
   "migrations-path": path.resolve(dir, "database", "migrations"),
 };
+

@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+require("dotenv").config();
 
 const defaultConfig = {
   username: process.env.DB_USER_NAME,
@@ -19,14 +18,14 @@ const defaultConfig = {
     idle: 10000,
   },
   define: {
-    underscored: false,
+    underscored: true,
     charset: "utf8",
     timestamps: true,
     freezeTableName: true,
   },
 };
 
-const configuration: any = {
+const configuration = {
   development: {
     ...defaultConfig,
     logging: false, // console.log
@@ -39,4 +38,4 @@ const configuration: any = {
 };
 const env = process.env.NODE_ENV || "development";
 
-export default configuration[env];
+module.exports = configuration[env];

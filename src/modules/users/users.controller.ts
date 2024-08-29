@@ -90,20 +90,20 @@ export const getUserByEmail = async (
  * @returns {Promise<Response>} A promise that resolves after processing and sending the image.
  */
 
-export const uploadImage = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  if (!req.file) {
-    throw new BaseError("No file uploaded", HttpStatus.BAD_REQUEST);
-  }
-  const userId = parseInt(req.params.userId);
-  console.log(userId);
-  const file = req.file;
-  const processedImage = await userService.processImage(file, userId);
+// export const uploadImage = async (
+//   req: Request,
+//   res: Response
+// ): Promise<Response> => {
+//   if (!req.file) {
+//     throw new BaseError("No file uploaded", HttpStatus.BAD_REQUEST);
+//   }
+//   const userId = parseInt(req.params.userId);
+//   console.log(userId);
+//   const file = req.file;
+//   const processedImage = await userService.processImage(file, userId);
 
-  return res.send({ processedImage });
-};
+//   return res.send({ processedImage });
+// };
 
 /**
  * Asynchronous function to delete a user.

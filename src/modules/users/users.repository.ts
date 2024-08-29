@@ -5,7 +5,6 @@ import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import fs from "fs";
 import path from "path";
-import UserImage from "../../database/models/user-image.modle";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import logger from "../../shared/util/logger";
 
@@ -30,10 +29,6 @@ export const getUserById = async (
   const user: IUserWithoutPassword = (await User.findByPk(userId, {
     attributes: {
       exclude: ["password"],
-    },
-    include: {
-      model: UserImage,
-      attributes: ["image"],
     },
   })) as unknown as IUserWithoutPassword;
   if (!user) {
@@ -109,25 +104,25 @@ export const validateCredentials = async (email: string, password: string) => {
  * @param filename The name of the file to be saved.
  * @returns An object containing the sanitized filename and the full path where the image is saved.
  */
-export const saveImage = async (
-  imageBuffer: Buffer,
-  filename: string,
-  user_id: number
-) => {
-  const sanitizedFilename = filename.replace(/[^\w.-]/g, "_");
-  console.log(user_id);
-  const userExists = await User.findByPk(user_id);
-  if (!userExists) {
-    throw new BaseError("User does not exist", HttpStatus.BAD_REQUEST);
-  }
+// export const saveImage = async (
+//   imageBuffer: Buffer,
+//   filename: string,
+//   user_id: number
+// ) => {
+//   const sanitizedFilename = filename.replace(/[^\w.-]/g, "_");
+//   console.log(user_id);
+//   const userExists = await User.findByPk(user_id);
+//   if (!userExists) {
+//     throw new BaseError("User does not exist", HttpStatus.BAD_REQUEST);
+//   }
 
-  const userImage = await UserImage.create({
-    user_id: user_id,
-    image: imageBuffer,
-    filename: sanitizedFilename,
-  });
-  return { id: userImage.dataValues.id, filename: sanitizedFilename };
-};
+//   const userImage = await UserImage.create({
+//     user_id: user_id,
+//     image: imageBuffer,
+//     filename: sanitizedFilename,
+//   });
+//   return { id: userImage.dataValues.id, filename: sanitizedFilename };
+// };
 
 /**
  * Deletes a user by their ID.
