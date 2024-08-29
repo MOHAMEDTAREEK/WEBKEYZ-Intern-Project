@@ -4,13 +4,11 @@ import {
   getUserByEmail,
   getUserById,
   getUsers,
-  uploadImage,
 } from "./users.controller";
 import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { userSchema } from "./schemas/user.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
-import { upload } from "../../shared/middleware/image-upload.middleware";
 import { idCheckingSchema } from "./schemas/idChecking.schema";
 import { emailCheckingSchema } from "../auth/schemas/email-checking.schema";
 
