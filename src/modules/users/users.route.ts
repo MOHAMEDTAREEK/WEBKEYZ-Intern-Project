@@ -133,46 +133,46 @@ router.get(
  */
 router.post("/", validationMiddleware(userSchema), createUser);
 
-/**
- * @swagger
- * /users/upload/{userId}:
- *   post:
- *     summary: Upload a profile image for a user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               image:
- *                 type: string
- *                 format: binary
- *     responses:
- *       200:
- *         description: Image uploaded and processed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 processedImage:
- *                   type: object
- *       400:
- *         description: No file uploaded
- */
-router.post(
-  "/upload/:userId",
-  upload.single("image"),
-  asyncWrapper(uploadImage)
-);
+// /**
+//  * @swagger
+//  * /users/upload/{userId}:
+//  *   post:
+//  *     summary: Upload a profile image for a user
+//  *     tags: [Users]
+//  *     parameters:
+//  *       - in: path
+//  *         name: userId
+//  *         required: true
+//  *         schema:
+//  *           type: integer
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         multipart/form-data:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               image:
+//  *                 type: string
+//  *                 format: binary
+//  *     responses:
+//  *       200:
+//  *         description: Image uploaded and processed
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 processedImage:
+//  *                   type: object
+//  *       400:
+//  *         description: No file uploaded
+//  */
+// router.post(
+//   "/upload/:userId",
+//   upload.single("image"),
+//   asyncWrapper(uploadImage)
+// );
 
 /**
  * @swagger

@@ -29,7 +29,7 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: Auth
+ *   name: Auth WebKeyz 
  *   description: Authentication and Authorization
  */
 
@@ -38,7 +38,7 @@ const router = Router();
  * /auth/signup:
  *   post:
  *     summary: User signup
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
@@ -63,7 +63,7 @@ router.post(
  * /auth/login:
  *   post:
  *     summary: User login
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
@@ -96,7 +96,7 @@ router.post(
  * /auth/refresh-token:
  *   post:
  *     summary: Refresh access token
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     security:
  *       - cookieAuth: []
  *     responses:
@@ -121,7 +121,7 @@ router.post("/refresh-token", asyncWrapper(customRefreshTokens));
  * /auth/forgot-password:
  *   post:
  *     summary: Request password reset
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
@@ -161,7 +161,7 @@ router.post(
  * /auth/reset-password/{token}:
  *   post:
  *     summary: Reset password using token
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     parameters:
  *       - in: path
  *         name: token
@@ -217,7 +217,7 @@ router.post(
  * /auth/reset-password:
  *   post:
  *     summary: Reset password without token
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
@@ -243,11 +243,11 @@ router.post(
  * /auth/logout:
  *   post:
  *     summary: Logout users
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     responses:
  *       200:
  *         description: Successfully logged out
- * 
+ *
  */
 router.post("/logout", asyncWrapper(customIogout));
 
@@ -256,7 +256,7 @@ router.post("/logout", asyncWrapper(customIogout));
  * /auth/invite-hr:
  *   post:
  *     summary: Invite HR to the platform
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
@@ -280,7 +280,7 @@ router.post(
  * /auth/google:
  *   get:
  *     summary: Google authentication
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     description: |
  *       Redirects to Google for authentication. This is a redirection endpoint and cannot be tested via Swagger UI.
  *     responses:
@@ -308,7 +308,7 @@ router.get(
  * /auth/google/callback:
  *   get:
  *     summary: Google authentication callback
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     description: |
  *       Handles the OAuth callback from Google. This endpoint will redirect the user and cannot be tested directly in Swagger UI.
  *     responses:
@@ -337,7 +337,7 @@ router.get(
  * /auth/signup/access-token:
  *   post:
  *     summary: Get access token
- *     tags: [Auth]
+ *     tags: [Auth WebKeyz]
  *     requestBody:
  *       required: true
  *       content:
@@ -362,7 +362,7 @@ router.post("/signup/access-token", asyncWrapper(getGoogleAccessToken));
  * /auth/login/refresh-token:
  *   post:
  *     summary: Get refresh token
- *     tags: [Auth]
+ *     tags: [Auth WebKeyz]
  *     requestBody:
  *       required: true
  *       content:
