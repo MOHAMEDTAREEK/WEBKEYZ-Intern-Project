@@ -10,14 +10,14 @@ module.exports = {
       [
         {
           id: 1,
-          firstName: "Shrok",
-          lastName: "Ayman",
+          first_name: "Shrok",
+          last_name: "Ayman",
           password:
             "$2b$10$dS.q.ZreZ/mwRBh7DQzZoOUpGqKi1BAiPkLhB50H2XmCD/jq3d.Fm",
           email: "shrok@gmail.com",
           role: "user",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          created_at: new Date(),
+          updated_at: new Date(),
         },
       ],
       { ignoreDuplicates: true }

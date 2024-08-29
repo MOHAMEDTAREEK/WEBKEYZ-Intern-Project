@@ -29,8 +29,8 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: Auth WebKeyz 
- *   description: Authentication and Authorization
+ *   name: Auth WebKeyz
+ *   description: Authentication
  */
 
 /**

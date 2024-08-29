@@ -1,7 +1,6 @@
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { IUserWithoutPassword } from "./user.interface";
 import * as userRepository from "./users.repository";
-import sharp from "sharp";
 
 /**
  * Retrieves all users from the database.
