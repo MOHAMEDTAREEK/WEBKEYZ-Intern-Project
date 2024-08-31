@@ -19,6 +19,8 @@ import { emailCheckingSchema } from "./schemas/email-checking.schema";
 import { resetPasswordSchema } from "./schemas/reset-password.schema";
 import passport from "passport";
 import asyncWrapper from "../../shared/util/async-wrapper";
+import { googleAccessTokenSchema } from "./schemas/google-access-token.schema";
+import { googleRefreshTokenSchema } from "./schemas/google-refresh-token.schema";
 
 /**
  * Defines the routes for user authentication operations.
@@ -355,7 +357,11 @@ router.get(
  *       400:
  *         description: Invalid request
  */
-router.post("/signup/access-token", asyncWrapper(getGoogleAccessToken));
+router.post(
+  "/signup/access-token",
+  validationMiddleware(googleAccessTokenSchema),
+  asyncWrapper(getGoogleAccessToken)
+);
 
 /**
  * @swagger
@@ -380,6 +386,10 @@ router.post("/signup/access-token", asyncWrapper(getGoogleAccessToken));
  *       400:
  *         description: Invalid request
  */
-router.post("/login/refresh-token", asyncWrapper(getGoogleRefreshToken));
+router.post(
+  "/login/refresh-token",
+  validationMiddleware(googleRefreshTokenSchema),
+  asyncWrapper(getGoogleRefreshToken)
+);
 
 export default router;

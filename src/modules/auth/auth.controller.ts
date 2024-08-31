@@ -89,6 +89,10 @@ export const customRefreshTokens = async (
   }
   const { newAccessToken } = await authService.refreshTokens(refreshToken);
 
+  if (!newAccessToken) {
+    throw new BaseError("Failed to generate new access token", 500);
+  }
+
   res.cookie("accessToken", newAccessToken, {
     httpOnly: true,
     secure: true,
@@ -113,7 +117,6 @@ export const customForgotPassword = async (
   res: Response
 ): Promise<Response> => {
   const { email } = req.body;
-  console.log(email);
   const user = await userRepository.getUserByEmail(email);
   if (!user) {
     throw new BaseError("User not found", 404);
@@ -121,6 +124,9 @@ export const customForgotPassword = async (
   const userId = user.dataValues.id;
   const userEmail = user.dataValues.email;
   const resetToken = await authService.generateResetToken(userId, userEmail);
+  if (!resetToken) {
+    throw new BaseError("Failed to generate reset token", 500);
+  }
   await sendEmail(
     email,
     `Click the following link to reset your password: http://localhost:3000/reset-password/:${resetToken}`
@@ -165,6 +171,9 @@ export const customResetPasswordWithoutToken = async (
   res: Response
 ): Promise<Response> => {
   const { email, password } = req.body;
+  if (!email) {
+    throw new BaseError("Email is required", 400);
+  }
   const user = await userRepository.getUserByEmail(email);
   if (!user) {
     throw new BaseError("User not found", 404);

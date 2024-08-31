@@ -8,6 +8,11 @@ export interface IUser {
   email: string;
   refreshToken: string | null;
   role: UserRole;
+  profilePicture: string | null;
+  resetToken: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  googleId: string | null;
 }
 
 export type OptionalUser = IUser | null;

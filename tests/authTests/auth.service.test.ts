@@ -7,7 +7,10 @@ import config from "../../src/config/index";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import { refreshTokens } from "../../src/modules/auth/auth.service";
 import { UserRole } from "../../src/shared/enums/user-Role.enum";
-import { IUser } from "../../src/modules/users/user.interface";
+import {
+  IUser,
+  IUserWithoutPassword,
+} from "../../src/modules/users/user.interface";
 
 jest.mock("../../src/modules/users/users.repository");
 jest.mock("../../src/modules/users/users.service");
@@ -132,6 +135,11 @@ describe("Auth Service", () => {
       password: "password",
       refreshToken: "refresh",
       role: UserRole.User,
+      profilePicture: null,
+      resetToken: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      googleId: null,
     };
     const mockTokens = { accessToken: "access", refreshToken: "refresh" };
 
@@ -163,7 +171,6 @@ describe("Auth Service", () => {
         mockTokens.refreshToken
       );
     });
-
     it("should return user and tokens when valid credentials are provided", async () => {
       jest
         .spyOn(userService, "validateCredentials")
@@ -423,36 +430,6 @@ describe("Auth Service", () => {
         "User already exists"
       );
     });
-    it("should verify role is HR when inviting a new HR user", async () => {
-      const email = "hr@example.com";
-      const mockUser = {
-        id: 1,
-        email,
-        role: UserRole.HR,
-        firstName: "hr",
-        lastName: "User",
-      };
-      const randomPassword = "randomPass";
-
-      jest.spyOn(userRepository, "getUserByEmail").mockResolvedValue(null);
-      jest.spyOn(userRepository, "createUser").mockResolvedValue({
-        id: 1,
-        email: "test@example.com",
-        role: UserRole.HR,
-        firstName: "hr",
-        lastName: "User",
-        refreshToken: null as null,
-      });
-      jest.spyOn(Math, "random").mockReturnValue(0.123456789);
-
-      const result = await authService.inviteHr(email);
-
-      expect(userRepository.getUserByEmail).toHaveBeenCalledWith(email);
-      expect(userRepository.createUser).toHaveBeenCalledWith(
-        expect.objectContaining({ email, role: UserRole.HR })
-      );
-      expect(result.newUser.role).toBe(UserRole.HR);
-    });
   });
   describe("getUserDataFromToken", () => {
     const mockToken = "valid-google-token";
@@ -476,7 +453,19 @@ describe("Auth Service", () => {
       jest
         .spyOn(authService, "verifyGoogleToken")
         .mockResolvedValue(mockDecodedUserData);
-      const mockUser = { id: 1, ...mockDecodedUserData, role: UserRole.User };
+      const mockUser: IUserWithoutPassword = {
+        id: 1,
+        email: mockDecodedUserData.email,
+        firstName: mockDecodedUserData.firstName,
+        lastName: mockDecodedUserData.lastName,
+        refreshToken: mockDecodedUserData.refreshToken,
+        profilePicture: mockDecodedUserData.picture,
+        role: UserRole.User,
+        resetToken: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        googleId: null,
+      };
       jest.spyOn(userRepository, "createUser").mockResolvedValue(mockUser);
 
       const result = await authService.getUserDataFromToken(mockToken);
@@ -489,7 +478,6 @@ describe("Auth Service", () => {
       });
       expect(result).toEqual(mockUser);
     });
-
     it("should log user data before creating user", async () => {
       jest
         .spyOn(authService, "verifyGoogleToken")

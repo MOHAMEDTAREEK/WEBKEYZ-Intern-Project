@@ -8,7 +8,6 @@ import {
 import User from "../../src/database/models/user.model";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
-import UserImage from "../../src/database/models/user-image.modle";
 import bcrypt from "bcrypt";
 import logger from "../../src/shared/util/logger";
 import { UserRole } from "../../src/shared/enums/user-Role.enum";
@@ -59,7 +58,6 @@ describe("User Repository", () => {
       expect(result).toEqual(mockUser);
       expect(User.findByPk).toHaveBeenCalledWith(1, {
         attributes: { exclude: ["password"] },
-        include: { model: UserImage, attributes: ["image"] },
       });
     });
 
@@ -80,17 +78,6 @@ describe("User Repository", () => {
         where: { email: "test@example.com" },
       });
       expect(user).toEqual(mockUser);
-    });
-
-    it("should return null if no user is found", async () => {
-      (User.findOne as jest.Mock).mockResolvedValue(null);
-
-      const user = await getUserByEmail("nonexistent@example.com");
-
-      expect(User.findOne).toHaveBeenCalledWith({
-        where: { email: "nonexistent@example.com" },
-      });
-      expect(user).toBeNull();
     });
 
     it("should handle errors thrown by Sequelize", async () => {

@@ -1,4 +1,4 @@
-import { Router, Response } from "express";
+import { Router } from "express";
 import {
   deleteUser,
   getUserByEmail,
@@ -194,6 +194,10 @@ router.post("/", validationMiddleware(userSchema), createUser);
  *       404:
  *         description: User not found
  */
-router.delete("/delete/:id", asyncWrapper(deleteUser));
+router.delete(
+  "/delete/:id",
+  validationMiddleware(idCheckingSchema),
+  asyncWrapper(deleteUser)
+);
 
 export default router;

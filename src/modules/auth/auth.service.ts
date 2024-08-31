@@ -16,7 +16,13 @@ import { UserRole } from "../../shared/enums/user-Role.enum";
  */
 export const signUp = async (userData: SignupDto) => {
   const user = await userRepository.createUser(userData);
+  if (!user) {
+    throw new BaseError("Error creating user", 500);
+  }
   const tokens = await getTokens(user.id, user.email);
+  if (!tokens) {
+    throw new BaseError("Error generating tokens", 500);
+  }
 
   await updateRefreshToken(user.id, tokens.refreshToken);
 
@@ -77,6 +83,9 @@ export const refreshTokens = async (refreshToken: string) => {
   const accessToken = jwt.sign(payload, config.accessToken.secret || "", {
     expiresIn: config.accessToken.expiresIn,
   });
+  if (!accessToken) {
+    throw new BaseError("Error generating tokens", 500);
+  }
 
   return {
     newAccessToken: accessToken,

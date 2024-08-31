@@ -3,8 +3,6 @@ import { IUser, IUserWithoutPassword } from "./user.interface";
 import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
-import fs from "fs";
-import path from "path";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import logger from "../../shared/util/logger";
 
@@ -26,7 +24,7 @@ export const getUsers = async () => {
 export const getUserById = async (
   userId: number
 ): Promise<IUserWithoutPassword> => {
-  const user: IUserWithoutPassword = (await User.findByPk(userId, {
+  const user = (await User.findByPk(userId, {
     attributes: {
       exclude: ["password"],
     },
@@ -45,6 +43,9 @@ export const getUserByEmail = async (email: string) => {
   const user = await User.findOne({
     where: { email },
   });
+  if (!user) {
+    throw new BaseError("User not found", HttpStatus.NOT_FOUND);
+  }
   return user;
 };
 
