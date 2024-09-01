@@ -74,12 +74,19 @@ export const getUserByEmail = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const email = req.body.email;
+  const email = req.query.email as string;
+  if (!email) {
+    return res
+      .status(HttpStatus.BAD_REQUEST)
+      .send("Email query parameter is required");
+  }
+
   const user = await userService.getUserByEmail(email);
   if (!user) {
     return res.status(HttpStatus.NOT_FOUND).send("User not found");
   }
-  return res.send(user);
+
+  return res.status(HttpStatus.OK).send(user);
 };
 /**
  * Handles the upload of an image file.

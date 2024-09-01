@@ -49,12 +49,13 @@ router.get("/", asyncWrapper(getUsers));
  *     summary: Get user by email
  *     description: Retrieve user details by email.
  *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/EmailCheckingSchema'
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Email of the user
  *     responses:
  *       200:
  *         description: User retrieved successfully.
@@ -74,11 +75,8 @@ router.get("/", asyncWrapper(getUsers));
  *       500:
  *         description: Internal server error.
  */
-router.get(
-  "/email",
-  validationMiddleware(emailCheckingSchema),
-  asyncWrapper(getUserByEmail)
-);
+
+router.get("/email", asyncWrapper(getUserByEmail));
 /**
  * @swagger
  * /users/{id}:

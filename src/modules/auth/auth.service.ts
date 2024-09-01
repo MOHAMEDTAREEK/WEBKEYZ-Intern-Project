@@ -39,6 +39,7 @@ export const logIn = async (userData: LoginDto) => {
     userData.email,
     userData.password
   );
+
   if (!user) {
     throw new BaseError("Invalid credentials", 401);
   }
@@ -250,7 +251,6 @@ export const getUserDataFromToken = async (token: string): Promise<any> => {
     role: UserRole.User,
     password: "sadasdas",
   };
-  console.log(userData);
   const user = await userRepository.createUser(userData);
 
   return user;

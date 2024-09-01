@@ -11,6 +11,7 @@ import logger from "../../shared/util/logger";
  */
 export const getUsers = async () => {
   const users = await User.findAll();
+  
   if (!users) {
     throw new BaseError("No users found", HttpStatus.NOT_FOUND);
   }
@@ -29,9 +30,7 @@ export const getUserById = async (
       exclude: ["password"],
     },
   })) as unknown as IUserWithoutPassword;
-  if (!user) {
-    throw new BaseError("User not found", HttpStatus.NOT_FOUND);
-  }
+
   return user;
 };
 
@@ -43,9 +42,7 @@ export const getUserByEmail = async (email: string) => {
   const user = await User.findOne({
     where: { email },
   });
-  if (!user) {
-    throw new BaseError("User not found", HttpStatus.NOT_FOUND);
-  }
+
   return user;
 };
 

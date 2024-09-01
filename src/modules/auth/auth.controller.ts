@@ -254,6 +254,17 @@ export const getGoogleAccessToken = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Access token is required" });
   }
   const user = await authService.getUserDataFromToken(idToken);
+
+  const tokens = await authService.getTokens(user.id, user.email);
+  res.cookie("accessToken", tokens.accessToken, {
+    httpOnly: true,
+    secure: true,
+  });
+  res.cookie("refreshToken", tokens.refreshToken, {
+    httpOnly: true,
+    secure: true,
+  });
+  res.send({ tokens });
   res.status(201).send(user);
 };
 
