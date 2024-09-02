@@ -9,7 +9,7 @@ import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { userSchema } from "./schemas/user.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
-import { idCheckingSchema } from "./schemas/idChecking.schema";
+import { idCheckingSchema } from "../../shared/helperSchemas/idChecking.schema";
 
 const router = Router();
 

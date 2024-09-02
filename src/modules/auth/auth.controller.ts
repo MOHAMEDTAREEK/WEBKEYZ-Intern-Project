@@ -258,7 +258,8 @@ export const getGoogleAccessToken = async (req: Request, res: Response) => {
 
   const userData = await authService.getUserDataFromToken(idToken);
 
-  const userExists = await userRepository.getUserByEmail(userData.email);16
+  const userExists = await userRepository.getUserByEmail(userData.email);
+  16;
   if (userExists) {
     const userAccessToken = await authService.loginGoogleUser(userData.email);
     res.cookie("accessToken", userAccessToken, {
