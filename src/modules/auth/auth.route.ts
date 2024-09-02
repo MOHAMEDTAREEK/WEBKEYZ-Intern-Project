@@ -8,7 +8,7 @@ import {
   googleAuthCallback,
   customInviteHr,
   customLogin,
-  customIogout,
+  customLogout,
   customRefreshTokens,
   customResetPassword,
   customResetPasswordWithoutToken,
@@ -251,7 +251,7 @@ router.post(
  *         description: Successfully logged out
  *
  */
-router.post("/logout", asyncWrapper(customIogout));
+router.post("/logout", asyncWrapper(customLogout));
 
 /**
  * @swagger

@@ -15,6 +15,7 @@ import { sendEmail } from "../../shared/util/send-email";
  * @param {Response} res - The response object to send back the user and tokens.
  * @returns {Promise<Response>} A promise that resolves when the user sign up process is completed.
  */
+
 export const customSignUp = async (
   req: Request,
   res: Response
@@ -189,7 +190,7 @@ export const customResetPasswordWithoutToken = async (
  * @param {Response} res - The response object.
  * @returns  {Promise<Response>} A message indicating successful logout.
  */
-export const customIogout = async (
+export const customLogout = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -206,6 +207,7 @@ export const customIogout = async (
  * @returns A success message if the invitation is sent successfully.
  * @throws BaseError if the user already exists with status code 400.
  */
+
 export const customInviteHr = async (req: Request, res: Response) => {
   const { email } = req.body;
   const user = await userRepository.getUserByEmail(email);
@@ -253,19 +255,28 @@ export const getGoogleAccessToken = async (req: Request, res: Response) => {
   if (!idToken) {
     return res.status(400).json({ message: "Access token is required" });
   }
-  const user = await authService.getUserDataFromToken(idToken);
 
-  const tokens = await authService.getTokens(user.id, user.email);
-  res.cookie("accessToken", tokens.accessToken, {
+  const userData = await authService.getUserDataFromToken(idToken);
+
+  const userExists = await userRepository.getUserByEmail(userData.email);16
+  if (userExists) {
+    const userAccessToken = await authService.loginGoogleUser(userData.email);
+    res.cookie("accessToken", userAccessToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    return res
+      .status(200)
+      .send({ userAccessToken, message: "User logged in successfully" });
+  }
+  const user = await userRepository.createUser(userData);
+  const accessToken = await authService.getGoogleToken(userData);
+  res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
   });
-  res.cookie("refreshToken", tokens.refreshToken, {
-    httpOnly: true,
-    secure: true,
-  });
-  res.send({ tokens });
-  res.status(201).send(user);
+
+  res.status(201).send({ user, accessToken });
 };
 
 export const getGoogleRefreshToken = async (

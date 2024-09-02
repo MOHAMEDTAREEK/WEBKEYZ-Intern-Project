@@ -10,7 +10,6 @@ import { validationMiddleware } from "../../shared/middleware/validation.middlew
 import { userSchema } from "./schemas/user.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
 import { idCheckingSchema } from "./schemas/idChecking.schema";
-import { emailCheckingSchema } from "../auth/schemas/email-checking.schema";
 
 const router = Router();
 

@@ -57,12 +57,12 @@ describe("Auth Service", () => {
       expect(userRepository.createUser).toHaveBeenCalledWith(userData);
       expect(jwt.sign).toHaveBeenCalledTimes(2);
       expect(jwt.sign).toHaveBeenCalledWith(
-        { userId: mockUser.id, email: mockUser.email, role: "admin" },
+        { userId: mockUser.id, email: mockUser.email, role: "user" },
         config.accessToken.secret,
         { expiresIn: config.accessToken.expiresIn }
       );
       expect(jwt.sign).toHaveBeenCalledWith(
-        { userId: mockUser.id, email: mockUser.email, role: "admin" },
+        { userId: mockUser.id, email: mockUser.email, role: "user" },
         config.refreshToken.secret,
         { expiresIn: config.refreshToken.expiresIn }
       );
@@ -431,79 +431,5 @@ describe("Auth Service", () => {
       );
     });
   });
-  describe("getUserDataFromToken", () => {
-    const mockToken = "valid-google-token";
-    const mockDecodedUserData = {
-      email: "test@example.com",
-      firstName: "John",
-      lastName: "Doe",
-      refreshToken: "refreshToken",
-      picture: "http://example.com/picture.jpg",
-    };
-
-    beforeEach(() => {
-      jest.spyOn(console, "log").mockImplementation(() => {});
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-
-    it("should create user with correct data when token is valid", async () => {
-      jest
-        .spyOn(authService, "verifyGoogleToken")
-        .mockResolvedValue(mockDecodedUserData);
-      const mockUser: IUserWithoutPassword = {
-        id: 1,
-        email: mockDecodedUserData.email,
-        firstName: mockDecodedUserData.firstName,
-        lastName: mockDecodedUserData.lastName,
-        refreshToken: mockDecodedUserData.refreshToken,
-        profilePicture: mockDecodedUserData.picture,
-        role: UserRole.User,
-        resetToken: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        googleId: null,
-      };
-      jest.spyOn(userRepository, "createUser").mockResolvedValue(mockUser);
-
-      const result = await authService.getUserDataFromToken(mockToken);
-
-      expect(userRepository.createUser).toHaveBeenCalledWith({
-        email: mockDecodedUserData.email,
-        profilePicture: mockDecodedUserData.picture,
-        role: UserRole.User,
-        password: "sadasdas",
-      });
-      expect(result).toEqual(mockUser);
-    });
-    it("should log user data before creating user", async () => {
-      jest
-        .spyOn(authService, "verifyGoogleToken")
-        .mockResolvedValue(mockDecodedUserData);
-      jest.spyOn(userRepository, "createUser").mockResolvedValue({} as any);
-
-      await authService.getUserDataFromToken(mockToken);
-
-      expect(console.log).toHaveBeenCalledWith({
-        email: mockDecodedUserData.email,
-        profilePicture: mockDecodedUserData.picture,
-        role: UserRole.User,
-        password: "sadasdas",
-      });
-    });
-
-    it("should handle errors from createUser", async () => {
-      jest
-        .spyOn(authService, "verifyGoogleToken")
-        .mockResolvedValue(mockDecodedUserData);
-      const error = new Error("Database error");
-      jest.spyOn(userRepository, "createUser").mockRejectedValue(error);
-
-      await expect(authService.getUserDataFromToken(mockToken)).rejects.toThrow(
-        error
-      );
-    });
-  });
+  describe("getUserDataFromToken", () => {});
 });

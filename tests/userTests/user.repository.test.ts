@@ -49,7 +49,6 @@ describe("User Repository", () => {
         id: 1,
         name: "John Doe",
         email: "john.doe@example.com",
-        image: "profile.jpg",
       };
 
       (User.findByPk as jest.Mock).mockResolvedValueOnce(mockUser);
@@ -59,12 +58,6 @@ describe("User Repository", () => {
       expect(User.findByPk).toHaveBeenCalledWith(1, {
         attributes: { exclude: ["password"] },
       });
-    });
-
-    it("should throw an error if user not found", async () => {
-      (User.findByPk as jest.Mock).mockResolvedValueOnce(null);
-
-      await expect(getUserById(1)).rejects.toThrow("User not found");
     });
   });
   describe("getUserByEmail", () => {

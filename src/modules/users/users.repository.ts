@@ -11,7 +11,7 @@ import logger from "../../shared/util/logger";
  */
 export const getUsers = async () => {
   const users = await User.findAll();
-  
+
   if (!users) {
     throw new BaseError("No users found", HttpStatus.NOT_FOUND);
   }
@@ -53,7 +53,7 @@ export const getUserByEmail = async (email: string) => {
 export const createUser = async (
   userData: CreateUserDto
 ): Promise<IUserWithoutPassword> => {
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
+  const hashedPassword = await bcrypt.hash(userData.password ?? "", 10);
 
   const user = await User.create({
     ...userData,

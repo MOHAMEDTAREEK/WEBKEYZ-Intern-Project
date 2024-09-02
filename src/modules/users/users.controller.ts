@@ -3,6 +3,7 @@ import * as userService from "./users.service";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import { CreateUserDto } from "./dtos/create-user.dto";
+
 /**
  * Retrieves all users and sends them as a response.
  *

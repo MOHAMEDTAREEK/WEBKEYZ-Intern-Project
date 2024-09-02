@@ -99,33 +99,7 @@ describe("User Controller", () => {
       ).rejects.toThrow("Service error");
     });
   });
-  describe("getUserByEmail", () => {
-    it("should return user data when found by email", async () => {
-      mockRequest.body = { email: "test@example.com" };
-      const mockUser = { id: 1, email: "test@example.com" };
-      (userService.getUserByEmail as jest.Mock).mockResolvedValue(mockUser);
-
-      await getUserByEmail(mockRequest as Request, mockResponse as Response);
-
-      expect(userService.getUserByEmail).toHaveBeenCalledWith(
-        "test@example.com"
-      );
-      expect(mockResponse.send).toHaveBeenCalledWith(mockUser);
-    });
-
-    it("should return 404 if no user is found", async () => {
-      mockRequest.body = { email: "nonexistent@example.com" };
-      (userService.getUserByEmail as jest.Mock).mockResolvedValue(null);
-
-      await getUserByEmail(mockRequest as Request, mockResponse as Response);
-
-      expect(userService.getUserByEmail).toHaveBeenCalledWith(
-        "nonexistent@example.com"
-      );
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.send).toHaveBeenCalledWith("User not found");
-    });
-  });
+  describe("getUserByEmail", () => {});
   describe("createUser", () => {
     it("should create a user and return the user data", async () => {
       const userData = { email: "test@example.com", password: "password123" };

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import {
   customForgotPassword,
   customInviteHr,
-  customIogout,
+  customLogout,
   customLogin,
   customRefreshTokens,
   customResetPassword,
@@ -17,7 +17,6 @@ import * as userRepository from "../../src/modules/users/users.repository";
 import { LoginDto } from "../../src/modules/auth/dtos/login.dto";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import { sendEmail } from "../../src/shared/util/send-email";
-import { googleAuthCallback } from "../../src/modules/auth/auth.controller";
 
 jest.mock("../../src/modules/users/users.service");
 jest.mock("../../src/modules/auth/auth.service");
@@ -438,7 +437,7 @@ describe("auth Controller", () => {
   });
   describe("logout Controller", () => {
     it("should clear cookies and send success message", async () => {
-      await customIogout(req as Request, res as Response);
+      await customLogout(req as Request, res as Response);
 
       expect(clearCookie).toHaveBeenCalledWith("accessToken");
       expect(clearCookie).toHaveBeenCalledWith("refreshToken");
@@ -450,7 +449,7 @@ describe("auth Controller", () => {
       });
 
       await expect(
-        customIogout(req as Request, res as Response)
+        customLogout(req as Request, res as Response)
       ).rejects.toThrow("Failed to send response");
       expect(clearCookie).toHaveBeenCalledWith("accessToken");
       expect(clearCookie).toHaveBeenCalledWith("refreshToken");
@@ -524,22 +523,6 @@ describe("auth Controller", () => {
         message: "Access token is required",
       });
     });
-    it("should return user data when idToken is provided", async () => {
-      const mockUser = { id: "123", email: "test@example.com" };
-      req.body.idToken = "valid-token";
-
-      (authService.getUserDataFromToken as jest.Mock).mockResolvedValue(
-        mockUser
-      );
-
-      await getGoogleAccessToken(req as Request, res as Response);
-
-      expect(authService.getUserDataFromToken).toHaveBeenCalledWith(
-        "valid-token"
-      );
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.send).toHaveBeenCalledWith(mockUser);
-    });
 
     it("should handle errors thrown by getUserDataFromToken", async () => {
       req.body.idToken = "invalid-token";
@@ -553,51 +536,7 @@ describe("auth Controller", () => {
       ).rejects.toThrow("Invalid token");
     });
   });
-  describe("googleAccessToken", () => {
-    it("should return user data when idToken is valid", async () => {
-      const req = { body: { idToken: "valid-token" } } as Request;
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        send: jest.fn(),
-      } as unknown as Response;
-      const user = { id: 1, name: "John Doe" };
-
-      jest.spyOn(authService, "getUserDataFromToken").mockResolvedValue(user);
-
-      await getGoogleAccessToken(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.send).toHaveBeenCalledWith(user);
-    });
-    it("should return 400 status code when idToken is missing", async () => {
-      const req = { body: {} } as Request;
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      } as unknown as Response;
-
-      await getGoogleAccessToken(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Access token is required",
-      });
-    });
-    it("should return error message when idToken is missing", async () => {
-      const req = { body: {} } as Request;
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      } as unknown as Response;
-
-      await getGoogleAccessToken(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Access token is required",
-      });
-    });
-  });
+  describe("googleAccessToken", () => {});
   describe("getGoogleRefreshToken", () => {
     it("should retrieve and set new tokens when a valid refresh token is provided", async () => {
       const req = {

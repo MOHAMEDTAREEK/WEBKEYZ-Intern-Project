@@ -121,7 +121,7 @@ export const getTokens = async (
   userId: number,
   email: string
 ): Promise<{ accessToken: string; refreshToken: string }> => {
-  const payload = { userId, email, role: "admin" };
+  const payload = { userId, email, role: "user" };
 
   const accessToken = jwt.sign(payload, config.accessToken.secret || "", {
     expiresIn: config.accessToken.expiresIn,
@@ -249,11 +249,23 @@ export const getUserDataFromToken = async (token: string): Promise<any> => {
     lastName: decodedUserData.family_name,
     profilePicture: decodedUserData.picture,
     role: UserRole.User,
-    password: "sadasdas",
   };
-  const user = await userRepository.createUser(userData);
 
-  return user;
+  return userData;
+};
+
+export const loginGoogleUser = async (email: string) => {
+  const credentialsMatch = await userRepository.validateCredentials(email, "");
+  if (!credentialsMatch) {
+    return new BaseError("Invalid credentials", 400);
+  }
+  const user = await userRepository.getUserByEmail(email);
+  if (!user) {
+    throw new BaseError("User not found", 404);
+  }
+  const accessToken = await getGoogleToken(user);
+
+  return accessToken;
 };
 
 export const getCustomTokens = async (refreshToken: string) => {
