@@ -70,3 +70,8 @@ export const deletePost = async (id: number): Promise<any> => {
   const post = await postRepository.deletePost(id);
   return post;
 };
+
+export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
+  const post = await postRepository.uploadPostPhoto(postId, imageUrl);
+  return post;
+};

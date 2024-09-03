@@ -8,7 +8,7 @@ const swaggerDefinition = {
   info: {
     title: "WebKeyz Intern",
     version: "1.0.0",
-    description: "WebKeyz Sociaty APIs",
+    description: "WebKeyz Society APIs",
   },
   components: {
     cookieAuth: {

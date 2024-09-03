@@ -9,7 +9,7 @@ import { PostDto } from "./posts.dto";
  * @returns {Promise<Post[]>} A promise that resolves with an array of Post objects representing the retrieved posts.
  * @throws {BaseError} If no posts are found, an error with message "Posts not found" and status HttpStatus.NOT_FOUND is thrown.
  */
-export const getPosts = async () => {
+export const getPosts = async (): Promise<Post[]> => {
   const posts = await Post.findAll();
   if (!posts) {
     throw new BaseError("Posts not found", HttpStatus.NOT_FOUND);
@@ -75,7 +75,7 @@ export const partiallyUpdatePost = async (
   description: string,
   image: string
 ) => {
-  const post = (await Post.findByPk(id)) as unknown as PostDto;
+  const post = await Post.findByPk(id);
   if (!post) {
     throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
   }
@@ -98,5 +98,15 @@ export const deletePost = async (id: number) => {
     throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
   }
   await post.destroy();
+  return post;
+};
+
+export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
+  const post = await Post.findByPk(postId);
+  if (!post) {
+    throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
+  }
+  post.image = imageUrl;
+  await post.save();
   return post;
 };

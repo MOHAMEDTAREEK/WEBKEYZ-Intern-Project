@@ -1,13 +1,30 @@
-import { DataTypes, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "sequelize";
 import { sequelize } from "./index";
-const User = sequelize.define(
-  "User",
+class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
+  public id!: number;
+  public firstName?: string;
+  public lastName?: string;
+  public email!: string;
+  public password?: string;
+  public profilePicture?: string;
+  public refreshToken?: string;
+  public resetToken?: string;
+  public role!: "admin" | "hr" | "user";
+  public createdAt!: Date;
+  public updatedAt!: Date;
+  public googleId?: string;
+}
+
+User.init(
   {
     id: {
-      allowNull: false,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     firstName: {
       type: DataTypes.STRING,
@@ -68,7 +85,10 @@ const User = sequelize.define(
     },
   },
   {
+    sequelize,
     tableName: "user",
+    timestamps: true,
   }
 );
+
 export default User;

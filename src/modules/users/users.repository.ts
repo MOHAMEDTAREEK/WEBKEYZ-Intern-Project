@@ -1,5 +1,4 @@
 import User from "../../database/models/user.model";
-import { IUser, IUserWithoutPassword } from "./user.interface";
 import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
@@ -22,14 +21,12 @@ export const getUsers = async () => {
  * Retrieves a user by ID from the database.
  * @param {number} userId - The ID of the user to retrieve.
  */
-export const getUserById = async (
-  userId: number
-): Promise<IUserWithoutPassword> => {
-  const user = (await User.findByPk(userId, {
+export const getUserById = async (userId: number) => {
+  const user = await User.findByPk(userId, {
     attributes: {
       exclude: ["password"],
     },
-  })) as unknown as IUserWithoutPassword;
+  });
 
   return user;
 };
@@ -50,9 +47,7 @@ export const getUserByEmail = async (email: string) => {
  * Creates a new user in the database.
  * @param {CreateUserDto} userData - The data for the new user.
  */
-export const createUser = async (
-  userData: CreateUserDto
-): Promise<IUserWithoutPassword> => {
+export const createUser = async (userData: CreateUserDto) => {
   const hashedPassword = await bcrypt.hash(userData.password ?? "", 10);
 
   const user = await User.create({
@@ -63,7 +58,7 @@ export const createUser = async (
   logger.info(`User with email ${userData.email} created successfully.`);
 
   const { password, ...userWithoutPassword } = user.toJSON();
-  return userWithoutPassword as IUserWithoutPassword;
+  return userWithoutPassword;
 };
 
 /**
@@ -83,11 +78,13 @@ export const updateUserById = async (userId: number, updatedData: any) => {
  * @param {number} email - The ID of the user to delete.
  */
 export const validateCredentials = async (email: string, password: string) => {
-  const user: IUser = (await User.findOne({
+  const user = await User.findOne({
     where: { email },
-  })) as unknown as IUser;
+  });
 
-  const isValid = await bcrypt.compare(password, user.password);
+  if (!user) throw new BaseError("Invalid credentials", 401);
+
+  const isValid = await bcrypt.compare(password, user.password || "");
   if (!isValid) throw new BaseError("Invalid credentials", 401);
 
   user.password = "";
@@ -136,11 +133,11 @@ export const deleteUser = async (userId: number) => {
 };
 
 export const getUserByRefreshToken = async (refreshToken: string) => {
-  const user = (await User.findOne({
+  const user = await User.findOne({
     where: {
       refreshToken,
     },
-  })) as unknown as IUserWithoutPassword;
+  });
 
   return user;
 };

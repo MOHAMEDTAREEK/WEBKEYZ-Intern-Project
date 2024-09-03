@@ -1,9 +1,21 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from "./index";
 import User from "./user.model";
 
-const Post = sequelize.define(
-  "Post",
+class Post
+  extends Model<PostAttributes, PostCreationAttributes>
+  implements PostAttributes
+{
+  public id!: number;
+  public description!: string;
+  public image?: string;
+  public userId!: number;
+  public like!: number;
+  public createdAt!: Date;
+  public updatedAt!: Date;
+}
+
+Post.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -28,7 +40,6 @@ const Post = sequelize.define(
       field: "user_id",
       onDelete: "CASCADE",
     },
-    //like will be changed to emojis later(will be an enum)
     like: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -48,7 +59,9 @@ const Post = sequelize.define(
     },
   },
   {
+    sequelize,
     tableName: "post",
+    timestamps: true,
   }
 );
 

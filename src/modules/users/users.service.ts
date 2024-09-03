@@ -1,5 +1,4 @@
 import { CreateUserDto } from "./dtos/create-user.dto";
-import { IUserWithoutPassword } from "./user.interface";
 import * as userRepository from "./users.repository";
 
 /**
@@ -24,9 +23,7 @@ export const getUserByEmail = async (email: string) => {
  * Retrieves a user by ID from the database.
  * @param {number} userId - The ID of the user to retrieve.
  */
-export const getUserById = async (
-  userId: number
-): Promise<IUserWithoutPassword> => {
+export const getUserById = async (userId: number) => {
   const user = await userRepository.getUserById(userId);
   return user;
 };

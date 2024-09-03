@@ -103,3 +103,19 @@ export const deletePost = async (req: Request, res: Response) => {
   }
   return res.send(post);
 };
+
+export const uploadPostPhoto = async (req: Request, res: Response) => {
+  if (!req.file) {
+    return res.status(400).send("No file uploaded");
+  }
+
+  const file = req.file as Express.MulterS3.File;
+  const imageUrl = file.location;
+
+  const postId = parseInt(req.body.postId);
+  const post = await postService.uploadPostPhoto(postId, imageUrl);
+  if (!post) {
+    return res.status(500).send("internal server error");
+  }
+  return res.send(post);
+};

@@ -3,8 +3,19 @@ import { sequelize } from "./index";
 import Post from "./post.model";
 import User from "./user.model";
 
-const Comment = sequelize.define(
-  "Comment",
+class Comment
+  extends Model<CommentAttributes, CommentCreationAttributes>
+  implements CommentAttributes
+{
+  public id!: number;
+  public description!: string;
+  public userId!: number;
+  public postId!: number;
+  public createdAt!: Date;
+  public updatedAt!: Date;
+}
+
+Comment.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -48,7 +59,9 @@ const Comment = sequelize.define(
     },
   },
   {
+    sequelize,
     tableName: "comment",
+    timestamps: true,
   }
 );
 
@@ -68,4 +81,5 @@ Comment.belongsTo(User, {
   foreignKey: "userId",
   as: "user",
 });
+
 export default Comment;

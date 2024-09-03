@@ -24,11 +24,12 @@ passport.use(
         if (!user) {
           user = await User.create({
             googleId: profile.id,
-            email: profile.emails?.[0].value,
+            email: profile.emails?.[0].value ?? "",
             firstName: profile.name?.givenName,
             lastName: profile.name?.familyName,
             profilePicture: profile.photos?.[0].value,
             refreshToken: refreshToken,
+            role: "user",
           });
         }
 
