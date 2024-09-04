@@ -11,6 +11,7 @@ interface UserAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   googleId?: string;
+  mentionCount?: number;
 }
 
 interface UserCreationAttributes extends Omit<UserAttributes, "id"> {}

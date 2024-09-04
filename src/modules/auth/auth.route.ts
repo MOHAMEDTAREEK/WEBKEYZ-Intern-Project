@@ -13,7 +13,6 @@ import {
   customResetPassword,
   customResetPasswordWithoutToken,
   customSignUp,
-  getGoogleRefreshToken,
 } from "./auth.controller";
 import { emailCheckingSchema } from "./schemas/email-checking.schema";
 import { resetPasswordSchema } from "./schemas/reset-password.schema";
@@ -361,35 +360,6 @@ router.post(
   "/signup/access-token",
   validationMiddleware(googleAccessTokenSchema),
   asyncWrapper(getGoogleAccessToken)
-);
-
-/**
- * @swagger
- * /auth/login/refresh-token:
- *   post:
- *     summary: Get refresh token
- *     tags: [Auth WebKeyz]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refreshToken:
- *                 type: string
- *             required:
- *               - refreshToken
- *     responses:
- *       200:
- *         description: Refresh token issued
- *       400:
- *         description: Invalid request
- */
-router.post(
-  "/login/refresh-token",
-  validationMiddleware(googleRefreshTokenSchema),
-  asyncWrapper(getGoogleRefreshToken)
 );
 
 export default router;

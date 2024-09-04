@@ -4,6 +4,7 @@ import {
   getUserByEmail,
   getUserById,
   getUsers,
+  searchUsers,
 } from "./users.controller";
 import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
@@ -39,6 +40,8 @@ const router = Router();
  *         description: No users found
  */
 router.get("/", asyncWrapper(getUsers));
+
+router.get("/search", asyncWrapper(searchUsers));
 
 /**
  * @swagger

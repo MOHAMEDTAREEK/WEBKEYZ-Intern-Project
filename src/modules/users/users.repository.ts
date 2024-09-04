@@ -2,8 +2,10 @@ import User from "../../database/models/user.model";
 import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
+import { HttpStatusCode } from "axios";
 import logger from "../../shared/util/logger";
+import { Op } from "sequelize";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 
 /**
  * Retrieves all users from the database.
@@ -12,7 +14,7 @@ export const getUsers = async () => {
   const users = await User.findAll();
 
   if (!users) {
-    throw new BaseError("No users found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
   return users;
 };
@@ -28,6 +30,13 @@ export const getUserById = async (userId: number) => {
     },
   });
 
+  return user;
+};
+
+export const findUserByName = async (firstName: string, lastName: string) => {
+  const user = await User.findOne({
+    where: { firstName: firstName, lastName: lastName },
+  });
   return user;
 };
 
@@ -55,8 +64,6 @@ export const createUser = async (userData: CreateUserDto) => {
     password: hashedPassword,
   });
 
-  logger.info(`User with email ${userData.email} created successfully.`);
-
   const { password, ...userWithoutPassword } = user.toJSON();
   return userWithoutPassword;
 };
@@ -68,7 +75,8 @@ export const createUser = async (userData: CreateUserDto) => {
  */
 export const updateUserById = async (userId: number, updatedData: any) => {
   const user = await User.findByPk(userId);
-  if (!user) throw new BaseError("User not found", 404);
+  if (!user)
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   await user.update(updatedData);
   return user;
 };
@@ -82,10 +90,18 @@ export const validateCredentials = async (email: string, password: string) => {
     where: { email },
   });
 
-  if (!user) throw new BaseError("Invalid credentials", 401);
+  if (!user)
+    throw new BaseError(
+      ErrorMessage.INVALID_CREDENTIALS,
+      HttpStatusCode.Unauthorized
+    );
 
   const isValid = await bcrypt.compare(password, user.password || "");
-  if (!isValid) throw new BaseError("Invalid credentials", 401);
+  if (!isValid)
+    throw new BaseError(
+      ErrorMessage.INVALID_CREDENTIALS,
+      HttpStatusCode.Unauthorized
+    );
 
   user.password = "";
 
@@ -127,7 +143,8 @@ export const validateCredentials = async (email: string, password: string) => {
  */
 export const deleteUser = async (userId: number) => {
   const user = await User.findByPk(userId);
-  if (!user) throw new BaseError("User not found", 404);
+  if (!user)
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   await user.destroy();
   return user;
 };
@@ -140,4 +157,16 @@ export const getUserByRefreshToken = async (refreshToken: string) => {
   });
 
   return user;
+};
+
+export const searchUsers = async (searchTerm: string) => {
+  const users = await User.findAll({
+    where: {
+      [Op.or]: [
+        { firstName: { [Op.like]: `%${searchTerm}%` } },
+        { lastName: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+  });
+  return users;
 };

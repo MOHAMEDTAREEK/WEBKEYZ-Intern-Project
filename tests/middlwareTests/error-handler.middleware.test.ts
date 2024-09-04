@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { errorHandlerMiddleware } from "../../src/shared/middleware/error-Handler.middleware"; // Adjust the path accordingly
 import { BaseError } from "../../src/shared/exceptions/base.error";
-import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
 import logger from "../../src/shared/util/logger";
-
+import { HttpStatusCode } from "axios";
 // Mock the logger to avoid actual logging during tests
 jest.mock("../../src/shared/util/logger");
 
@@ -30,16 +29,19 @@ describe("errorHandlerMiddleware", () => {
   });
 
   it("should handle errors that are instances of BaseError", () => {
-    const baseError = new BaseError("Test BaseError", HttpStatus.BAD_REQUEST);
+    const baseError = new BaseError(
+      "Test BaseError",
+      HttpStatusCode.BadRequest
+    );
 
     errorHandlerMiddleware(baseError, req as Request, res as Response, next);
 
     expect(logger.error).toHaveBeenCalledWith(
-      `${HttpStatus.BAD_REQUEST} - Test BaseError - /test-url - GET - 127.0.0.1`
+      `${HttpStatusCode.BadRequest} - Test BaseError - /test-url - GET - 127.0.0.1`
     );
-    expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCode.BadRequest);
     expect(res.send).toHaveBeenCalledWith({
-      status: HttpStatus.BAD_REQUEST,
+      status: HttpStatusCode.BadRequest,
       message: "Test BaseError",
     });
     expect(next).not.toHaveBeenCalled();
@@ -60,9 +62,9 @@ describe("errorHandlerMiddleware", () => {
         generalError
       )}`
     );
-    expect(res.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCode.InternalServerError);
     expect(res.send).toHaveBeenCalledWith({
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      status: HttpStatusCode.InternalServerError,
       message: "Something went wrong",
     });
     expect(next).not.toHaveBeenCalled();
@@ -86,7 +88,10 @@ describe("errorHandlerMiddleware", () => {
     expect(next).toHaveBeenCalledWith(expect.any(Error));
   });
   it("should fail if the logger does not log the error for a BaseError", () => {
-    const baseError = new BaseError("Test BaseError", HttpStatus.BAD_REQUEST);
+    const baseError = new BaseError(
+      "Test BaseError",
+      HttpStatusCode.BadRequest
+    );
 
     // Override the logger.error mock to do nothing
     (logger.error as jest.Mock).mockImplementationOnce(() => {});
@@ -95,29 +100,35 @@ describe("errorHandlerMiddleware", () => {
 
     // Expect the logger to log, but since the implementation is overridden, the test should fail
     expect(logger.error).toHaveBeenCalledWith(
-      `${HttpStatus.BAD_REQUEST} - Test BaseError - /test-url - GET - 127.0.0.1`
+      `${HttpStatusCode.BadRequest} - Test BaseError - /test-url - GET - 127.0.0.1`
     );
   });
   it("should fail if the response status is not set correctly for a BaseError", () => {
-    const baseError = new BaseError("Test BaseError", HttpStatus.BAD_REQUEST);
+    const baseError = new BaseError(
+      "Test BaseError",
+      HttpStatusCode.BadRequest
+    );
 
     // Override the res.status mock to return an incorrect status
     (res.status as jest.Mock).mockReturnValueOnce({
       ...res,
-      status: HttpStatus.INTERNAL_SERVER_ERROR, // Intentional incorrect status
+      status: HttpStatusCode.InternalServerError, // Intentional incorrect status
     });
 
     errorHandlerMiddleware(baseError, req as Request, res as Response, next);
 
     // Expect the status to be HttpStatus.BAD_REQUEST, but the mock is returning INTERNAL_SERVER_ERROR
-    expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCode.BadRequest);
   });
   it("should fail if the response message is not sent correctly for a BaseError", () => {
-    const baseError = new BaseError("Test BaseError", HttpStatus.BAD_REQUEST);
+    const baseError = new BaseError(
+      "Test BaseError",
+      HttpStatusCode.BadRequest
+    );
 
     // Override the res.send mock to send an incorrect message
     (res.send as jest.Mock).mockReturnValueOnce({
-      status: HttpStatus.BAD_REQUEST,
+      status: HttpStatusCode.BadRequest,
       message: "Incorrect Message", // Intentional incorrect message
     });
 
@@ -125,7 +136,7 @@ describe("errorHandlerMiddleware", () => {
 
     // Expect the message to be "Test BaseError", but the mock is sending "Incorrect Message"
     expect(res.send).toHaveBeenCalledWith({
-      status: HttpStatus.BAD_REQUEST,
+      status: HttpStatusCode.BadRequest,
       message: "Test BaseError",
     });
   });
@@ -135,7 +146,7 @@ describe("errorHandlerMiddleware", () => {
     // Override the res.status mock to return an incorrect status
     (res.status as jest.Mock).mockReturnValueOnce({
       ...res,
-      status: HttpStatus.BAD_REQUEST, // Intentional incorrect status
+      status: HttpStatusCode.BadRequest, // Intentional incorrect status
     });
 
     errorHandlerMiddleware(
@@ -146,6 +157,6 @@ describe("errorHandlerMiddleware", () => {
     );
 
     // Expect the status to be HttpStatus.INTERNAL_SERVER_ERROR, but the mock is returning BAD_REQUEST
-    expect(res.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCode.InternalServerError);
   });
 });

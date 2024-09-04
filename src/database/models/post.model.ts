@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "./index";
 import User from "./user.model";
+import Mention from "./mention.model";
 
 class Post
   extends Model<PostAttributes, PostCreationAttributes>
@@ -65,7 +66,7 @@ Post.init(
   }
 );
 
-User.hasMany(Post, { foreignKey: "userId", as: "posts" });
+User.hasMany(Post, { foreignKey: "userId", as: "post" });
 Post.belongsTo(User, { foreignKey: "userId", as: "user" });
 
 export default Post;

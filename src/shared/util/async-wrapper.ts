@@ -6,10 +6,9 @@ type AsyncHandler = (
   next: NextFunction
 ) => Promise<any>;
 
-
 /**
  * Wraps an asynchronous request handler with error handling.
- * 
+ *
  * @param handler - The asynchronous request handler to wrap.
  * @returns A wrapped request handler function that handles errors.
  */

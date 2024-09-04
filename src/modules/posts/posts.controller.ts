@@ -1,5 +1,12 @@
 import { Request, Response } from "express";
 import * as postService from "./posts.service";
+import * as postRepository from "./posts.repository";
+import { HttpStatusCode } from "axios";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import { BaseError } from "../../shared/exceptions/base.error";
+import { IResponse } from "../../shared/interfaces/IResponse.interface";
+import { createResponse } from "../../shared/util/create-response";
+import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -14,9 +21,14 @@ export const getPosts = async (
 ): Promise<Response> => {
   const posts = await postService.getPosts();
   if (!posts) {
-    return res.status(404).send("No posts found");
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  return res.send(posts);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.Post_RETRIEVAL_SUCCESS,
+    posts
+  );
+  return res.send(response);
 };
 /**
  * Retrieves a post by its ID.
@@ -30,9 +42,14 @@ export const getPostById = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   const post = await postService.getPostById(id);
   if (!post) {
-    return res.status(404).send("Post not found");
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  return res.send(post);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.Post_RETRIEVAL_SUCCESS,
+    post
+  );
+  return res.send(response);
 };
 
 /**
@@ -44,11 +61,19 @@ export const getPostById = async (req: Request, res: Response) => {
  */
 export const createPost = async (req: Request, res: Response) => {
   const postData = req.body;
-  const post = await postService.createPost(postData);
+  const { post, mentionedUserNames } = await postService.createPost(postData);
   if (!post) {
-    return res.status(500).send("internal server error");
+    throw new BaseError(
+      ErrorMessage.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.InternalServerError
+    );
   }
-  return res.send(post);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Created,
+    SuccessMessage.POST_CREATION_SUCCESS,
+    { post, mentionedUserNames }
+  );
+  return res.send(response);
 };
 
 /**
@@ -66,9 +91,18 @@ export const fullyUpdatePost = async (
   const postData = req.body;
   const post = await postService.fullyUpdatePost(id, postData);
   if (!post) {
-    return res.status(500).send("internal server error");
+    throw new BaseError(
+      ErrorMessage.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.InternalServerError
+    );
   }
-  return res.send(post);
+
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.POST_FULL_UPDATE_SUCCESS,
+    post
+  );
+  return res.send(response);
 };
 
 /**
@@ -83,9 +117,17 @@ export const partiallyUpdatePost = async (req: Request, res: Response) => {
   const { description, image } = req.body;
   const post = await postService.partiallyUpdatePost(id, description, image);
   if (!post) {
-    return res.status(500).send("internal server error");
+    throw new BaseError(
+      ErrorMessage.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.InternalServerError
+    );
   }
-  return res.send(post);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.POST_Partial_UPDATE_SUCCESS,
+    post
+  );
+  return res.send(response);
 };
 
 /**
@@ -99,14 +141,22 @@ export const deletePost = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   const post = await postService.deletePost(id);
   if (!post) {
-    return res.status(500).send("internal server error");
+    throw new BaseError(
+      ErrorMessage.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.InternalServerError
+    );
   }
-  return res.send(post);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.POST_DELETION_SUCCESS,
+    post
+  );
+  return res.send(response);
 };
 
 export const uploadPostPhoto = async (req: Request, res: Response) => {
   if (!req.file) {
-    return res.status(400).send("No file uploaded");
+    return res.status(HttpStatusCode.BadRequest).send("No file uploaded");
   }
 
   const file = req.file as Express.MulterS3.File;
@@ -115,7 +165,50 @@ export const uploadPostPhoto = async (req: Request, res: Response) => {
   const postId = parseInt(req.body.postId);
   const post = await postService.uploadPostPhoto(postId, imageUrl);
   if (!post) {
-    return res.status(500).send("internal server error");
+    throw new BaseError(
+      ErrorMessage.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.InternalServerError
+    );
   }
-  return res.send(post);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.UPLOADING_POST_IMAGE_SUCCESS,
+    post
+  );
+  return res.send(response);
+};
+
+export const getMentions = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const mentions = await postRepository.getMentions(id);
+  if (!mentions) {
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_GET_MENTIONS,
+      HttpStatusCode.NotFound
+    );
+  }
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.MENTIONS_RETRIEVAL_SUCCESS,
+    mentions
+  );
+  return res.send(response);
+};
+
+export const createPostWithMention = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId);
+  const postData = req.body;
+  const { post, mentionedUser } = await postService.createPostWithMention(
+    postData,
+    userId
+  );
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.MENTIONS_CREATION_SUCCESS,
+    {
+      post: post,
+      mentionedUser: mentionedUser,
+    }
+  );
+  return res.send(response);
 };

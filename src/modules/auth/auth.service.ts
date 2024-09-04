@@ -3,11 +3,12 @@ import * as userRepository from "../users/users.repository";
 import * as userService from "../users/users.service";
 import config from "../../config";
 import jwt from "jsonwebtoken";
-import axios from "axios";
+import axios, { HttpStatusCode } from "axios";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { UserRole } from "../../shared/enums/user-Role.enum";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 
 /**
  * Handles user sign up by creating a new user, generating tokens, and updating the refresh token.
@@ -17,11 +18,17 @@ import { UserRole } from "../../shared/enums/user-Role.enum";
 export const signUp = async (userData: SignupDto) => {
   const user = await userRepository.createUser(userData);
   if (!user) {
-    throw new BaseError("Error creating user", 500);
+    throw new BaseError(
+      ErrorMessage.USER_CREATION_FAILED,
+      HttpStatusCode.InternalServerError
+    );
   }
   const tokens = await getTokens(user.id, user.email);
   if (!tokens) {
-    throw new BaseError("Error generating tokens", 500);
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_GENERATE_TOKENS,
+      HttpStatusCode.InternalServerError
+    );
   }
 
   await updateRefreshToken(user.id, tokens.refreshToken);
@@ -41,12 +48,18 @@ export const logIn = async (userData: LoginDto) => {
   );
 
   if (!user) {
-    throw new BaseError("Invalid credentials", 401);
+    throw new BaseError(
+      ErrorMessage.INVALID_CREDENTIALS,
+      HttpStatusCode.Unauthorized
+    );
   }
 
   const tokens = await getTokens(user.id, user.email);
   if (!tokens) {
-    throw new BaseError("Error generating tokens", 500);
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_GENERATE_TOKENS,
+      HttpStatusCode.InternalServerError
+    );
   }
 
   await updateRefreshToken(user.id, tokens.refreshToken);
@@ -68,7 +81,7 @@ export const refreshTokens = async (refreshToken: string) => {
   const user = await userRepository.getUserById(decoded.userId);
 
   if (!user) {
-    throw new BaseError("User not found", 404);
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
 
   const isRefreshTokenValid = await bcrypt.compare(
@@ -77,7 +90,10 @@ export const refreshTokens = async (refreshToken: string) => {
   );
 
   if (!isRefreshTokenValid) {
-    throw new BaseError("Invalid refresh token", 401);
+    throw new BaseError(
+      ErrorMessage.INVALID_REFRESH_TOKEN,
+      HttpStatusCode.Unauthorized
+    );
   }
   const payload = { userId: user.id, email: user.email };
 
@@ -85,7 +101,10 @@ export const refreshTokens = async (refreshToken: string) => {
     expiresIn: config.accessToken.expiresIn,
   });
   if (!accessToken) {
-    throw new BaseError("Error generating tokens", 500);
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_GENERATE_TOKENS,
+      HttpStatusCode.InternalServerError
+    );
   }
 
   return {
@@ -181,12 +200,15 @@ export const verifyResetToken = async (resetToken: string) => {
   ) as jwt.JwtPayload;
 
   if (!decoded) {
-    throw new BaseError("Invalid reset token", 400);
+    throw new BaseError(
+      ErrorMessage.INVALID_RESET_TOKEN,
+      HttpStatusCode.Unauthorized
+    );
   }
   const user = await userRepository.getUserById(decoded.userId);
 
   if (!user) {
-    throw new BaseError("User not found", 404);
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
 
   return user;
@@ -211,7 +233,10 @@ export const inviteHr = async (email: string) => {
   };
   const userExists = await userRepository.getUserByEmail(email);
   if (userExists) {
-    throw new BaseError("User already exists", 400);
+    throw new BaseError(
+      ErrorMessage.USER_ALREADY_EXISTS,
+      HttpStatusCode.BadRequest
+    );
   }
   const newUser = await userRepository.createUser(userData);
 
@@ -240,7 +265,10 @@ export const getGoogleToken = async (user: any) => {
 export const getUserDataFromToken = async (token: string): Promise<any> => {
   const decodedUserData = await verifyGoogleToken(token);
   if (!decodedUserData) {
-    return new BaseError("Invalid token", 400);
+    return new BaseError(
+      ErrorMessage.INVALID_TOKEN,
+      HttpStatusCode.Unauthorized
+    );
   }
 
   const userData = {
@@ -257,11 +285,14 @@ export const getUserDataFromToken = async (token: string): Promise<any> => {
 export const loginGoogleUser = async (email: string) => {
   const credentialsMatch = await userRepository.validateCredentials(email, "");
   if (!credentialsMatch) {
-    return new BaseError("Invalid credentials", 400);
+    return new BaseError(
+      ErrorMessage.INVALID_CREDENTIALS,
+      HttpStatusCode.Unauthorized
+    );
   }
   const user = await userRepository.getUserByEmail(email);
   if (!user) {
-    throw new BaseError("User not found", 404);
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
   const accessToken = await getGoogleToken(user);
 
@@ -271,11 +302,16 @@ export const loginGoogleUser = async (email: string) => {
 export const getCustomTokens = async (refreshToken: string) => {
   const verifyToken = await verifyRefreshToken(refreshToken);
   if (!verifyToken) {
-    throw new BaseError("Invalid refresh token", 400);
+    throw new BaseError(
+      ErrorMessage.INVALID_TOKEN,
+      HttpStatusCode.Unauthorized
+    );
   }
 
   const user = await userRepository.getUserByRefreshToken(refreshToken);
-
+  if (!user) {
+    return new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
   const tokens = await getTokens(user.id, user.email);
   await updateRefreshToken(user.id, tokens.refreshToken);
   return tokens;

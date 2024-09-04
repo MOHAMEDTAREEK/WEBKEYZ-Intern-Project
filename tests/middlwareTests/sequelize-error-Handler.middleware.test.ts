@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { ValidationError, DatabaseError, ValidationErrorItem } from "sequelize";
 import { sequelizeErrorHandlerMiddleware } from "../../src/shared/middleware/Sequelize-Error-Handler.middleware"; // Adjust the path accordingly
-import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
 import logger from "../../src/shared/util/logger";
 import { DatabaseErrorParent } from "sequelize/types/errors/database-error";
+import { HttpStatusCode } from "axios";
 
 // Mock the logger to avoid actual logging during tests
 jest.mock("../../src/shared/util/logger");
@@ -41,9 +41,9 @@ describe("sequelizeErrorHandlerMiddleware", () => {
     expect(logger.error).toHaveBeenCalledWith(
       `Sequelize Database Error: DB connection failed`
     );
-    expect(res.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCode.InternalServerError);
     expect(res.json).toHaveBeenCalledWith({
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      status: HttpStatusCode.InternalServerError,
       message: "Database error occurred",
     });
     expect(next).not.toHaveBeenCalled();

@@ -3,10 +3,12 @@ import {
   createPost,
   deletePost,
   fullyUpdatePost,
+  getMentions,
   getPostById,
   getPosts,
   partiallyUpdatePost,
   uploadPostPhoto,
+  createPostWithMention,
 } from "./posts.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { fullyUpdatePostSchema } from "./schemas/fullyUpdatePost.schema";
@@ -40,4 +42,6 @@ router.post(
   s3Upload.single("photo"),
   uploadPostPhoto
 );
+router.get("/test/:id", getMentions);
+router.post("/mentions/:userId", createPostWithMention);
 export default router;

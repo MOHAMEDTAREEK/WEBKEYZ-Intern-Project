@@ -6,6 +6,11 @@ import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { sendEmail } from "../../shared/util/send-email";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import { HttpStatusCode } from "axios";
+import { IResponse } from "../../shared/interfaces/IResponse.interface";
+import { createResponse } from "../../shared/util/create-response";
+import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
 
 /**
  * Handles user sign up by checking if the user already exists, signing up the user, setting cookies for tokens,
@@ -23,7 +28,10 @@ export const customSignUp = async (
   const userData: SignupDto = req.body;
   const userExists = await userService.getUserByEmail(userData.email);
   if (userExists) {
-    return res.status(400).send("User already exists");
+    throw new BaseError(
+      ErrorMessage.USER_ALREADY_EXISTS,
+      HttpStatusCode.BadRequest
+    );
   }
   const { user, tokens } = await authService.signUp(userData);
 
@@ -36,7 +44,12 @@ export const customSignUp = async (
     secure: true,
   });
 
-  return res.send({ user, tokens });
+  const response: IResponse = createResponse(
+    HttpStatusCode.Created,
+    SuccessMessage.USER_CREATION_SUCCESS,
+    { user, tokens }
+  );
+  return res.send(response);
 };
 
 /**
@@ -51,24 +64,23 @@ export const customLogin = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  try {
-    const userData: LoginDto = req.body;
-    const { user, tokens } = await authService.logIn(userData);
+  const userData: LoginDto = req.body;
+  const { user, tokens } = await authService.logIn(userData);
 
-    res.cookie("refreshToken", tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-    });
-    res.cookie("accessToken", tokens.accessToken, {
-      httpOnly: true,
-      secure: true,
-    });
-    return res.send({ user, tokens });
-  } catch (error) {
-    const statusCode =
-      (error as Error).message === "Invalid credentials" ? 401 : 500;
-    return res.status(statusCode).send((error as Error).message);
-  }
+  res.cookie("refreshToken", tokens.refreshToken, {
+    httpOnly: true,
+    secure: true,
+  });
+  res.cookie("accessToken", tokens.accessToken, {
+    httpOnly: true,
+    secure: true,
+  });
+  const response: IResponse = createResponse(
+    HttpStatusCode.Created,
+    SuccessMessage.USER_LOGIN_SUCCESS,
+    { user, tokens }
+  );
+  return res.send(response);
 };
 
 /**
@@ -86,12 +98,18 @@ export const customRefreshTokens = async (
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
-    throw new BaseError("Refresh token is missing", 400);
+    throw new BaseError(
+      ErrorMessage.INVALID_CREDENTIALS,
+      HttpStatusCode.Unauthorized
+    );
   }
   const { newAccessToken } = await authService.refreshTokens(refreshToken);
 
   if (!newAccessToken) {
-    throw new BaseError("Failed to generate new access token", 500);
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_GENERATE_ACCESS_TOKEN,
+      HttpStatusCode.InternalServerError
+    );
   }
 
   res.cookie("accessToken", newAccessToken, {
@@ -99,8 +117,12 @@ export const customRefreshTokens = async (
     secure: true,
     sameSite: "strict",
   });
-
-  return res.send({ newAccessToken });
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.TOKEN_REFRESH_SUCCESS,
+    newAccessToken
+  );
+  return res.send(response);
 };
 
 /**
@@ -126,13 +148,21 @@ export const customForgotPassword = async (
   const userEmail = user.dataValues.email;
   const resetToken = await authService.generateResetToken(userId, userEmail);
   if (!resetToken) {
-    throw new BaseError("Failed to generate reset token", 500);
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_GENERATE_RESET_TOKEN,
+      HttpStatusCode.InternalServerError
+    );
   }
   await sendEmail(
     email,
     `Click the following link to reset your password: http://localhost:3000/reset-password/:${resetToken}`
   );
-  return res.send({ resetToken: resetToken });
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.RESET_TOKEN_CREATED_SUCCESS,
+    { resetToken: resetToken }
+  );
+  return res.send(response);
 };
 
 /**
@@ -148,15 +178,25 @@ export const customResetPassword = async (req: Request, res: Response) => {
   const { token } = req.params;
 
   if (!token) {
-    throw new BaseError("Token is required", 400);
+    throw new BaseError(
+      ErrorMessage.TOKEN_REQUIRED,
+      HttpStatusCode.Unauthorized
+    );
   }
   const userData = await authService.verifyResetToken(token);
   if (!userData) {
-    throw new BaseError("Invalid or expired token", 400);
+    throw new BaseError(
+      ErrorMessage.INVALID_OR_EXPIRED_TOKEN,
+      HttpStatusCode.Unauthorized
+    );
   }
 
   await authService.resetPassword(userData.id, password);
-  return res.send("Password reset successfully");
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.PASSWORD_RESET_SUCCESS
+  );
+  return res.send(response);
 };
 
 /**
@@ -173,14 +213,18 @@ export const customResetPasswordWithoutToken = async (
 ): Promise<Response> => {
   const { email, password } = req.body;
   if (!email) {
-    throw new BaseError("Email is required", 400);
+    throw new BaseError(ErrorMessage.EMAIL_REQUIRED, HttpStatusCode.BadRequest);
   }
   const user = await userRepository.getUserByEmail(email);
   if (!user) {
-    throw new BaseError("User not found", 404);
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
   await authService.resetPassword(user.dataValues.id, password);
-  return res.send("Password reset successfully");
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.PASSWORD_RESET_SUCCESS
+  );
+  return res.send(response);
 };
 
 /**
@@ -196,7 +240,11 @@ export const customLogout = async (
 ): Promise<Response> => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
-  return res.send("Logged out successfully");
+  const response: IResponse = createResponse(
+    HttpStatusCode.NoContent,
+    SuccessMessage.USER_LOGOUT_SUCCESS
+  );
+  return res.send(response);
 };
 
 /**
@@ -212,14 +260,21 @@ export const customInviteHr = async (req: Request, res: Response) => {
   const { email } = req.body;
   const user = await userRepository.getUserByEmail(email);
   if (user) {
-    throw new BaseError("User already exists", 400);
+    throw new BaseError(
+      ErrorMessage.USER_ALREADY_EXISTS,
+      HttpStatusCode.BadRequest
+    );
   }
   const newHr = await authService.inviteHr(email);
   await sendEmail(
     email,
     `Hi Hr this is your new temp password please login with it ${newHr.password}`
   );
-  return res.status(200).send("Invitation sent successfully");
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.Invitation_SENT_SUCCESS
+  );
+  return res.send(response);
 };
 
 /**
@@ -231,7 +286,10 @@ export const customInviteHr = async (req: Request, res: Response) => {
 export const googleAuthCallback = async (req: Request, res: Response) => {
   const { user, accessToken } = req.user as any;
   if (!user) {
-    return res.status(401).json({ message: "Authentication failed" });
+    throw new BaseError(
+      ErrorMessage.AUTHENTICATION_FAILED,
+      HttpStatusCode.Unauthorized
+    );
   }
 
   const token = await authService.getGoogleToken(user);
@@ -253,22 +311,29 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
 export const getGoogleAccessToken = async (req: Request, res: Response) => {
   const { idToken } = req.body;
   if (!idToken) {
-    return res.status(400).json({ message: "Access token is required" });
+    throw new BaseError(
+      ErrorMessage.ACCESS_TOKEN_REQUIRED,
+      HttpStatusCode.Unauthorized
+    );
   }
 
   const userData = await authService.getUserDataFromToken(idToken);
 
   const userExists = await userRepository.getUserByEmail(userData.email);
-  16;
+
   if (userExists) {
     const userAccessToken = await authService.loginGoogleUser(userData.email);
     res.cookie("accessToken", userAccessToken, {
       httpOnly: true,
       secure: true,
     });
-    return res
-      .status(200)
-      .send({ userAccessToken, message: "User logged in successfully" });
+
+    const response: IResponse = createResponse(
+      HttpStatusCode.Ok,
+      SuccessMessage.USER_LOGIN_SUCCESS,
+      { userAccessToken: userAccessToken }
+    );
+    return res.send(response);
   }
   const user = await userRepository.createUser(userData);
   const accessToken = await authService.getGoogleToken(userData);
@@ -278,24 +343,10 @@ export const getGoogleAccessToken = async (req: Request, res: Response) => {
   });
 
   res.status(201).send({ user, accessToken });
-};
-
-export const getGoogleRefreshToken = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  const { refreshToken } = req.body;
-  if (!refreshToken) {
-    return res.status(400).json({ message: "Refresh token is required" });
-  }
-  const tokens = await authService.getCustomTokens(refreshToken);
-  res.cookie("refreshToken", tokens.refreshToken, {
-    httpOnly: true,
-    secure: true,
-  });
-  res.cookie("accessToken", tokens.accessToken, {
-    httpOnly: true,
-    secure: true,
-  });
-  return res.send({ tokens });
+  const response: IResponse = createResponse(
+    HttpStatusCode.Created,
+    SuccessMessage.USER_CREATION_SUCCESS,
+    { user: user, userAccessToken: accessToken }
+  );
+  return res.send(response);
 };

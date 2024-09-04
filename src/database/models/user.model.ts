@@ -1,5 +1,6 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
 import { sequelize } from "./index";
+import Mention from "./mention.model";
 class User
   extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes
@@ -16,6 +17,7 @@ class User
   public createdAt!: Date;
   public updatedAt!: Date;
   public googleId?: string;
+  public mentionCount!: number;
 }
 
 User.init(
@@ -82,6 +84,12 @@ User.init(
       allowNull: true,
       unique: true,
       field: "google_id",
+    },
+    mentionCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      field: "mention_count",
     },
   },
   {

@@ -1,5 +1,11 @@
 import { Request, Response } from "express";
 import * as commentService from "./comments.service";
+import { BaseError } from "../../shared/exceptions/base.error";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import { HttpStatusCode } from "axios";
+import { IResponse } from "../../shared/interfaces/IResponse.interface";
+import { createResponse } from "../../shared/util/create-response";
+import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
 export const getComments = async (req: Request, res: Response) => {
   const comments = await commentService.getComments();
   return res.send(comments);
@@ -8,7 +14,12 @@ export const getComments = async (req: Request, res: Response) => {
 export const createComment = async (req: Request, res: Response) => {
   const commentData = req.body;
   const comment = await commentService.createComment(commentData);
-  return res.send(comment);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.COMMENT_CREATION_SUCCESS,
+    comment
+  );
+  return res.send(response);
 };
 
 export const fullyUpdateComment = async (req: Request, res: Response) => {
@@ -18,7 +29,12 @@ export const fullyUpdateComment = async (req: Request, res: Response) => {
     commentId,
     commentData
   );
-  return res.send(comment);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.COMMENT_FULL_UPDATE_SUCCESS,
+    comment
+  );
+  return res.send(response);
 };
 
 export const partiallyUpdateComment = async (req: Request, res: Response) => {
@@ -29,12 +45,25 @@ export const partiallyUpdateComment = async (req: Request, res: Response) => {
     description
   );
   if (!comment) {
-    return res.status(404).send("Comment not found");
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
   }
-  return res.send(comment);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.COMMENT_Partial_UPDATE_SUCCESS,
+    comment
+  );
+  return res.send(response);
 };
 export const deleteComment = async (req: Request, res: Response) => {
   const commentId = req.params.id;
   const comment = await commentService.deleteComment(commentId);
-  return res.send(comment);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.COMMENT_DELETION_SUCCESS,
+    comment
+  );
+  return res.send(response);
 };

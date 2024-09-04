@@ -1,4 +1,6 @@
+import { HttpStatusCode } from "axios";
 import Comment from "../../database/models/comment.model";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import { BaseError } from "../../shared/exceptions/base.error";
 
 export const getComments = async () => {
@@ -17,7 +19,10 @@ export const fullyUpdateComment = async (
 ) => {
   const comment = await Comment.findByPk(commentId);
   if (!comment) {
-    throw new BaseError("Comment not found", 404);
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
   }
   await comment.update(commentData);
   return comment;
@@ -29,7 +34,10 @@ export const partiallyUpdateComment = async (
 ) => {
   const comment = (await Comment.findByPk(commentId)) as any;
   if (!comment) {
-    throw new BaseError("Comment not found", 404);
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
   }
   if (description !== undefined) comment.description = description;
   await comment.save();

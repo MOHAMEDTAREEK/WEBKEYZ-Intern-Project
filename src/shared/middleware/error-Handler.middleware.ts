@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { BaseError } from "../exceptions/base.error";
-import { HttpStatus } from "../enums/http-Status.enum";
+import { HttpStatusCode } from "axios";
 import logger from "../util/logger";
 
 /**
@@ -18,7 +18,7 @@ export const errorHandlerMiddleware = (
 ) => {
   try {
     if (error instanceof BaseError) {
-      const status = error.status || 500;
+      const status = error.status || HttpStatusCode.InternalServerError;
       const message = error.response || "Something went wrong";
       logger.error(
         `${status} - ${message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
@@ -32,8 +32,8 @@ export const errorHandlerMiddleware = (
         `Unhandled Error : ${error} - ${req.originalUrl} - ${req.method} - ${req.ip} - ${JSON.stringify(error)}`
       );
 
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      return res.status(HttpStatusCode.InternalServerError).send({
+        status: HttpStatusCode.InternalServerError,
         message: "Something went wrong",
       });
     }

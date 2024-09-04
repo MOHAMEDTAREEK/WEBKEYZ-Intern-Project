@@ -7,10 +7,10 @@ import {
 } from "../../src/modules/users/users.repository";
 import User from "../../src/database/models/user.model";
 import { BaseError } from "../../src/shared/exceptions/base.error";
-import { HttpStatus } from "../../src/shared/enums/http-Status.enum";
 import bcrypt from "bcrypt";
 import logger from "../../src/shared/util/logger";
 import { UserRole } from "../../src/shared/enums/user-Role.enum";
+import { HttpStatusCode } from "axios";
 
 jest.mock("../../src/database/models/user.model");
 jest.mock("bcrypt");
@@ -39,7 +39,7 @@ describe("User Repository", () => {
 
       // Act & Assert
       await expect(getUsers()).rejects.toThrow(
-        new BaseError("No users found", HttpStatus.NOT_FOUND)
+        new BaseError("No users found", HttpStatusCode.NotFound)
       );
     });
   });

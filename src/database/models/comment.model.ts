@@ -67,7 +67,7 @@ Comment.init(
 
 Post.hasMany(Comment, {
   foreignKey: "postId",
-  as: "comments",
+  as: "comment",
 });
 Comment.belongsTo(Post, {
   foreignKey: "postId",
@@ -75,7 +75,7 @@ Comment.belongsTo(Post, {
 });
 User.hasMany(Comment, {
   foreignKey: "userId",
-  as: "comments",
+  as: "comment",
 });
 Comment.belongsTo(User, {
   foreignKey: "userId",

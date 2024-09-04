@@ -82,3 +82,8 @@ export const deleteUser = async (userId: number) => {
   const deletedUser = await userRepository.deleteUser(userId);
   return deletedUser;
 };
+
+export const searchUsers = async (searchTerm: string) => {
+  const users = await userRepository.searchUsers(searchTerm);
+  return users;
+};

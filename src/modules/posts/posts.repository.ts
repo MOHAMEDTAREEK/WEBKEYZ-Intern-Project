@@ -1,8 +1,10 @@
 import Post from "../../database/models/post.model";
 import { BaseError } from "../../shared/exceptions/base.error";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
+import * as userRepository from "../users/users.repository";
+import Mention from "../../database/models/mention.model";
 import { PostDto } from "./posts.dto";
-
+import { HttpStatusCode } from "axios";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 /**
  * Asynchronously retrieves all posts from the database.
  *
@@ -12,7 +14,7 @@ import { PostDto } from "./posts.dto";
 export const getPosts = async (): Promise<Post[]> => {
   const posts = await Post.findAll();
   if (!posts) {
-    throw new BaseError("Posts not found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   return posts;
 };
@@ -26,7 +28,7 @@ export const getPosts = async (): Promise<Post[]> => {
 export const getPostById = async (id: number) => {
   const post = await Post.findByPk(id);
   if (!post) {
-    throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   return post;
 };
@@ -41,7 +43,10 @@ export const getPostById = async (id: number) => {
 export const createPost = async (postData: any) => {
   const post = await Post.create(postData);
   if (!post) {
-    throw new BaseError("Post not created", HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_CREATE_POST,
+      HttpStatusCode.InternalServerError
+    );
   }
   return post;
 };
@@ -56,7 +61,7 @@ export const createPost = async (postData: any) => {
 export const fullyUpdatePost = async (id: number, postData: any) => {
   const post = await Post.findByPk(id);
   if (!post) {
-    throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   await post.update(postData);
   return post;
@@ -77,7 +82,7 @@ export const partiallyUpdatePost = async (
 ) => {
   const post = await Post.findByPk(id);
   if (!post) {
-    throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   if (description !== undefined) post.description = description;
   if (image !== undefined) post.image = image;
@@ -95,7 +100,7 @@ export const partiallyUpdatePost = async (
 export const deletePost = async (id: number) => {
   const post = await Post.findByPk(id);
   if (!post) {
-    throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   await post.destroy();
   return post;
@@ -104,9 +109,68 @@ export const deletePost = async (id: number) => {
 export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
   const post = await Post.findByPk(postId);
   if (!post) {
-    throw new BaseError("Post not found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   post.image = imageUrl;
   await post.save();
   return post;
+};
+export const createMentions = async (postId: number, mentions: string[]) => {
+  const post = await Post.findByPk(postId);
+  if (!post) {
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const mentionedUserNames: string[] = []; // Array to store names of mentioned users
+
+  for (const name of mentions) {
+    const [firstName, lastName] = name.split(" ");
+    console.log(firstName, lastName);
+    const user = await userRepository.findUserByName(firstName, lastName);
+    console.log(user);
+    if (user) {
+      // Store the mention
+      await createMention(postId, user.id);
+
+      // Increment the user's mention count
+      user.mentionCount += 1;
+      await user.save();
+      mentionedUserNames.push(`${firstName} ${lastName}`);
+    }
+  }
+
+  const mentionsList = await getMentions(postId);
+  const mentionedUserIds = mentionsList.map(
+    (mention) => mention.mentionedUserId
+  );
+
+  return mentionedUserNames;
+};
+
+export const createMention = async (postId: number, userId: number) => {
+  const mention = await Mention.create({
+    postId: postId,
+    mentionedUserId: userId,
+  });
+  return mention;
+};
+
+export const getMentions = async (postId: number) => {
+  const mentions = await Mention.findAll({
+    where: {
+      postId: postId,
+    },
+  });
+  return mentions;
+};
+
+export const createPostWithMention = async (
+  postData: PostDto,
+  userId: number
+) => {
+  const createdPost = await createPost(postData);
+  const mentions = await createMention(createdPost.id, userId);
+  return {
+    post: createdPost,
+    mentions: mentions,
+  };
 };

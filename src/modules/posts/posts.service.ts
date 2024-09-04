@@ -1,5 +1,7 @@
 import * as postRepository from "./posts.repository";
-
+import { extractMentions } from "../../shared/util/extract-mention";
+import { PostDto } from "./posts.dto";
+import * as userService from "../users/users.service";
 /**
  * Asynchronous function to retrieve all posts.
  *
@@ -28,9 +30,19 @@ export const getPostById = async (id: number): Promise<any> => {
  * @returns The newly created post.
  */
 
-export const createPost = async (postData: any) => {
+export const createPost = async (postData: PostDto) => {
   const post = await postRepository.createPost(postData);
-  return post;
+  const mentions = postData.description
+    ? extractMentions(postData.description)
+    : [];
+
+  const mentionedUserNames = await postRepository.createMentions(
+    post.id,
+    mentions
+  );
+  console.log(mentionedUserNames);
+
+  return { post, mentionedUserNames };
 };
 /**
  * Updates a post with new data.
@@ -74,4 +86,19 @@ export const deletePost = async (id: number): Promise<any> => {
 export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
   const post = await postRepository.uploadPostPhoto(postId, imageUrl);
   return post;
+};
+
+export const createPostWithMention = async (
+  postData: PostDto,
+  userId: number
+) => {
+  const { post, mentions } = await postRepository.createPostWithMention(
+    postData,
+    userId
+  );
+  const mentionedUser = await userService.getUserById(userId);
+  return {
+    post: post,
+    mentionedUser: mentionedUser,
+  };
 };

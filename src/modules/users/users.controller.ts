@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
 import * as userService from "./users.service";
 import { BaseError } from "../../shared/exceptions/base.error";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
 import { CreateUserDto } from "./dtos/create-user.dto";
+import { HttpStatusCode } from "axios";
+import { IResponse } from "../../shared/interfaces/IResponse.interface";
+import { createResponse } from "../../shared/util/create-response";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
 
 /**
  * Retrieves all users and sends them as a response.
@@ -17,7 +21,12 @@ export const getUsers = async (
 ): Promise<Response> => {
   const users = await userService.getUsers();
 
-  return res.send(users);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.USER_RETRIEVAL_SUCCESS,
+    users
+  );
+  return res.send(response);
 };
 
 /**
@@ -36,11 +45,16 @@ export const createUser = async (
   const createdUser = await userService.createUser(userData);
   if (!createdUser) {
     throw new BaseError(
-      "Failed to create user",
-      HttpStatus.INTERNAL_SERVER_ERROR
+      ErrorMessage.USER_CREATION_FAILED,
+      HttpStatusCode.InternalServerError
     );
   }
-  return res.send(createdUser);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Created,
+    SuccessMessage.USER_CREATION_SUCCESS,
+    createdUser
+  );
+  return res.send(response);
 };
 
 /**
@@ -59,9 +73,16 @@ export const getUserById = async (
 
   const user = await userService.getUserById(userId);
   if (!user) {
-    return res.status(HttpStatus.NOT_FOUND).send("User not found");
+    return res
+      .status(HttpStatusCode.NotFound)
+      .send(ErrorMessage.USER_NOT_FOUND);
   }
-  return res.send(user);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.USER_RETRIEVAL_SUCCESS,
+    user
+  );
+  return res.send(response);
 };
 
 /**
@@ -77,26 +98,31 @@ export const getUserByEmail = async (
 ): Promise<Response> => {
   const email = req.query.email as string;
   if (!email) {
-    return res
-      .status(HttpStatus.BAD_REQUEST)
-      .send("Email query parameter is required");
+    throw new BaseError(ErrorMessage.EMAIL_REQUIRED, HttpStatusCode.BadRequest);
   }
 
   const user = await userService.getUserByEmail(email);
   if (!user) {
-    return res.status(HttpStatus.NOT_FOUND).send("User not found");
+    return res
+      .status(HttpStatusCode.NotFound)
+      .send(ErrorMessage.USER_NOT_FOUND);
   }
 
-  return res.status(HttpStatus.OK).send(user);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.USER_RETRIEVAL_SUCCESS,
+    user
+  );
+  return res.send(response);
 };
-/**
- * Handles the upload of an image file.
- *
- * @param {Request} req - The request object containing the uploaded file.
- * @param {Response} res - The response object to send the processed image.
- * @throws {BaseError} Throws an error if no file is uploaded.
- * @returns {Promise<Response>} A promise that resolves after processing and sending the image.
- */
+// /**
+//  * Handles the upload of an image file.
+//  *
+//  * @param {Request} req - The request object containing the uploaded file.
+//  * @param {Response} res - The response object to send the processed image.
+//  * @throws {BaseError} Throws an error if no file is uploaded.
+//  * @returns {Promise<Response>} A promise that resolves after processing and sending the image.
+//  */
 
 // export const uploadImage = async (
 //   req: Request,
@@ -113,6 +139,23 @@ export const getUserByEmail = async (
 //   return res.send({ processedImage });
 // };
 
+export const searchUsers = async (req: Request, res: Response) => {
+  const searchTerm = (req.query.searchTerm as string) || "";
+  if (!searchTerm) {
+    throw new BaseError(
+      ErrorMessage.INVALID_SEARCH_TERM,
+      HttpStatusCode.BadRequest
+    );
+  }
+  const users = await userService.searchUsers(searchTerm);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.USER_RETRIEVAL_SUCCESS,
+    users
+  );
+  return res.send(response);
+};
+
 /**
  * Asynchronous function to delete a user.
  *
@@ -120,11 +163,13 @@ export const getUserByEmail = async (
  * @param res - The response object to send back the deleted user.
  * @returns A promise that resolves to the response containing the deleted user.
  */
-export const deleteUser = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
+export const deleteUser = async (req: Request, res: Response) => {
   const userId = parseInt(req.params.id);
   const user = await userService.deleteUser(userId);
-  return res.send(user);
+  const response: IResponse = createResponse(
+    HttpStatusCode.NoContent,
+    SuccessMessage.USER_DELETION_SUCCESS,
+    user
+  );
+  res.send(response);
 };
