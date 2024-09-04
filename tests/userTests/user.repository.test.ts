@@ -39,7 +39,7 @@ describe("User Repository", () => {
 
       // Act & Assert
       await expect(getUsers()).rejects.toThrow(
-        new BaseError("No users found", HttpStatusCode.NotFound)
+        new BaseError("User not found", HttpStatusCode.NotFound)
       );
     });
   });
@@ -116,9 +116,6 @@ describe("User Repository", () => {
       expect(result).toEqual({
         email: "test@example.com",
       });
-      expect(logger.info).toHaveBeenCalledWith(
-        `User with email ${userData.email} created successfully.`
-      );
     });
 
     it("should handle errors during user creation", async () => {

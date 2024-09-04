@@ -21,6 +21,9 @@ export const getUsers = async (
 ): Promise<Response> => {
   const users = await userService.getUsers();
 
+  if (!users) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
   const response: IResponse = createResponse(
     HttpStatusCode.Ok,
     SuccessMessage.USER_RETRIEVAL_SUCCESS,

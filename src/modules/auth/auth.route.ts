@@ -19,7 +19,6 @@ import { resetPasswordSchema } from "./schemas/reset-password.schema";
 import passport from "passport";
 import asyncWrapper from "../../shared/util/async-wrapper";
 import { googleAccessTokenSchema } from "./schemas/google-access-token.schema";
-import { googleRefreshTokenSchema } from "./schemas/google-refresh-token.schema";
 
 /**
  * Defines the routes for user authentication operations.
