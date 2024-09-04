@@ -40,7 +40,6 @@ export const createPost = async (postData: PostDto) => {
     post.id,
     mentions
   );
-  console.log(mentionedUserNames);
 
   return { post, mentionedUserNames };
 };
@@ -84,7 +83,7 @@ export const deletePost = async (id: number): Promise<any> => {
 };
 /**
  * Uploads a photo for a post.
- * 
+ *
  * @param postId - The ID of the post to upload the photo for.
  * @param imageUrl - The URL of the image to be uploaded.
  * @returns The updated post after uploading the photo.
@@ -95,7 +94,7 @@ export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
 };
 /**
  * Creates a new post with mentions and retrieves the mentioned user.
- * 
+ *
  * @param postData - The data for the new post.
  * @param userId - The ID of the user creating the post.
  * @returns An object containing the created post and the mentioned user.

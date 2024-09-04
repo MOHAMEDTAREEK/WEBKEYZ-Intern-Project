@@ -33,4 +33,5 @@ export enum ErrorMessage {
   FAILED_TO_CREATE_MENTION = "Failed to create mention",
   FAILED_TO_GET_MENTIONS = "Failed to get mentions",
   COMMENT_NOT_FOUND = "Comment not found",
+  COMMENT_CREATION_FAILED  = "Failed to create comment",
 }

@@ -6,6 +6,7 @@ import { HttpStatusCode } from "axios";
 import { IResponse } from "../../shared/interfaces/IResponse.interface";
 import { createResponse } from "../../shared/util/create-response";
 import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
+import { CreateComment } from "./dtos/create-comment.dto";
 
 /**
  * Retrieves all comments.
@@ -17,6 +18,12 @@ import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
 
 export const getComments = async (req: Request, res: Response) => {
   const comments = await commentService.getComments();
+  if (!comments) {
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
+  }
   return res.send(comments);
 };
 /**
@@ -27,8 +34,14 @@ export const getComments = async (req: Request, res: Response) => {
  * @returns The created comment.
  */
 export const createComment = async (req: Request, res: Response) => {
-  const commentData = req.body;
+  const commentData: CreateComment = req.body;
   const comment = await commentService.createComment(commentData);
+  if (!comment) {
+    throw new BaseError(
+      ErrorMessage.COMMENT_CREATION_FAILED,
+      HttpStatusCode.InternalServerError
+    );
+  }
   const response: IResponse = createResponse(
     HttpStatusCode.Ok,
     SuccessMessage.COMMENT_CREATION_SUCCESS,
@@ -51,6 +64,12 @@ export const fullyUpdateComment = async (req: Request, res: Response) => {
     commentId,
     commentData
   );
+  if (!comment) {
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
+  }
   const response: IResponse = createResponse(
     HttpStatusCode.Ok,
     SuccessMessage.COMMENT_FULL_UPDATE_SUCCESS,
@@ -98,6 +117,12 @@ export const partiallyUpdateComment = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
   const commentId = req.params.id;
   const comment = await commentService.deleteComment(commentId);
+  if (!comment) {
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
+  }
   const response: IResponse = createResponse(
     HttpStatusCode.Ok,
     SuccessMessage.COMMENT_DELETION_SUCCESS,

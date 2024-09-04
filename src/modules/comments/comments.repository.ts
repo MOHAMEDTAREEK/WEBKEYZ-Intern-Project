@@ -2,7 +2,9 @@ import { HttpStatusCode } from "axios";
 import Comment from "../../database/models/comment.model";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import { BaseError } from "../../shared/exceptions/base.error";
-
+import { CreateComment } from "./dtos/create-comment.dto";
+import * as postRepository from "../posts/posts.repository";
+import * as usersRepository from "../users/users.repository";
 /**
  * Retrieves all comments from the database.
  * @returns {Promise<Comment[]>} An array of all comments.
@@ -10,6 +12,12 @@ import { BaseError } from "../../shared/exceptions/base.error";
 
 export const getComments = async (): Promise<Comment[]> => {
   const comments = await Comment.findAll();
+  if (!comments) {
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
+  }
   return comments;
 };
 /**
@@ -18,8 +26,24 @@ export const getComments = async (): Promise<Comment[]> => {
  * @returns {Promise<Comment>} The created comment.
  */
 
-export const createComment = async (commentData: any): Promise<Comment> => {
+export const createComment = async (
+  commentData: CreateComment
+): Promise<Comment> => {
+  const post = await postRepository.getPostById(commentData.postId);
+  if (!post) {
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const user = await usersRepository.getUserById(commentData.userId);
+  if (!user) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
   const comment = await Comment.create(commentData);
+  if (!comment) {
+    throw new BaseError(
+      ErrorMessage.COMMENT_CREATION_FAILED,
+      HttpStatusCode.InternalServerError
+    );
+  }
   return comment;
 };
 /**
@@ -74,7 +98,9 @@ export const partiallyUpdateComment = async (
  * @returns {Promise<Comment>} The deleted comment.
  */
 
-export const deleteComment = async (commentId: string): Promise<Comment | null> => {
+export const deleteComment = async (
+  commentId: string
+): Promise<Comment | null> => {
   const comment = await Comment.findByPk(commentId);
   await comment?.destroy();
   return comment;

@@ -272,7 +272,9 @@ export const getGoogleToken = async (user: any) => {
     id: user.id,
     email: user.email,
   };
-  return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, { expiresIn: "1h" });
+  return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {
+    expiresIn: "365d",
+  });
 };
 
 /**
@@ -327,7 +329,6 @@ export const loginGoogleUser = async (email: string) => {
 
   return accessToken;
 };
-
 
 /**
  * Verifies a Google token by fetching user information from the Google API.

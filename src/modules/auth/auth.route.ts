@@ -334,10 +334,12 @@ router.get(
 
 /**
  * @swagger
- * /auth/signup/access-token:
+ * /signup/access-token:
  *   post:
- *     summary: Get access token
- *     tags: [Auth WebKeyz]
+ *     summary: Get Google Access Token
+ *     description: Endpoint to handle Google access token and either log in or create a new user.
+ *     tags:
+ *       - Auth WebKeyz
  *     requestBody:
  *       required: true
  *       content:
@@ -347,13 +349,31 @@ router.get(
  *             properties:
  *               idToken:
  *                 type: string
- *             required:
- *               - token
+ *                 example: your-google-id-token
  *     responses:
  *       200:
- *         description: Access token issued
- *       400:
- *         description: Invalid request
+ *         description: User login success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userAccessToken:
+ *                   type: string
+ *                   example: your-jwt-token
+ *       201:
+ *         description: User creation success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   description: The newly created user object
+ *                 userAccessToken:
+ *                   type: string
+ *                   example: your-jwt-token
  */
 router.post(
   "/signup/access-token",

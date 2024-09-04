@@ -89,6 +89,12 @@ export const fullyUpdatePost = async (
 ): Promise<Response> => {
   const id = parseInt(req.params.id);
   const postData = req.body;
+  if (!postData) {
+    throw new BaseError(
+      ErrorMessage.FAILED_TO_UPDATE_POST,
+      HttpStatusCode.BadRequest
+    );
+  }
   const post = await postService.fullyUpdatePost(id, postData);
   if (!post) {
     throw new BaseError(

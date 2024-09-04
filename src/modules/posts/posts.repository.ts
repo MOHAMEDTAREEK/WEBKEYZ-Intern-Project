@@ -42,6 +42,10 @@ export const getPostById = async (id: number) => {
  * @throws BaseError if the post creation fails.
  */
 export const createPost = async (postData: any) => {
+  const user = await userRepository.getUserById(postData.userId);
+  if (!user) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
   const post = await Post.create(postData);
   if (!post) {
     throw new BaseError(
@@ -139,13 +143,12 @@ export const createMentions = async (postId: number, mentions: string[]) => {
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  const mentionedUserNames: string[] = []; // Array to store names of mentioned users
+  const mentionedUserNames: string[] = [];
 
   for (const name of mentions) {
     const [firstName, lastName] = name.split(" ");
     console.log(firstName, lastName);
     const user = await userRepository.findUserByName(firstName, lastName);
-    console.log(user);
     if (user) {
       // Store the mention
       await createMention(postId, user.id);
@@ -171,11 +174,24 @@ export const createMentions = async (postId: number, mentions: string[]) => {
  * @param {number} userId - The ID of the user being mentioned.
  * @returns {Promise<Mention>} The newly created mention object.
  */
-export const createMention = async (postId: number, userId: number) => {
+export const createMention = async (
+  postId: number,
+  userId: number
+): Promise<Mention> => {
+  const post = await Post.findByPk(postId);
+  if (!post) {
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+
+  const user = await userRepository.getUserById(userId);
+  if (!user) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
   const mention = await Mention.create({
     postId: postId,
     mentionedUserId: userId,
   });
+  console.log(mention)
   return mention;
 };
 /**
@@ -185,6 +201,11 @@ export const createMention = async (postId: number, userId: number) => {
  * @returns A Promise that resolves to an array of Mention instances.
  */
 export const getMentions = async (postId: number) => {
+  const post = await Post.findByPk(postId);
+  if (!post) {
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+
   const mentions = await Mention.findAll({
     where: {
       postId: postId,

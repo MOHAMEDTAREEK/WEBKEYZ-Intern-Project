@@ -1,4 +1,5 @@
 import * as commentRepository from "./comments.repository";
+import { CreateComment } from "./dtos/create-comment.dto";
 
 /**
  * Asynchronous function to retrieve comments using the commentRepository module.
@@ -15,7 +16,9 @@ export const getComments = async (): Promise<Array<any>> => {
  * @param {any} commentData - Data for the new comment.
  * @returns {Promise<any>} The newly created comment.
  */
-export const createComment = async (commentData: any): Promise<any> => {
+export const createComment = async (
+  commentData: CreateComment
+): Promise<any> => {
   const comment = await commentRepository.createComment(commentData);
   return comment;
 };
