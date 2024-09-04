@@ -1,3 +1,8 @@
+/**
+ * Defines the attributes of a user including id, name, email, password, profile picture,
+ * refresh token, reset token, role, creation and update timestamps, Google ID, and mention count.
+ */
+
 interface UserAttributes {
   id: number;
   firstName?: string;

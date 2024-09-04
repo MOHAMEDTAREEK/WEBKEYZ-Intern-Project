@@ -13,8 +13,10 @@ import { createResponse } from "../../shared/util/create-response";
 import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
 
 /**
- * Handles user sign up by checking if the user already exists, signing up the user, setting cookies for tokens,
- * and returning the user and tokens in the response.
+ * Handles user sign up.
+ * - Checks if the user already exists.
+ * - Signs up the user and sets cookies for tokens.
+ * - Returns the user and tokens in the response.
  *
  * @param {Request} req - The request object containing user data in the body.
  * @param {Response} res - The response object to send back the user and tokens.
@@ -53,7 +55,9 @@ export const customSignUp = async (
 };
 
 /**
- * Handles user login by logging in the user, setting cookies for tokens, and returning the user and tokens in the response.
+ * Handles user login.
+ * - Logs in the user and sets cookies for tokens.
+ * - Returns the user and tokens in the response.
  *
  * @param {Request} req - The request object containing user data in the body.
  * @param {Response} res - The response object to send back the user and tokens.
@@ -84,8 +88,10 @@ export const customLogin = async (
 };
 
 /**
- * Handles refreshing user tokens by validating the refresh token, generating new tokens, setting new cookies,
- * and returning the new tokens in the response.
+ * Refreshes user tokens.
+ * - Validates the refresh token.
+ * - Generates new tokens and sets new cookies.
+ * - Returns the new tokens in the response.
  *
  * @param {Request} req - The request object containing the refresh token in cookies.
  * @param {Response} res - The response object to send back the new tokens.
@@ -127,13 +133,13 @@ export const customRefreshTokens = async (
 
 /**
  * Handles the process of resetting a user's password.
- * Retrieves the user's email from the request body, generates a reset token,
- * sends a password reset link to the user's email, and returns the reset token.
- * Throws a 'BaseError' if the user is not found in the system.
+ * - Retrieves the user's email, generates a reset token.
+ * - Sends a password reset link to the user's email.
+ * - Returns the reset token.
  *
  * @param {Request} req - The request object containing the user's email.
  * @param {Response} res - The response object to send the reset token or error.
- * @returns {Promise<Response>} - A promise that resolves once the reset token is sent.
+ * @returns {Promise<Response>} A promise that resolves once the reset token is sent.
  */
 export const customForgotPassword = async (
   req: Request,
@@ -168,10 +174,10 @@ export const customForgotPassword = async (
 /**
  * Resets the password for a user based on the provided token and new password.
  *
- * @param req - The request object containing the new password in the body and the token in the parameters.
- * @param res - The response object to send the result of the password reset.
- * @throws BaseError when the token is invalid or expired.
- * @returns A success message upon successful password reset.
+ * @param {Request} req - The request object containing the new password in the body and the token in the parameters.
+ * @param {Response} res - The response object to send the result of the password reset.
+ * @throws {BaseError} When the token is invalid or expired.
+ * @returns {Promise<Response>} A promise that resolves when the password is successfully reset.
  */
 export const customResetPassword = async (req: Request, res: Response) => {
   const { password } = req.body;
@@ -200,7 +206,7 @@ export const customResetPassword = async (req: Request, res: Response) => {
 };
 
 /**
- * Reset the password for a user without requiring a token.
+ * Resets the password for a user without requiring a token.
  *
  * @param {Request} req - The request object containing the user's email and new password.
  * @param {Response} res - The response object to send the result of the password reset.
@@ -232,7 +238,7 @@ export const customResetPasswordWithoutToken = async (
  *
  * @param {Request} req - The request object.
  * @param {Response} res - The response object.
- * @returns  {Promise<Response>} A message indicating successful logout.
+ * @returns {Promise<Response>} A message indicating successful logout.
  */
 export const customLogout = async (
   req: Request,
@@ -249,11 +255,14 @@ export const customLogout = async (
 
 /**
  * Asynchronously invites an HR user by email.
+ * - Checks if the user already exists.
+ * - Invites the HR and sends an email with a temporary password.
+ * - Returns a success message.
  *
- * @param req - The request object containing the email in the body.
- * @param res - The response object to send the result.
- * @returns A success message if the invitation is sent successfully.
- * @throws BaseError if the user already exists with status code 400.
+ * @param {Request} req - The request object containing the email in the body.
+ * @param {Response} res - The response object to send the result.
+ * @returns {Promise<Response>} A promise that resolves when the HR invitation process is completed.
+ * @throws {BaseError} If the user already exists.
  */
 
 export const customInviteHr = async (req: Request, res: Response) => {
@@ -280,8 +289,10 @@ export const customInviteHr = async (req: Request, res: Response) => {
 /**
  * Handles the Google authentication callback.
  *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
+ * This function is called when a user completes the Google authentication flow. It retrieves the user data and access token from the request, and then sets the necessary cookies for the user session.
+ *
+ * @param {Request} req - The request object, which contains the user data and access token from the Google authentication flow.
+ * @param {Response} res - The response object, which is used to set the cookies and redirect the user to the "/users/" endpoint.
  */
 export const googleAuthCallback = async (req: Request, res: Response) => {
   const { user, accessToken } = req.user as any;
@@ -301,13 +312,14 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
 };
 
 /**
- * Retrieves the access token from the request body and returns the user data associated with the token.
+ * Retrieves the Google access token from the request body and handles the Google authentication flow.
  * If the access token is missing in the request body, it sends a 400 status with a message indicating the requirement.
+ * If the user exists, it logs the user in and returns the user access token.
+ * If the user does not exist, it creates a new user and returns the user access token.
  *
- * @param {Request} req - The request object containing the access token in the body.
+ * @param {Request} req - The request object containing the Google access token in the body.
  * @param {Response} res - The response object to send back the user data or error message.
  */
-
 export const getGoogleAccessToken = async (req: Request, res: Response) => {
   const { idToken } = req.body;
   if (!idToken) {

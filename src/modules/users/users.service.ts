@@ -48,31 +48,31 @@ export const validateCredentials = async (email: string, password: string) => {
   return user;
 };
 
-/**
- * Processes an image file by resizing it to 800x600, converting it to JPEG format with 80% quality,
- * and saving the processed image to the database.
- *
- * @param file - The image file to be processed.
- * @returns A Promise that resolves with the saved image data.
- */
-// export const processImage = async (
-//   file: Express.Multer.File,
-//   user_id: number
-// ) => {
-//   const imageBuffer = await sharp(file.buffer)
-//     .resize(800, 600)
-//     .toFormat("jpeg")
-//     .jpeg({ quality: 80 })
-//     .toBuffer();
+// /**
+//  * Processes an image file by resizing it to 800x600, converting it to JPEG format with 80% quality,
+//  * and saving the processed image to the database.
+//  *
+//  * @param file - The image file to be processed.
+//  * @returns A Promise that resolves with the saved image data.
+//  */
+// // export const processImage = async (
+// //   file: Express.Multer.File,
+// //   user_id: number
+// // ) => {
+// //   const imageBuffer = await sharp(file.buffer)
+// //     .resize(800, 600)
+// //     .toFormat("jpeg")
+// //     .jpeg({ quality: 80 })
+// //     .toBuffer();
 
-//   const savedImage = await userRepository.saveImage(
-//     imageBuffer,
-//     file.originalname,
-//     user_id
-//   );
+// //   const savedImage = await userRepository.saveImage(
+// //     imageBuffer,
+// //     file.originalname,
+// //     user_id
+// //   );
 
-//   return savedImage;
-// };
+// //   return savedImage;
+// // };
 
 /**
  * Deletes a user from the database by ID.

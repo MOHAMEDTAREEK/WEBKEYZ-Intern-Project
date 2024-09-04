@@ -149,16 +149,6 @@ export const deleteUser = async (userId: number) => {
   return user;
 };
 
-export const getUserByRefreshToken = async (refreshToken: string) => {
-  const user = await User.findOne({
-    where: {
-      refreshToken,
-    },
-  });
-
-  return user;
-};
-
 export const searchUsers = async (searchTerm: string) => {
   const users = await User.findAll({
     where: {

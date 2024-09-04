@@ -3,6 +3,12 @@ import { Request, Response, NextFunction } from "express";
 
 const storage = multer.memoryStorage(); // Store the image in memory temporarily
 
+/**
+ * Middleware function to filter uploaded files based on allowed types.
+ * @param req - The request object.
+ * @param file - The uploaded file object.
+ * @param cb - The callback function to execute.
+ */
 const fileFilter = (req: Request, file: Express.Multer.File, cb: Function) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
   if (allowedTypes.includes(file.mimetype)) {

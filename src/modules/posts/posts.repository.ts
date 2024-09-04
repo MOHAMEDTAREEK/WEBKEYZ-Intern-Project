@@ -5,6 +5,7 @@ import Mention from "../../database/models/mention.model";
 import { PostDto } from "./posts.dto";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import { extractMentions } from "../../shared/util/extract-mention";
 /**
  * Asynchronously retrieves all posts from the database.
  *
@@ -106,7 +107,17 @@ export const deletePost = async (id: number) => {
   return post;
 };
 
-export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
+/**
+ * Uploads a photo for a post.
+ *
+ * @param {number} postId - The ID of the post to upload the photo for.
+ * @param {string} imageUrl - The URL of the image to be uploaded.
+ * @returns {Promise<Post>} The updated post object with the new image.
+ */
+export const uploadPostPhoto = async (
+  postId: number,
+  imageUrl: string
+): Promise<Post> => {
   const post = await Post.findByPk(postId);
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
@@ -115,6 +126,14 @@ export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
   await post.save();
   return post;
 };
+
+/**
+ * Creates mentions for a post based on the provided list of user names.
+ *
+ * @param postId - The ID of the post for which mentions are being created.
+ * @param mentions - An array of strings representing the names of users to be mentioned.
+ * @returns An array of strings containing the names of users who were successfully mentioned.
+ */
 export const createMentions = async (postId: number, mentions: string[]) => {
   const post = await Post.findByPk(postId);
   if (!post) {
@@ -145,7 +164,13 @@ export const createMentions = async (postId: number, mentions: string[]) => {
 
   return mentionedUserNames;
 };
-
+/**
+ * Creates a new mention entry in the database.
+ *
+ * @param {number} postId - The ID of the post being mentioned.
+ * @param {number} userId - The ID of the user being mentioned.
+ * @returns {Promise<Mention>} The newly created mention object.
+ */
 export const createMention = async (postId: number, userId: number) => {
   const mention = await Mention.create({
     postId: postId,
@@ -153,7 +178,12 @@ export const createMention = async (postId: number, userId: number) => {
   });
   return mention;
 };
-
+/**
+ * Retrieves all mentions associated with a specific post.
+ *
+ * @param postId - The ID of the post to retrieve mentions for.
+ * @returns A Promise that resolves to an array of Mention instances.
+ */
 export const getMentions = async (postId: number) => {
   const mentions = await Mention.findAll({
     where: {
@@ -162,7 +192,13 @@ export const getMentions = async (postId: number) => {
   });
   return mentions;
 };
-
+/**
+ * Creates a new post with a mention of a specific user.
+ *
+ * @param postData - The data for the new post.
+ * @param userId - The ID of the user being mentioned in the post.
+ * @returns An object containing the created post and the mention.
+ */
 export const createPostWithMention = async (
   postData: PostDto,
   userId: number

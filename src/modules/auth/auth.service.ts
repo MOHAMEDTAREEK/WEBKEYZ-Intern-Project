@@ -1,3 +1,11 @@
+/**
+ * Authentication Service
+ *
+ * This module provides various authentication-related functionalities including user sign-up, login,
+ * token generation, token verification, and more. The service interacts with user repositories and
+ * handles user authentication and authorization processes.
+ */
+
 import * as bcrypt from "bcrypt";
 import * as userRepository from "../users/users.repository";
 import * as userService from "../users/users.service";
@@ -11,9 +19,11 @@ import { UserRole } from "../../shared/enums/user-Role.enum";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 
 /**
- * Handles user sign up by creating a new user, generating tokens, and updating the refresh token.
- * @param userData - Data for user sign up including name, email, and password.
+ * Handles user sign-up by creating a new user, generating tokens, and updating the refresh token.
+ *
+ * @param userData - Data for user sign-up including name, email, and password.
  * @returns An object containing the newly created user and generated tokens.
+ * @throws {BaseError} Throws an error if user creation or token generation fails.
  */
 export const signUp = async (userData: SignupDto) => {
   const user = await userRepository.createUser(userData);
@@ -38,8 +48,10 @@ export const signUp = async (userData: SignupDto) => {
 
 /**
  * Handles user login by validating credentials, generating tokens, and updating the refresh token.
+ *
  * @param userData - Data for user login including email and password.
  * @returns An object containing the user details and generated tokens.
+ * @throws {BaseError} Throws an error if credentials are invalid or token generation fails.
  */
 export const logIn = async (userData: LoginDto) => {
   const user = await userService.validateCredentials(
@@ -69,8 +81,10 @@ export const logIn = async (userData: LoginDto) => {
 
 /**
  * Refreshes tokens based on the provided refresh token, verifies the user, and updates the refresh token.
+ *
  * @param refreshToken - The refresh token used to generate new access and refresh tokens.
  * @returns An object with the new refresh token and access token.
+ * @throws {BaseError} Throws an error if the refresh token is invalid or token generation fails.
  */
 export const refreshTokens = async (refreshToken: string) => {
   const decoded = jwt.verify(
@@ -114,6 +128,7 @@ export const refreshTokens = async (refreshToken: string) => {
 
 /**
  * Updates the refresh token for a specific user by hashing and storing it in the database.
+ *
  * @param userId - The ID of the user for whom the refresh token is being updated.
  * @param refreshToken - The new refresh token to be stored.
  * @returns A promise that resolves when the refresh token is updated.
@@ -129,12 +144,13 @@ export const updateRefreshToken = async (
   });
 };
 
-// /**
-//  * Generates new access and refresh tokens for a user based on user ID and email.
-//  * @param userId - The ID of the user for whom tokens are being generated.
-//  * @param email - The email of the user for whom tokens are being generated.
-//  * @returns An object with the newly generated access and refresh tokens.
-//  */
+/**
+ * Generates new access and refresh tokens for a user based on user ID and email.
+ *
+ * @param userId - The ID of the user for whom tokens are being generated.
+ * @param email - The email of the user for whom tokens are being generated.
+ * @returns An object with the newly generated access and refresh tokens.
+ */
 
 export const getTokens = async (
   userId: number,
@@ -153,7 +169,9 @@ export const getTokens = async (
 };
 
 /**
+/**
  * Generates a reset token for a user identified by the provided userId and email.
+ * 
  * @param userId - The unique identifier of the user.
  * @param email - The email address of the user.
  * @returns The generated reset token.
@@ -171,9 +189,9 @@ export const generateResetToken = async (userId: number, email: string) => {
 /**
  * Resets the password for a user.
  *
- * @param {number} userId - The ID of the user whose password is being reset.
- * @param Promise<string> password - The new password to set for the user.
- * @returns {string} A message indicating the success of the password reset.
+ * @param userId - The ID of the user whose password is being reset.
+ * @param newPassword - The new password to set for the user.
+ * @returns A message indicating the success of the password reset.
  */
 export const resetPassword = async (
   userId: number,
@@ -187,11 +205,10 @@ export const resetPassword = async (
 
 /**
  * Verifies the reset token by decoding it using the secret from the configuration.
- * Throws a BaseError with status 400 if the reset token is invalid.
- * Throws a BaseError with status 404 if the user associated with the decoded token is not found.
  *
- * @param resetToken The token to be verified.
+ * @param resetToken - The token to be verified.
  * @returns The user associated with the reset token.
+ * @throws {BaseError} Throws an error if the reset token is invalid or the user is not found.
  */
 export const verifyResetToken = async (resetToken: string) => {
   const decoded = jwt.verify(
@@ -219,6 +236,7 @@ export const verifyResetToken = async (resetToken: string) => {
  *
  * @param email - The email address of the HR user.
  * @returns An object containing the newly created HR user and the randomly generated password.
+ * @throws {BaseError} Throws an error if the HR user already exists.
  */
 
 export const inviteHr = async (email: string) => {
@@ -245,7 +263,8 @@ export const inviteHr = async (email: string) => {
 
 /**
  * Generates a Google token for the specified user.
- * @param user The user object containing id and email properties.
+ *
+ * @param user - The user object containing id and email properties.
  * @returns A JWT token with the user's id and email, valid for 1 hour.
  */
 export const getGoogleToken = async (user: any) => {
@@ -259,8 +278,9 @@ export const getGoogleToken = async (user: any) => {
 /**
  * Retrieves user data from a Google token.
  *
- * @param {string} token - The Google token to decode and extract user data from.
- * @returns {Promise<any>} A promise that resolves to the user data decoded from the token.
+ * @param token - The Google token to decode and extract user data from.
+ * @returns A promise that resolves to the user data decoded from the token.
+ * @throws {BaseError} Throws an error if the token is invalid.
  */
 export const getUserDataFromToken = async (token: string): Promise<any> => {
   const decodedUserData = await verifyGoogleToken(token);
@@ -282,6 +302,15 @@ export const getUserDataFromToken = async (token: string): Promise<any> => {
   return userData;
 };
 
+/**
+ * Logs in a user using Google authentication.
+ * Validates user credentials based on the provided email, and if valid,
+ * generates a Google access token for the user.
+ *
+ * @param {string} email - The email address of the user attempting to log in.
+ * @throws {BaseError} If the user credentials are invalid or the user is not found.
+ */
+
 export const loginGoogleUser = async (email: string) => {
   const credentialsMatch = await userRepository.validateCredentials(email, "");
   if (!credentialsMatch) {
@@ -299,32 +328,16 @@ export const loginGoogleUser = async (email: string) => {
   return accessToken;
 };
 
-export const getCustomTokens = async (refreshToken: string) => {
-  const verifyToken = await verifyRefreshToken(refreshToken);
-  if (!verifyToken) {
-    throw new BaseError(
-      ErrorMessage.INVALID_TOKEN,
-      HttpStatusCode.Unauthorized
-    );
-  }
-
-  const user = await userRepository.getUserByRefreshToken(refreshToken);
-  if (!user) {
-    return new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
-  }
-  const tokens = await getTokens(user.id, user.email);
-  await updateRefreshToken(user.id, tokens.refreshToken);
-  return tokens;
-};
 
 /**
- * Verifies a Google token by fetching user information from Google API.
+ * Verifies a Google token by fetching user information from the Google API.
  *
  * @param {string} token - The Google token to be verified.
- * @throws {BaseError} If failed to fetch user info from Google.
+ * @returns {Promise<any>} A promise that resolves to the user information obtained from the Google API.
+ * @throws {BaseError} If the request to fetch user info from Google fails.
  */
 
-export const verifyGoogleToken = async (token: string) => {
+export const verifyGoogleToken = async (token: string): Promise<any> => {
   const response = await fetch(
     "https://www.googleapis.com/oauth2/v3/userinfo",
     {
@@ -343,21 +356,4 @@ export const verifyGoogleToken = async (token: string) => {
 
   const userInfo = await response.json();
   return userInfo;
-};
-
-export const verifyRefreshToken = async (token: string) => {
-  const response = await axios.post(
-    "https://oauth2.googleapis.com/token",
-    null,
-    {
-      params: {
-        grant_type: "refresh_token",
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        refresh_token: token,
-      },
-    }
-  );
-  console.log("Token is valid:", response.data);
-  return true;
 };
