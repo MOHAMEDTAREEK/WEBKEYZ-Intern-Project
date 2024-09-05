@@ -2,7 +2,7 @@ import Post from "../../database/models/post.model";
 import { BaseError } from "../../shared/exceptions/base.error";
 import * as userRepository from "../users/users.repository";
 import Mention from "../../database/models/mention.model";
-import { PostDto } from "./posts.dto";
+import { PostDto } from "./dtos/posts.dto";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import { extractMentions } from "../../shared/util/extract-mention";
@@ -191,7 +191,7 @@ export const createMention = async (
     postId: postId,
     mentionedUserId: userId,
   });
-  console.log(mention)
+  console.log(mention);
   return mention;
 };
 /**

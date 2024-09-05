@@ -1,6 +1,6 @@
 import * as postRepository from "./posts.repository";
 import { extractMentions } from "../../shared/util/extract-mention";
-import { PostDto } from "./posts.dto";
+import { PostDto } from "./dtos/posts.dto";
 import * as userService from "../users/users.service";
 /**
  * Asynchronous function to retrieve all posts.

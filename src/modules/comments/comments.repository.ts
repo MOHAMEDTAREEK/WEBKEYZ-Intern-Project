@@ -102,6 +102,12 @@ export const deleteComment = async (
   commentId: string
 ): Promise<Comment | null> => {
   const comment = await Comment.findByPk(commentId);
+  if (!comment) {
+    throw new BaseError(
+      ErrorMessage.COMMENT_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
+  }
   await comment?.destroy();
   return comment;
 };

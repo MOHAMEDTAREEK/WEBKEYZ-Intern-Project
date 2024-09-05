@@ -11,6 +11,7 @@ import { fullyUpdateCommentSchema } from "./schemas/fullyUpdateComment.schema";
 import { partiallyUpdateCommentSchema } from "./schemas/partiallyUpdateComment.schema";
 import { idCheckingSchema } from "../../shared/helperSchemas/idChecking.schema";
 import asyncWrapper from "../../shared/util/async-wrapper";
+import { createCommentSchema } from "./schemas/create-comment.schema";
 
 const router = Router();
 
@@ -93,7 +94,11 @@ router.get("/", asyncWrapper(getComments));
  *       500:
  *         description: Internal server error
  */
-router.post("/", asyncWrapper(createComment));
+router.post(
+  "/",
+  validationMiddleware(createCommentSchema),
+  asyncWrapper(createComment)
+);
 /**
  * @swagger
  * /comments/{id}:
