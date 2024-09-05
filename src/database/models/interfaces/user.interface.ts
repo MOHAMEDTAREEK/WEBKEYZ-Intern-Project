@@ -3,7 +3,7 @@
  * refresh token, reset token, role, creation and update timestamps, Google ID, and mention count.
  */
 
-interface UserAttributes {
+export interface UserAttributes {
   id: number;
   firstName?: string;
   lastName?: string;
@@ -19,4 +19,5 @@ interface UserAttributes {
   mentionCount?: number;
 }
 
-interface UserCreationAttributes extends Omit<UserAttributes, "id"> {}
+export interface UserCreationAttributes extends Omit<UserAttributes, "id"> {}
+export interface userWithoutPassword extends Omit<UserAttributes, "password"> {}

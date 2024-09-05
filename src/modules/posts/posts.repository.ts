@@ -6,6 +6,8 @@ import { PostDto } from "./dtos/posts.dto";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import { extractMentions } from "../../shared/util/extract-mention";
+import User from "../../database/models/user.model";
+import { Sequelize } from "sequelize";
 /**
  * Asynchronously retrieves all posts from the database.
  *
@@ -143,11 +145,10 @@ export const createMentions = async (postId: number, mentions: string[]) => {
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  const mentionedUserNames: string[] = [];
+  const mentionedUsers: any[] = [];
 
   for (const name of mentions) {
     const [firstName, lastName] = name.split(" ");
-    console.log(firstName, lastName);
     const user = await userRepository.findUserByName(firstName, lastName);
     if (user) {
       // Store the mention
@@ -156,16 +157,18 @@ export const createMentions = async (postId: number, mentions: string[]) => {
       // Increment the user's mention count
       user.mentionCount += 1;
       await user.save();
-      mentionedUserNames.push(`${firstName} ${lastName}`);
+      //mentionedUserNames.push(`${firstName} ${lastName}`);
+      mentionedUsers.push(user);
     }
   }
 
-  const mentionsList = await getMentions(postId);
-  const mentionedUserIds = mentionsList.map(
-    (mention) => mention.mentionedUserId
-  );
+  // const mentionsList = await getMentions(postId);
+  // const mentionedUserIds = mentionsList.map(
+  //   (mention) => mention.mentionedUserId
+  // );
+  await post.update({ mentionedUser: mentionedUsers });
 
-  return mentionedUserNames;
+  return mentionedUsers;
 };
 /**
  * Creates a new mention entry in the database.
@@ -191,7 +194,6 @@ export const createMention = async (
     postId: postId,
     mentionedUserId: userId,
   });
-  console.log(mention);
   return mention;
 };
 /**

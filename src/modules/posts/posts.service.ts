@@ -2,6 +2,7 @@ import * as postRepository from "./posts.repository";
 import { extractMentions } from "../../shared/util/extract-mention";
 import { PostDto } from "./dtos/posts.dto";
 import * as userService from "../users/users.service";
+import { extractHashtags } from "../../shared/util/extract-hashtag";
 /**
  * Asynchronous function to retrieve all posts.
  *
@@ -35,13 +36,12 @@ export const createPost = async (postData: PostDto) => {
   const mentions = postData.description
     ? extractMentions(postData.description)
     : [];
+  const hashtags = postData.description
+    ? extractHashtags(postData.description)
+    : [];
+  const mentionedUsers = await postRepository.createMentions(post.id, mentions);
 
-  const mentionedUserNames = await postRepository.createMentions(
-    post.id,
-    mentions
-  );
-
-  return { post, mentionedUserNames };
+  return { post, mentionedUsers, hashtags };
 };
 /**
  * Updates a post with new data.

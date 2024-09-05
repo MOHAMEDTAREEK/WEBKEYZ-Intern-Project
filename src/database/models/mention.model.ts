@@ -2,7 +2,11 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./index";
 import Post from "./post.model";
 import User from "./user.model";
- class Mention
+import {
+  MentionAttributes,
+  MentionCreationAttributes,
+} from "./interfaces/mention.interface";
+class Mention
   extends Model<MentionAttributes, MentionCreationAttributes>
   implements MentionAttributes
 {

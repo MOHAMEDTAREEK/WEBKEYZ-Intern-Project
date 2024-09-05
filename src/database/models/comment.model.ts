@@ -2,7 +2,10 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./index";
 import Post from "./post.model";
 import User from "./user.model";
-
+import {
+  CommentAttributes,
+  CommentCreationAttributes,
+} from "./interfaces/comment.interface";
 class Comment
   extends Model<CommentAttributes, CommentCreationAttributes>
   implements CommentAttributes

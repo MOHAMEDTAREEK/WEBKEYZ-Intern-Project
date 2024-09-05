@@ -2,7 +2,11 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "./index";
 import User from "./user.model";
 import Mention from "./mention.model";
-
+import {
+  PostAttributes,
+  PostCreationAttributes,
+} from "./interfaces/post.interface";
+import { Json } from "sequelize/types/utils";
 class Post
   extends Model<PostAttributes, PostCreationAttributes>
   implements PostAttributes
@@ -12,6 +16,7 @@ class Post
   public image?: string;
   public userId!: number;
   public like!: number;
+  public mentionedUser!: Json;
   public createdAt!: Date;
   public updatedAt!: Date;
 }
@@ -57,6 +62,11 @@ Post.init(
       allowNull: false,
       defaultValue: DataTypes.NOW,
       field: "updated_at",
+    },
+    mentionedUser: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      field: "mentioned_user",
     },
   },
   {

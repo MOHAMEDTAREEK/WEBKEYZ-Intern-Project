@@ -1,3 +1,5 @@
+import { Json } from "sequelize/types/utils";
+
 /**
  * Defines the attributes for a post object.
  *
@@ -9,14 +11,15 @@
  * @property {Date} [createdAt] - The optional date when the post was created.
  * @property {Date} [updatedAt] - The optional date when the post was last updated.
  */
-interface PostAttributes {
+export interface PostAttributes {
   id: number;
   description: string;
   image?: string;
   userId: number;
   like: number;
+  mentionedUser: Json | Array<String>;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface PostCreationAttributes extends Omit<PostAttributes, "id"> {}
+export interface PostCreationAttributes extends Omit<PostAttributes, "id"> {}

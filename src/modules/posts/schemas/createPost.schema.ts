@@ -1,9 +1,9 @@
-import Joi from "joi";
+import joi from "joi";
 
 export const createPostSchema = {
-  body: Joi.object({
-    description: Joi.string().required(),
-    image: Joi.string().required(),
-    userId: Joi.number().required(),
+  body: joi.object({
+    description: joi.string().required(),
+    image: joi.string().required(),
+    userId: joi.number().required(),
   }),
 };

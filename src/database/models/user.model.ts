@@ -1,6 +1,9 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
 import { sequelize } from "./index";
-import Mention from "./mention.model";
+import {
+  UserAttributes,
+  UserCreationAttributes,
+} from "./interfaces/user.interface";
 class User
   extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes

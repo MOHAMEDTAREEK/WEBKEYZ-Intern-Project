@@ -61,7 +61,8 @@ export const getPostById = async (req: Request, res: Response) => {
  */
 export const createPost = async (req: Request, res: Response) => {
   const postData = req.body;
-  const { post, mentionedUserNames } = await postService.createPost(postData);
+  const { post, mentionedUsers, hashtags } =
+    await postService.createPost(postData);
   if (!post) {
     throw new BaseError(
       ErrorMessage.INTERNAL_SERVER_ERROR,
@@ -71,7 +72,7 @@ export const createPost = async (req: Request, res: Response) => {
   const response: IResponse = createResponse(
     HttpStatusCode.Created,
     SuccessMessage.POST_CREATION_SUCCESS,
-    { post, mentionedUserNames }
+    { post, mentionedUsers, hashtags }
   );
   return res.send(response);
 };

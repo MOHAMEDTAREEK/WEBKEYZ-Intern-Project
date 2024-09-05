@@ -11,6 +11,26 @@ export const getUsers = async () => {
 };
 
 /**
+ * Retrieves users sorted by mention count.
+ * @returns {Array} Sorted list of users by mention count.
+ */
+export const getUsersByMentionCount = async () => {
+  const sortedUsers = userRepository.getUsersByMentionCount();
+  return sortedUsers;
+};
+
+/**
+ * Searches for users based on a given search term.
+ *
+ * @param searchTerm The term to search for within user records.
+ * @returns A list of users matching the search term.
+ */
+export const searchUsers = async (searchTerm: string) => {
+  const users = await userRepository.searchUsers(searchTerm);
+  return users;
+};
+
+/**
  * Retrieves a user by email from the database.
  * @param {string} email - The email of the user to retrieve.
  */
@@ -83,7 +103,24 @@ export const deleteUser = async (userId: number) => {
   return deletedUser;
 };
 
-export const searchUsers = async (searchTerm: string) => {
-  const users = await userRepository.searchUsers(searchTerm);
-  return users;
+/**
+ * Retrieves the recognition number for a specific user.
+ * @param userId - The unique identifier of the user.
+ * @returns A Promise that resolves with the recognition number associated with the user.
+ */
+export const getUserRecognitionNumber = async (userId: number) => {
+  const recognitionNumber =
+    await userRepository.getUserRecognitionNumber(userId);
+  return recognitionNumber;
+};
+
+/**
+ * Retrieves the number of posts for a specific user.
+ *
+ * @param userId - The unique identifier of the user.
+ * @returns A promise that resolves to the number of posts for the user.
+ */
+export const getNumberOfPostsForUser = async (userId: number) => {
+  const numberOfPosts = await userRepository.getNumberOfPostsForUser(userId);
+  return numberOfPosts;
 };

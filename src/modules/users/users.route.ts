@@ -1,9 +1,12 @@
 import { Router } from "express";
 import {
   deleteUser,
+  getNumberOfPostsForUser,
   getUserByEmail,
   getUserById,
+  getUserRecognitionNumber,
   getUsers,
+  getUsersByMentionCount,
   searchUsers,
 } from "./users.controller";
 import { createUser } from "./users.controller";
@@ -41,8 +44,244 @@ const router = Router();
  */
 router.get("/", asyncWrapper(getUsers));
 
+/**
+ * @swagger
+ * /users/leader-board:
+ *   get:
+ *     summary: Retrieve users sorted by mention count
+ *     description: Fetch a list of users sorted by their mention count in descending order.
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: A list of users sorted by mention count
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "Users retrieved successfully."
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "John Doe"
+ *                       mentionCount:
+ *                         type: integer
+ *                         example: 45
+ *       404:
+ *         description: Users not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 404
+ *                 message:
+ *                   type: string
+ *                   example: "Users not found."
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error."
+ */
+router.get("/leader-board", asyncWrapper(getUsersByMentionCount));
+/**
+ * @swagger
+ * /users/search:
+ *   get:
+ *     summary: Search for users by first or last name
+ *     description: Retrieve a list of users whose first or last name matches the search term.
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: query
+ *         name: searchTerm
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The search term to find users by first or last name.
+ *         example: "John"
+ *     responses:
+ *       200:
+ *         description: A list of users matching the search term
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "Users retrieved successfully."
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       firstName:
+ *                         type: string
+ *                         example: "John"
+ *                       lastName:
+ *                         type: string
+ *                         example: "Doe"
+ *       400:
+ *         description: Invalid search term
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid search term."
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error."
+ */
+
 router.get("/search", asyncWrapper(searchUsers));
 
+/**
+ * @swagger
+ * /users/recognition-number/{id}:
+ *   get:
+ *     summary: Get User Recognition Number
+ *     description: Retrieve the recognition number of a user by their ID.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the user.
+ *     responses:
+ *       200:
+ *         description: Recognition number retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Recognition number sent successfully."
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     recognitionNumber:
+ *                       type: integer
+ *                       example: 123456
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "User not found."
+ */
+
+router.get("/recognition-number/:id", asyncWrapper(getUserRecognitionNumber));
+
+/**
+ * @swagger
+ * /users/post-number/{id}:
+ *   get:
+ *     summary: Get Number of Posts for a User
+ *     description: Retrieve the number of posts made by a user identified by their ID.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the user.
+ *     responses:
+ *       200:
+ *         description: Number of posts retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Number of posts retrieval successful."
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     numberOfPosts:
+ *                       type: integer
+ *                       example: 42
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "User not found."
+ */
+router.get("/post-number/:id", asyncWrapper(getNumberOfPostsForUser));
 /**
  * @swagger
  * /users/email:

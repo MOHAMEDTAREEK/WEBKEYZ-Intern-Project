@@ -33,6 +33,56 @@ export const getUsers = async (
 };
 
 /**
+ * Retrieves users based on the count of mentions in posts.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<void>} A promise that resolves once the users are retrieved and the response is sent.
+ */
+export const getUsersByMentionCount = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const sortedUsers = await userService.getUsersByMentionCount();
+  if (!sortedUsers) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.USER_RETRIEVAL_SUCCESS,
+    sortedUsers
+  );
+  res.send(response);
+};
+
+/**
+ * Asynchronous function to search for users based on a search term.
+ * Retrieves the search term from the request query parameters and throws an error if the search term is empty.
+ * Searches for users using the userService module and creates a response with the retrieved users.
+ * Sends the response back to the client.
+ *
+ * @param {Request} req - The request object containing the search term in the query parameters.
+ * @param {Response} res - The response object to send back the search results.
+ */
+export const searchUsers = async (req: Request, res: Response) => {
+  const searchTerm = (req.query.searchTerm as string) || "";
+  console.log(searchTerm);
+  if (!searchTerm) {
+    throw new BaseError(
+      ErrorMessage.INVALID_SEARCH_TERM,
+      HttpStatusCode.BadRequest
+    );
+  }
+  const users = await userService.searchUsers(searchTerm);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.USER_RETRIEVAL_SUCCESS,
+    users
+  );
+  return res.send(response);
+};
+
+/**
  * Creates a new user by passing the user data in the request body.
  *
  * @param {Request} req - The request object containing the user data.
@@ -142,23 +192,6 @@ export const getUserByEmail = async (
 //   return res.send({ processedImage });
 // };
 
-export const searchUsers = async (req: Request, res: Response) => {
-  const searchTerm = (req.query.searchTerm as string) || "";
-  if (!searchTerm) {
-    throw new BaseError(
-      ErrorMessage.INVALID_SEARCH_TERM,
-      HttpStatusCode.BadRequest
-    );
-  }
-  const users = await userService.searchUsers(searchTerm);
-  const response: IResponse = createResponse(
-    HttpStatusCode.Ok,
-    SuccessMessage.USER_RETRIEVAL_SUCCESS,
-    users
-  );
-  return res.send(response);
-};
-
 /**
  * Asynchronous function to delete a user.
  *
@@ -173,6 +206,43 @@ export const deleteUser = async (req: Request, res: Response) => {
     HttpStatusCode.NoContent,
     SuccessMessage.USER_DELETION_SUCCESS,
     user
+  );
+  res.send(response);
+};
+
+/**
+ * Retrieves the recognition number for a specific user and sends it as a response.
+ *
+ * @param req - The request object containing the user ID in the parameters.
+ * @param res - The response object to send the recognition number.
+ * @returns void
+ */
+export const getUserRecognitionNumber = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.id);
+  console.log(userId);
+  const recognitionNumber = await userService.getUserRecognitionNumber(userId);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.RECOGNITION_NUMBER_SENT_SUCCESS,
+    recognitionNumber
+  );
+  res.send(response);
+};
+
+/**
+ * Retrieves the number of posts for a specific user.
+ *
+ * @param req - The request object containing the user ID in the parameters.
+ * @param res - The response object to send back the result.
+ * @returns void
+ */
+export const getNumberOfPostsForUser = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.id);
+  const numberOfPosts = await userService.getNumberOfPostsForUser(userId);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.NUMBER_OF_POSTS_RETRIEVAL_SUCCESS,
+    { numberOfPosts: numberOfPosts }
   );
   res.send(response);
 };

@@ -1,4 +1,3 @@
-
 /**
  * Represents the attributes of a comment.
  * @property {number} id - The unique identifier of the comment.
@@ -9,7 +8,7 @@
  * @property {Date} [updatedAt] - The date and time when the comment was last updated.
  */
 
-interface CommentAttributes {
+export interface CommentAttributes {
   id: number;
   description: string;
   userId: number;
@@ -18,4 +17,5 @@ interface CommentAttributes {
   updatedAt?: Date;
 }
 
-interface CommentCreationAttributes extends Omit<CommentAttributes, "id"> {}
+export interface CommentCreationAttributes
+  extends Omit<CommentAttributes, "id"> {}

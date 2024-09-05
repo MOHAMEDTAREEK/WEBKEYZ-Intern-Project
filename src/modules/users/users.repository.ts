@@ -6,6 +6,7 @@ import { HttpStatusCode } from "axios";
 import logger from "../../shared/util/logger";
 import { Op } from "sequelize";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import Post from "../../database/models/post.model";
 
 /**
  * Retrieves all users from the database.
@@ -16,6 +17,34 @@ export const getUsers = async () => {
   if (!users) {
     throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
+  return users;
+};
+
+/**
+ * Retrieves users from the database based on their mention count in descending order.
+ * @returns {Promise<User[]>} A promise that resolves with an array of users sorted by mention count in descending order.
+ */
+export const getUsersByMentionCount = async (): Promise<User[]> => {
+  const users = User.findAll({
+    order: [["mentionCount", "DESC"]],
+  });
+  return users;
+};
+
+/**
+ * Asynchronously searches for users based on a given search term.
+ * @param searchTerm The term to search for in user's first name or last name.
+ * @returns A promise that resolves to an array of users matching the search term.
+ */
+export const searchUsers = async (searchTerm: string) => {
+  const users = await User.findAll({
+    where: {
+      [Op.or]: [
+        { firstName: { [Op.like]: `%${searchTerm}%` } },
+        { lastName: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+  });
   return users;
 };
 
@@ -33,7 +62,17 @@ export const getUserById = async (userId: number) => {
   return user;
 };
 
-export const findUserByName = async (firstName: string, lastName: string) => {
+/**
+ * Asynchronously finds a user by their first name and last name.
+ *
+ * @param {string} firstName - The first name of the user to search for.
+ * @param {string} lastName - The last name of the user to search for.
+ * @returns {Promise<User | null>} A promise that resolves with the user if found, or null if not found.
+ */
+export const findUserByName = async (
+  firstName: string,
+  lastName: string
+): Promise<User | null> => {
   const user = await User.findOne({
     where: { firstName: firstName, lastName: lastName },
   });
@@ -149,14 +188,45 @@ export const deleteUser = async (userId: number) => {
   return user;
 };
 
-export const searchUsers = async (searchTerm: string) => {
-  const users = await User.findAll({
+//This is new
+/**
+ * Retrieves the recognition number of a user based on the provided user ID.
+ *
+ * @param {number} userId - The ID of the user to retrieve the recognition number for.
+ * @throws {BaseError} When the user is not found.
+ */
+
+export const getUserRecognitionNumber = async (userId: number) => {
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const mentionCount = await User.findOne({
     where: {
-      [Op.or]: [
-        { firstName: { [Op.like]: `%${searchTerm}%` } },
-        { lastName: { [Op.like]: `%${searchTerm}%` } },
-      ],
+      id: userId,
+    },
+    attributes: ["mentionCount"],
+  });
+  return mentionCount;
+};
+
+//This is new
+/**
+ * Asynchronously retrieves the number of posts for a specific user.
+ *
+ * @param {number} userId - The unique identifier of the user.
+ * @throws {BaseError} When the user is not found.
+ */
+export const getNumberOfPostsForUser = async (userId: number) => {
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const postCount = await Post.count({
+    where: {
+      userId: userId,
     },
   });
-  return users;
+
+  return postCount;
 };

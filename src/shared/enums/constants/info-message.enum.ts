@@ -21,4 +21,6 @@ export enum SuccessMessage {
   USER_RETRIEVAL_SUCCESS = "User retrieval successful",
   USER_UPDATED_SUCCESS = "User updated successfully",
   USER_DELETION_SUCCESS = "User deleted successfully",
+  RECOGNITION_NUMBER_SENT_SUCCESS = "Recognition number sent successfully",
+  NUMBER_OF_POSTS_RETRIEVAL_SUCCESS = "Number of posts retrieved successfully",
 }
