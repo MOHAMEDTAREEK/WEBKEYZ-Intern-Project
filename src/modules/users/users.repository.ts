@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { HttpStatusCode } from "axios";
-import logger from "../../shared/util/logger";
 import { Op } from "sequelize";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import Post from "../../database/models/post.model";
