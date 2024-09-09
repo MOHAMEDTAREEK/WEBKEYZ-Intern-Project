@@ -15,6 +15,7 @@ import { ErrorMessage } from "../../src/shared/enums/constants/error-message.enu
 import { HttpStatusCode } from "axios";
 import { SuccessMessage } from "../../src/shared/enums/constants/info-message.enum";
 import * as postRepository from "../../src/modules/posts/posts.repository";
+import { hash } from "crypto";
 
 jest.mock("../../src/modules/posts/posts.service");
 
@@ -136,7 +137,8 @@ describe("Post Controller", () => {
         message: SuccessMessage.POST_CREATION_SUCCESS,
         data: {
           post: mockCreatedPost,
-          mentionedUserNames: mockMentionedUserNames,
+          mentionedUserNames: [],
+          hashTags: [],
         },
       });
     });

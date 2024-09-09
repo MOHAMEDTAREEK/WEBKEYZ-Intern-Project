@@ -1,5 +1,5 @@
 export class PostDto {
-  description!: string | null;
+  description!: string;
   userId!: number;
-  image!: string | null;
+  image!: string[] | null;
 }

@@ -5,6 +5,7 @@ import Mention from "../../database/models/mention.model";
 import { PostDto } from "./dtos/posts.dto";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import User from "../../database/models/user.model";
 
 /**
  * Asynchronously retrieves all posts from the database.
@@ -41,12 +42,22 @@ export const getPostById = async (id: number) => {
  * @returns The newly created post.
  * @throws BaseError if the post creation fails.
  */
-export const createPost = async (postData: any) => {
-  const user = await userRepository.getUserById(postData.userId);
+export const createPost = async (
+  userId: number,
+  description: string,
+  imageUrls: string[]
+) => {
+  const user = await userRepository.getUserById(userId);
   if (!user) {
     throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  const post = await Post.create(postData);
+  const post = await Post.create({
+    description: description,
+    image: imageUrls,
+    userId: userId,
+    like: 0,
+    mentionedUser: [],
+  });
   if (!post) {
     throw new BaseError(
       ErrorMessage.FAILED_TO_CREATE_POST,
@@ -144,16 +155,17 @@ export const uploadPostPhoto = async (
  * @param mentions - An array of strings representing the names of users to be mentioned.
  * @returns An array of strings containing the names of users who were successfully mentioned.
  */
-export const createMentions = async (postId: number, mentions: string[]) => {
+export const createMentions = async (
+  postId: number,
+  mentionedUsers: User[]
+) => {
   const post = await Post.findByPk(postId);
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  const mentionedUsers: any[] = [];
 
-  for (const name of mentions) {
-    const [firstName, lastName] = name.split(" ");
-    const user = await userRepository.findUserByName(firstName, lastName);
+  for (const mentionedUser of mentionedUsers) {
+    const user = await userRepository.getUserById(mentionedUser.id);
     if (user) {
       // Store the mention
       await createMention(postId, user.id);
@@ -161,15 +173,9 @@ export const createMentions = async (postId: number, mentions: string[]) => {
       // Increment the user's mention count
       user.mentionCount += 1;
       await user.save();
-      //mentionedUserNames.push(`${firstName} ${lastName}`);
-      mentionedUsers.push(user);
     }
   }
 
-  // const mentionsList = await getMentions(postId);
-  // const mentionedUserIds = mentionsList.map(
-  //   (mention) => mention.mentionedUserId
-  // );
   await post.update({ mentionedUser: mentionedUsers });
 
   return mentionedUsers;
@@ -219,21 +225,21 @@ export const getMentions = async (postId: number) => {
   });
   return mentions;
 };
-/**
- * Creates a new post with a mention of a specific user.
- *
- * @param postData - The data for the new post.
- * @param userId - The ID of the user being mentioned in the post.
- * @returns An object containing the created post and the mention.
- */
-export const createPostWithMention = async (
-  postData: PostDto,
-  userId: number
-) => {
-  const createdPost = await createPost(postData);
-  const mentions = await createMention(createdPost.id, userId);
-  return {
-    post: createdPost,
-    mentions: mentions,
-  };
-};
+// /**
+//  * Creates a new post with a mention of a specific user.
+//  *
+//  * @param postData - The data for the new post.
+//  * @param userId - The ID of the user being mentioned in the post.
+//  * @returns An object containing the created post and the mention.
+//  */
+// export const createPostWithMention = async (
+//   postData: PostDto,
+//   userId: number
+// ) => {
+//   const createdPost = await createPost(postData);
+//   const mentions = await createMention(createdPost.id, userId);
+//   return {
+//     post: createdPost,
+//     mentions: mentions,
+//   };
+// };

@@ -1,4 +1,5 @@
 import { Json } from "sequelize/types/utils";
+import User from "../user.model";
 
 /**
  * Defines the attributes for a post object.
@@ -17,7 +18,7 @@ export interface PostAttributes {
   image?: String[];
   userId: number;
   like: number;
-  mentionedUser: Json | Array<String>;
+  mentionedUser: Json | Array<User>;
   createdAt?: Date;
   updatedAt?: Date;
 }

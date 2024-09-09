@@ -1,5 +1,5 @@
 import multer from "multer";
-import { Request, Response, NextFunction } from "express";
+import { Request } from "express";
 import { AllowedTypes } from "../enums/constants/types.enum";
 import { ErrorMessage } from "../enums/constants/error-message.enum";
 

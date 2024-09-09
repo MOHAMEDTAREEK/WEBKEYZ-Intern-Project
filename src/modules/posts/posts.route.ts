@@ -8,14 +8,15 @@ import {
   getPosts,
   partiallyUpdatePost,
   uploadPostPhoto,
-  createPostWithMention,
 } from "./posts.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { fullyUpdatePostSchema } from "./schemas/fullyUpdatePost.schema";
 import { createPostSchema } from "./schemas/createPost.schema";
 import { idCheckingSchema } from "../../shared/helperSchemas/idChecking.schema";
 import { resizeImage } from "../../shared/middleware/image-preprocessing.middleware";
-import upload, { uploadPhotos } from "../../shared/middleware/multer.middleware";
+import upload, {
+  uploadPhotos,
+} from "../../shared/middleware/multer.middleware";
 import asyncWrapper from "../../shared/util/async-wrapper";
 
 const router = Router();
@@ -98,7 +99,9 @@ router.get(
 
 router.post(
   "/",
-  validationMiddleware(createPostSchema),
+  uploadPhotos,
+  resizeImage,
+  // validationMiddleware(createPostSchema),
   asyncWrapper(createPost)
 );
 /**
@@ -283,6 +286,6 @@ router.get("/test/:id", asyncWrapper(getMentions));
  *         description: Internal server error
  */
 
-router.post("/mentions/:userId", asyncWrapper(createPostWithMention));
+// router.post("/mentions/:userId", asyncWrapper(createPostWithMention));
 
 export default router;

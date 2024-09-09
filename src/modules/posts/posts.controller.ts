@@ -64,9 +64,14 @@ export const getPostById = async (req: Request, res: Response) => {
  * @returns A promise that resolves with the created post or an error message.
  */
 export const createPost = async (req: Request, res: Response) => {
-  const postData = req.body;
-  const { post, mentionedUsers, hashtags } =
-    await postService.createPost(postData);
+  const { description, userId } = req.body;
+  const files = req.files as Express.Multer.File[];
+  const postData = {
+    description,
+    userId,
+    files,
+  };
+  const { post, mentioned, hashtags } = await postService.createPost(postData);
   if (!post) {
     throw new BaseError(
       ErrorMessage.INTERNAL_SERVER_ERROR,
@@ -76,7 +81,7 @@ export const createPost = async (req: Request, res: Response) => {
   const response: IResponse = createResponse(
     HttpStatusCode.Created,
     SuccessMessage.POST_CREATION_SUCCESS,
-    { post, mentionedUsers, hashtags }
+    { post, mentioned, hashtags }
   );
   return res.send(response);
 };
@@ -228,32 +233,53 @@ export const getMentions = async (req: Request, res: Response) => {
   return res.send(response);
 };
 
-export const createPostWithMention = async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId);
-  const postData = req.body;
-  const { post, mentionedUser } = await postService.createPostWithMention(
-    postData,
-    userId
-  );
-  const response: IResponse = createResponse(
-    HttpStatusCode.Ok,
-    SuccessMessage.MENTIONS_CREATION_SUCCESS,
-    {
-      post: post,
-      mentionedUser: mentionedUser,
-    }
-  );
-  return res.send(response);
-};
+// export const createPostWithMention = async (req: Request, res: Response) => {
+//   const userId = parseInt(req.params.userId);
+//   const postData = req.body;
+//   const { post, mentionedUser } = await postService.createPostWithMention(
+//     postData,
+//     userId
+//   );
+//   const response: IResponse = createResponse(
+//     HttpStatusCode.Ok,
+//     SuccessMessage.MENTIONS_CREATION_SUCCESS,
+//     {
+//       post: post,
+//       mentionedUser: mentionedUser,
+//     }
+//   );
+//   return res.send(response);
+// };
 
-// export const s3Upload = multer({
-//   storage: multerS3({
-//     s3: s3,
-//     bucket: process.env.S3_BUCKET_NAME || "wk-intern-2024",
-//     acl: "public-read",
-//     contentType: multerS3.AUTO_CONTENT_TYPE,
-//     key: (req, file, cb) => {
-//       cb(null, file.originalname);
-//     },
-//   }),
-// }).single("postPhoto");
+export const getPostImagesUrl = async (req: Request, res: Response) => {
+  const files = req.files as Express.Multer.File[];
+
+  if (!files || files.length === 0) {
+    return res.status(HttpStatusCode.BadRequest).send("No photos uploaded");
+  }
+
+  const uploadedImageUrls: string[] = [];
+
+  for (const file of files) {
+    const fileKey = `${uuidv4()}-${file.originalname}`;
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    const imageUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({ Bucket: bucketName, Key: fileKey }),
+      { expiresIn: 3600 }
+    );
+
+    uploadedImageUrls.push(imageUrl);
+  }
+
+  return uploadedImageUrls;
+};
