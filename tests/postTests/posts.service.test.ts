@@ -1,5 +1,5 @@
 import Post from "../../src/database/models/post.model";
-import { PostDto } from "../../src/modules/posts/posts.dto";
+import { PostDto } from "../../src/modules/posts/dtos/posts.dto";
 import * as postRepository from "../../src/modules/posts/posts.repository";
 import {
   createPost,

@@ -11,7 +11,7 @@ import * as userRepository from "../users/users.repository";
 import * as userService from "../users/users.service";
 import config from "../../config";
 import jwt from "jsonwebtoken";
-import axios, { HttpStatusCode } from "axios";
+import { HttpStatusCode } from "axios";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";

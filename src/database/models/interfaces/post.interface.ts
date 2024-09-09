@@ -14,7 +14,7 @@ import { Json } from "sequelize/types/utils";
 export interface PostAttributes {
   id: number;
   description: string;
-  image?: string;
+  image?: String[];
   userId: number;
   like: number;
   mentionedUser: Json | Array<String>;

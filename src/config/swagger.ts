@@ -1,4 +1,7 @@
+import { response } from "express";
 import swaggerJSDoc, { Options } from "swagger-jsdoc";
+import { createPost } from "../modules/posts/posts.repository";
+import { stat } from "fs";
 /**
  * Generates and exports the Swagger specification for the API.
  */
@@ -52,6 +55,94 @@ const swaggerDefinition = {
           email: { type: "string", format: "email" },
         },
       },
+      commentSchema: {
+        type: "object",
+        required: ["description", "userId", "postId"],
+        properties: {
+          description: { type: "string", example: "This is a comment" },
+          userId: { type: "integer", example: 1 },
+          postId: { type: "integer", example: 1 },
+        },
+      },
+      updateCommentSchema: {
+        type: "object",
+        required: ["description", "image"],
+        properties: {
+          description: {
+            type: "string",
+            example: "This is a updated comment",
+          },
+          image: {
+            type: "string",
+            format: "link",
+            description: "Image file to upload",
+          },
+        },
+      },
+      postSchema: {
+        type: "object",
+        required: ["description", "image", "mentionedUsers"],
+        properties: {
+          description: {
+            type: "string",
+            example: "This is a post",
+          },
+          image: {
+            type: "string",
+            format: "link",
+            description: "Image file to upload",
+          },
+          mentionedUsers: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                id: {
+                  type: "integer",
+                  example: 1,
+                },
+                email: {
+                  type: "string",
+                  example: "user@example.com",
+                },
+                name: {
+                  type: "string",
+                  example: "John Doe",
+                },
+                role: {
+                  type: "string",
+                  example: "user",
+                },
+                createdAt: {
+                  type: "string",
+                  format: "date-time",
+                  example: "2024-08-26T12:00:00Z",
+                },
+                updatedAt: {
+                  type: "string",
+                  format: "date-time",
+                  example: "2024-08-26T12:00:00Z",
+                },
+              },
+            },
+          },
+        },
+      },
+      createPostSchema: {
+        type: "object",
+        required: ["description", "image"],
+        properties: {
+          description: {
+            type: "string",
+            example: "This is a post",
+          },
+          image: {
+            type: "string",
+            format: "link",
+            description: "Image file to upload",
+          },
+        },
+      },
       User: {
         type: "object",
         properties: {
@@ -63,9 +154,22 @@ const swaggerDefinition = {
             type: "string",
             example: "user@example.com",
           },
-          name: {
+          firstName: {
             type: "string",
-            example: "John Doe",
+            example: "John ",
+          },
+          lastName: {
+            type: "string",
+            example: "Doe",
+          },
+          role: {
+            type: "string",
+            example: "user",
+          },
+          profilePicture: {
+            type: "string",
+            format: "link",
+            description: "Image file to upload",
           },
           createdAt: {
             type: "string",
@@ -76,6 +180,10 @@ const swaggerDefinition = {
             type: "string",
             format: "date-time",
             example: "2024-08-26T12:00:00Z",
+          },
+          mentionCount: {
+            type: "integer",
+            example: 1,
           },
         },
       },
@@ -105,6 +213,124 @@ const swaggerDefinition = {
           lastName: {
             type: "string",
             example: "Doe",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Success",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Success",
+              },
+            },
+          },
+        },
+      },
+    },
+    201: {
+      description: "Created",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Created",
+              },
+            },
+          },
+        },
+      },
+    },
+    400: {
+      description: "Bad Request",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Bad Request",
+              },
+            },
+          },
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Unauthorized",
+              },
+            },
+          },
+        },
+      },
+    },
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Forbidden",
+              },
+            },
+          },
+        },
+      },
+    },
+    404: {
+      description: "Not Found",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Not Found",
+              },
+              statusCode: {
+                type: "integer",
+                example: 404,
+              },
+            },
+          },
+        },
+      },
+    },
+    500: {
+      description: "Internal Server Error",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Internal Server Error",
+              },
+            },
           },
         },
       },

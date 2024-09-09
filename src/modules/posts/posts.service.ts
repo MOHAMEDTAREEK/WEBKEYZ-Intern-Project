@@ -88,7 +88,7 @@ export const deletePost = async (id: number): Promise<any> => {
  * @param imageUrl - The URL of the image to be uploaded.
  * @returns The updated post after uploading the photo.
  */
-export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
+export const uploadPostPhoto = async (postId: number, imageUrl: string[]) => {
   const post = await postRepository.uploadPostPhoto(postId, imageUrl);
   return post;
 };

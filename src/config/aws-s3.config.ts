@@ -1,19 +1,15 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
 /**
- * Creates a new S3 client instance with the specified configuration.
- * @param {Object} configuration - The configuration object for the S3 client.
- * @param {string} configuration.region - The AWS region for the S3 client.
- * @param {Object} configuration.credentials - The credentials object containing accessKeyId and secretAccessKey.
- * @param {string} configuration.credentials.accessKeyId - The access key ID for AWS authentication.
- * @param {string} configuration.credentials.secretAccessKey - The secret access key for AWS authentication.
+ * Updates the AWS configuration with the access key ID, secret access key, and region from the environment variables.
+ * Creates a new S3 instance and exports it as 's3'.
+ * Exports the S3 bucket name from the environment variables as 'bucketName'.
  */
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
+export const s3Client = new S3Client({
+  region: process.env.AWS_REGION || "us-west-2",
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
   },
 });
-
-export default s3;
+export const bucketName = process.env.S3_BUCKET_NAME || "wk-intern-2024";

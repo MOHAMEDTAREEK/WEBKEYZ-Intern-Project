@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
+import { ErrorMessage } from "../enums/constants/error-message.enum";
 
 /**
  * Middleware function to resize an image uploaded in the request.
@@ -16,21 +17,26 @@ export const resizeImage = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+  if (!req.files) {
+    return res.status(400).json({ error: ErrorMessage.NO_FILE_UPLOADED });
   }
-
-  req.file.filename = `images/${uuidv4()}-${Date.now().toString()}.jpeg`;
+  const files = req.files as Express.Multer.File[];
 
   try {
-    req.file.buffer = await sharp(req.file.buffer)
-      .resize(800, 800, {
-        fit: sharp.fit.inside,
-        withoutEnlargement: true,
+    await Promise.all(
+      files.map(async (file) => {
+        const filename = `images/${uuidv4()}-${Date.now()}.jpeg`;
+        file.buffer = await sharp(file.buffer)
+          .resize(800, 800, {
+            fit: sharp.fit.inside,
+            withoutEnlargement: true,
+          })
+          .toFormat("jpeg")
+          .jpeg({ quality: 90 })
+          .toBuffer();
+        file.filename = filename;
       })
-      .toFormat("jpeg")
-      .jpeg({ quality: 90 })
-      .toBuffer();
+    );
 
     next();
   } catch (err) {

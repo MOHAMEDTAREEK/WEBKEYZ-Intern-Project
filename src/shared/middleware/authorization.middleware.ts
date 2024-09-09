@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { UserRole } from "../enums/user-Role.enum";
+import { ErrorMessage } from "../enums/constants/error-message.enum";
 
 /**
  * Middleware function to authorize user role for accessing a resource.
@@ -12,7 +13,7 @@ export const authorizeRole = (role: UserRole[]) => {
 
     if (!userRole || !role.includes(userRole)) {
       return res.status(403).json({
-        message: "Forbidden: You do not have access to this resource",
+        message: ErrorMessage.FORBIDDEN_ACTION,
       });
     }
     next();

@@ -5,9 +5,7 @@ import Mention from "../../database/models/mention.model";
 import { PostDto } from "./dtos/posts.dto";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
-import { extractMentions } from "../../shared/util/extract-mention";
-import User from "../../database/models/user.model";
-import { Sequelize } from "sequelize";
+
 /**
  * Asynchronously retrieves all posts from the database.
  *
@@ -92,7 +90,7 @@ export const partiallyUpdatePost = async (
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   if (description !== undefined) post.description = description;
-  if (image !== undefined) post.image = image;
+  // if (image !== undefined) post.image = image;
   await post.save();
 
   return post;
@@ -122,13 +120,19 @@ export const deletePost = async (id: number) => {
  */
 export const uploadPostPhoto = async (
   postId: number,
-  imageUrl: string
+  imageUrls: string[]
 ): Promise<Post> => {
   const post = await Post.findByPk(postId);
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  post.image = imageUrl;
+  if (!imageUrls) {
+    throw new BaseError(
+      ErrorMessage.IMAGE_URL_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
+  }
+  post.image = imageUrls;
   await post.save();
   return post;
 };

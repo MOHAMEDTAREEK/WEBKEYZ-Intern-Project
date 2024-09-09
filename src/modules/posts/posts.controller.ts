@@ -7,6 +7,10 @@ import { BaseError } from "../../shared/exceptions/base.error";
 import { IResponse } from "../../shared/interfaces/IResponse.interface";
 import { createResponse } from "../../shared/util/create-response";
 import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
+import { v4 as uuidv4 } from "uuid";
+import { bucketName, s3Client } from "../../config/aws-s3.config";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -162,15 +166,37 @@ export const deletePost = async (req: Request, res: Response) => {
 };
 
 export const uploadPostPhoto = async (req: Request, res: Response) => {
-  if (!req.file) {
-    return res.status(HttpStatusCode.BadRequest).send("No file uploaded");
+  const files = req.files as Express.Multer.File[];
+
+  if (!files || files.length === 0) {
+    return res.status(HttpStatusCode.BadRequest).send("No photos uploaded");
   }
 
-  const file = req.file as Express.MulterS3.File;
-  const imageUrl = file.location;
+  const uploadedImageUrls: string[] = [];
 
-  const postId = parseInt(req.body.postId);
-  const post = await postService.uploadPostPhoto(postId, imageUrl);
+  for (const file of files) {
+    const fileKey = `${uuidv4()}-${file.originalname}`;
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    const imageUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({ Bucket: bucketName, Key: fileKey }),
+      { expiresIn: 3600 }
+    );
+
+    uploadedImageUrls.push(imageUrl);
+  }
+
+  const id = parseInt(req.params.id);
+  const post = await postService.uploadPostPhoto(id, uploadedImageUrls);
   if (!post) {
     throw new BaseError(
       ErrorMessage.INTERNAL_SERVER_ERROR,
@@ -219,3 +245,15 @@ export const createPostWithMention = async (req: Request, res: Response) => {
   );
   return res.send(response);
 };
+
+// export const s3Upload = multer({
+//   storage: multerS3({
+//     s3: s3,
+//     bucket: process.env.S3_BUCKET_NAME || "wk-intern-2024",
+//     acl: "public-read",
+//     contentType: multerS3.AUTO_CONTENT_TYPE,
+//     key: (req, file, cb) => {
+//       cb(null, file.originalname);
+//     },
+//   }),
+// }).single("postPhoto");

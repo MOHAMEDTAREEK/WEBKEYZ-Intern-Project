@@ -13,7 +13,7 @@ class Post
 {
   public id!: number;
   public description!: string;
-  public image?: string;
+  public image?: String[];
   public userId!: number;
   public like!: number;
   public mentionedUser!: Json;
@@ -34,7 +34,7 @@ Post.init(
       allowNull: false,
     },
     image: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSON,
       allowNull: true,
     },
     userId: {

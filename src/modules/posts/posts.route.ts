@@ -1,4 +1,4 @@
-import { Router, RequestHandler } from "express";
+import { Router } from "express";
 import {
   createPost,
   deletePost,
@@ -15,8 +15,7 @@ import { fullyUpdatePostSchema } from "./schemas/fullyUpdatePost.schema";
 import { createPostSchema } from "./schemas/createPost.schema";
 import { idCheckingSchema } from "../../shared/helperSchemas/idChecking.schema";
 import { resizeImage } from "../../shared/middleware/image-preprocessing.middleware";
-import { s3Upload } from "../../shared/middleware/s3-image-upload.middleware";
-import upload from "../../shared/middleware/multer.middleware";
+import upload, { uploadPhotos } from "../../shared/middleware/multer.middleware";
 import asyncWrapper from "../../shared/util/async-wrapper";
 
 const router = Router();
@@ -35,16 +34,7 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   description:
- *                     type: string
- *                   image:
- *                     type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       404:
  *         description: No posts found
  */
@@ -71,14 +61,7 @@ router.get("/", asyncWrapper(getPosts));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
- *                 image:
- *                   type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       404:
  *         description: Post not found
  */
@@ -101,38 +84,14 @@ router.get(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'This is a new post'
- *               userId:
- *                 type: integer
- *                 example: 1
- *               image:
- *                 type: string
- *                 example: link
+ *               $ref: '#/components/schemas/createPostSchema'
  *     responses:
  *       201:
  *         description: The created post.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 post:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     description:
- *                       type: string
- *                     image:
- *                       type: string
- *                 mentionedUserNames:
- *                   type: array
- *                   items:
- *                     type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
@@ -162,28 +121,14 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'Updated post description'
- *               image:
- *                 type: string
- *                 example: 'https://example.com/image.jpg'
+ *               $ref: '#/components/schemas/createPostSchema'
  *     responses:
  *       200:
  *         description: The updated post.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
- *                 image:
- *                   type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
@@ -213,26 +158,14 @@ router.put(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *               image:
- *                 type: string
+ *               $ref: '#/components/schemas/createPostSchema'
  *     responses:
  *       200:
  *         description: The partially updated post.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
- *                 image:
- *                   type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
@@ -261,11 +194,7 @@ router.patch(
  *         description: The deleted post.
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
@@ -315,10 +244,9 @@ router.delete(
  *         description: Internal server error
  */
 router.post(
-  "/upload",
-  upload.single("photo"),
+  "/upload/:id",
+  uploadPhotos,
   resizeImage,
-  s3Upload.single("photo"),
   asyncWrapper(uploadPostPhoto)
 );
 
@@ -343,44 +271,18 @@ router.get("/test/:id", asyncWrapper(getMentions));
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'This is a post with a mention'
- *               userId:
- *                 type: integer
- *                 example: 123
- *                 description: The ID of the user being mentioned
- *               image:
- *                 type: string
- *                 example: 'https://example.com/image.jpg'
- *                 description: URL of the image to be associated with the post
+ *               $ref: '#/components/schemas/createPostSchema'
  *     responses:
  *       200:
  *         description: The created post with mention information.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 post:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     description:
- *                       type: string
- *                 mentionedUser:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     name:
- *                       type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
 
 router.post("/mentions/:userId", asyncWrapper(createPostWithMention));
+
 export default router;
