@@ -128,7 +128,7 @@ const swaggerDefinition = {
           },
         },
       },
-      createPostSchema: {
+      updatePostSchema: {
         type: "object",
         required: ["description", "image"],
         properties: {
@@ -140,6 +140,25 @@ const swaggerDefinition = {
             type: "string",
             format: "link",
             description: "Image file to upload",
+          },
+        },
+      },
+      createPostSchema: {
+        type: "object",
+        required: ["description", "userId", "postPhoto"],
+        properties: {
+          description: {
+            type: "string",
+            example: "This is a post",
+          },
+          postPhoto: {
+            type: "array",
+            items: { type: "string", format: "binary" },
+            description: " Up to 2 image files to be uploaded",
+          },
+          userId: {
+            type: "integer",
+            example: 1,
           },
         },
       },

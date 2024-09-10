@@ -76,25 +76,84 @@ router.get(
  * @swagger
  * /posts:
  *   post:
- *     summary: Create a new post
- *     description: Creates a new post with the provided data.
+ *     summary: Create a new post with optional mentions and hashtags
+ *     description: This route allows users to create a new post with descriptions, mentions, hashtags, and file uploads.
  *     tags:
  *       - Posts
+ *     consumes:
+ *       - multipart/form-data
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *               $ref: '#/components/schemas/createPostSchema'
+ *             type: object
+ *             properties:
+ *               description:
+ *                 type: string
+ *                 description: The description of the post which may include mentions and hashtags.
+ *               userId:
+ *                 type: number
+ *                 description: ID of the user creating the post.
+ *               postPhoto:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Up to 2 image files to be uploaded.
  *     responses:
  *       201:
- *         description: The created post.
+ *         description: Post created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/postSchema'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Post created successfully.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     post:
+ *                       $ref: '#/components/schemas/Post'
+ *                     mentioned:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Mention'
+ *                     hashtags:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Invalid data.
  *       500:
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Failed to create post.
  */
 
 router.post(
@@ -102,7 +161,7 @@ router.post(
   uploadPhotos,
   resizeImage,
   // validationMiddleware(createPostSchema),
-  asyncWrapper(createPost)
+  createPost
 );
 /**
  * @swagger
@@ -124,7 +183,7 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *               $ref: '#/components/schemas/createPostSchema'
+ *               $ref: '#/components/schemas/updatePostSchema'
  *     responses:
  *       200:
  *         description: The updated post.
@@ -161,7 +220,7 @@ router.put(
  *       content:
  *         application/json:
  *           schema:
- *               $ref: '#/components/schemas/createPostSchema'
+ *               $ref: '#/components/schemas/updatePostSchema'
  *     responses:
  *       200:
  *         description: The partially updated post.

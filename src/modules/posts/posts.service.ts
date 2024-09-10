@@ -5,10 +5,16 @@ import * as userService from "../users/users.service";
 import * as userRepository from "../users/users.repository";
 import { extractHashtags } from "../../shared/util/extract-hashtag";
 import { bucketName, s3Client } from "../../config/aws-s3.config";
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 import User from "../../database/models/user.model";
+import { Transaction } from "sequelize";
+import { extractKeyFromUrl } from "../../shared/util/extract-key-from-url";
 
 /**
  * Asynchronous function to retrieve all posts.
@@ -38,13 +44,16 @@ export const getPostById = async (id: number): Promise<any> => {
  * @returns The newly created post.
  */
 
-export const createPost = async (postData: any) => {
-  const imageUrls: string[] = await getPostPhotoUrls(postData.files);
-
+export const createPost = async (
+  postData: any,
+  transaction: Transaction,
+  imageUrls: string[]
+) => {
   const post = await postRepository.createPost(
     postData.userId,
     postData.description,
-    imageUrls
+    imageUrls,
+    transaction
   );
 
   const mentions = postData.description
@@ -57,7 +66,8 @@ export const createPost = async (postData: any) => {
   const mentionedUsers = await getMentionedUsers(mentions, post.id);
   const mentioned = await postRepository.createMentions(
     post.id,
-    mentionedUsers
+    mentionedUsers,
+    transaction
   );
 
   return { post, mentioned, hashtags };
@@ -171,4 +181,19 @@ export const getMentionedUsers = async (mentions: string[], postId: number) => {
     }
   }
   return mentionedUsers;
+};
+
+export const deleteUploadedImages = async (imageUrls: string[]) => {
+  const deletePromises = imageUrls.map(async (url) => {
+    const key = extractKeyFromUrl(url);
+
+    const params = {
+      Bucket: bucketName,
+      Key: key,
+    };
+
+    await s3Client.send(new DeleteObjectCommand(params));
+  });
+
+  await Promise.all(deletePromises);
 };

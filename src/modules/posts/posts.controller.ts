@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import { bucketName, s3Client } from "../../config/aws-s3.config";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { sequelize } from "../../database/models";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -66,24 +67,42 @@ export const getPostById = async (req: Request, res: Response) => {
 export const createPost = async (req: Request, res: Response) => {
   const { description, userId } = req.body;
   const files = req.files as Express.Multer.File[];
-  const postData = {
-    description,
-    userId,
-    files,
-  };
-  const { post, mentioned, hashtags } = await postService.createPost(postData);
-  if (!post) {
-    throw new BaseError(
-      ErrorMessage.INTERNAL_SERVER_ERROR,
-      HttpStatusCode.InternalServerError
+
+  const transaction = await sequelize.transaction();
+
+  const imageUrls: string[] = await postService.getPostPhotoUrls(files);
+
+  try {
+    const postData = {
+      description,
+      userId,
+      files,
+    };
+    const { post, mentioned, hashtags } = await postService.createPost(
+      postData,
+      transaction,
+      imageUrls
     );
+    if (!post) {
+      throw new BaseError(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+        HttpStatusCode.InternalServerError
+      );
+    }
+    await transaction.commit();
+    const response: IResponse = createResponse(
+      HttpStatusCode.Created,
+      SuccessMessage.POST_CREATION_SUCCESS,
+      { post, mentioned, hashtags }
+    );
+    return res.send(response);
+  } catch (error) {
+    await transaction.rollback();
+    if (imageUrls.length > 0) {
+      await postService.deleteUploadedImages(imageUrls);
+    }
+    return res.status(HttpStatusCode.InternalServerError).send(error);
   }
-  const response: IResponse = createResponse(
-    HttpStatusCode.Created,
-    SuccessMessage.POST_CREATION_SUCCESS,
-    { post, mentioned, hashtags }
-  );
-  return res.send(response);
 };
 
 /**
