@@ -1,8 +1,19 @@
 import * as postRepository from "./posts.repository";
 import { extractMentions } from "../../shared/util/extract-mention";
-import { PostDto } from "./dtos/posts.dto";
-import * as userService from "../users/users.service";
+import * as userRepository from "../users/users.repository";
 import { extractHashtags } from "../../shared/util/extract-hashtag";
+import { bucketName, s3Client } from "../../config/aws-s3.config";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { v4 as uuidv4 } from "uuid";
+import User from "../../database/models/user.model";
+import { Transaction } from "sequelize";
+import { extractKeyFromUrl } from "../../shared/util/extract-key-from-url";
+
 /**
  * Asynchronous function to retrieve all posts.
  *
@@ -31,17 +42,33 @@ export const getPostById = async (id: number): Promise<any> => {
  * @returns The newly created post.
  */
 
-export const createPost = async (postData: PostDto) => {
-  const post = await postRepository.createPost(postData);
+export const createPost = async (
+  postData: any,
+  transaction: Transaction,
+  imageUrls: string[]
+) => {
+  const post = await postRepository.createPost(
+    postData.userId,
+    postData.description,
+    imageUrls,
+    transaction
+  );
+
   const mentions = postData.description
     ? extractMentions(postData.description)
     : [];
   const hashtags = postData.description
     ? extractHashtags(postData.description)
     : [];
-  const mentionedUsers = await postRepository.createMentions(post.id, mentions);
 
-  return { post, mentionedUsers, hashtags };
+  const mentionedUsers = await getMentionedUsers(mentions, post.id);
+  const mentioned = await postRepository.createMentions(
+    post.id,
+    mentionedUsers,
+    transaction
+  );
+
+  return { post, mentioned, hashtags };
 };
 /**
  * Updates a post with new data.
@@ -88,28 +115,62 @@ export const deletePost = async (id: number): Promise<any> => {
  * @param imageUrl - The URL of the image to be uploaded.
  * @returns The updated post after uploading the photo.
  */
-export const uploadPostPhoto = async (postId: number, imageUrl: string) => {
+export const uploadPostPhoto = async (postId: number, imageUrl: string[]) => {
   const post = await postRepository.uploadPostPhoto(postId, imageUrl);
   return post;
 };
-/**
- * Creates a new post with mentions and retrieves the mentioned user.
- *
- * @param postData - The data for the new post.
- * @param userId - The ID of the user creating the post.
- * @returns An object containing the created post and the mentioned user.
- */
-export const createPostWithMention = async (
-  postData: PostDto,
-  userId: number
-) => {
-  const { post, mentions } = await postRepository.createPostWithMention(
-    postData,
-    userId
-  );
-  const mentionedUser = await userService.getUserById(userId);
-  return {
-    post: post,
-    mentionedUser: mentionedUser,
-  };
+export const createPostPhotoUrls = async (files: any) => {
+  const uploadedImageUrls: string[] = [];
+
+  for (const file of files) {
+    const fileKey = `${uuidv4()}-${file.originalname}`;
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    const imageUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({ Bucket: bucketName, Key: fileKey }),
+      { expiresIn: 3600 }
+    );
+
+    uploadedImageUrls.push(imageUrl);
+  }
+
+  return uploadedImageUrls;
 };
+
+export const getMentionedUsers = async (mentions: string[], postId: number) => {
+  const mentionedUsers: User[] = [];
+
+  for (const name of mentions) {
+    const [firstName, lastName] = name.split(" ");
+    const user = await userRepository.findUserByName(firstName, lastName);
+    if (user) {
+      mentionedUsers.push(user);
+    }
+  }
+  return mentionedUsers;
+};
+
+export const deleteUploadedImages = async (imageUrls: string[]) => {
+  const deletePromises = imageUrls.map(async (url) => {
+    const key = extractKeyFromUrl(url);
+
+    const params = {
+      Bucket: bucketName,
+      Key: key,
+    };
+
+    await s3Client.send(new DeleteObjectCommand(params));
+  });
+
+  await Promise.all(deletePromises);
+};
+

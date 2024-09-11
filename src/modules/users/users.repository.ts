@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { HttpStatusCode } from "axios";
-import logger from "../../shared/util/logger";
 import { Op } from "sequelize";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import Post from "../../database/models/post.model";
@@ -146,33 +145,6 @@ export const validateCredentials = async (email: string, password: string) => {
 
   return user;
 };
-
-/**
- * Saves an image to the specified directory after sanitizing the filename.
- *
- * @param imageBuffer The image data to be saved as a Buffer.
- * @param filename The name of the file to be saved.
- * @returns An object containing the sanitized filename and the full path where the image is saved.
- */
-// export const saveImage = async (
-//   imageBuffer: Buffer,
-//   filename: string,
-//   user_id: number
-// ) => {
-//   const sanitizedFilename = filename.replace(/[^\w.-]/g, "_");
-//   console.log(user_id);
-//   const userExists = await User.findByPk(user_id);
-//   if (!userExists) {
-//     throw new BaseError("User does not exist", HttpStatus.BAD_REQUEST);
-//   }
-
-//   const userImage = await UserImage.create({
-//     user_id: user_id,
-//     image: imageBuffer,
-//     filename: sanitizedFilename,
-//   });
-//   return { id: userImage.dataValues.id, filename: sanitizedFilename };
-// };
 
 /**
  * Deletes a user by their ID.

@@ -44,16 +44,7 @@ module.exports = {
         field: "updated_at",
       },
     });
-    await queryInterface.addConstraint("post", {
-      fields: ["user_id"],
-      type: "foreign key",
-      name: "post_user_id_fk",
-      references: {
-        table: "user",
-        field: "id",
-      },
-      onDelete: "cascade",
-    });
+
   },
 
   async down(queryInterface, Sequelize) {

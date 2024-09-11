@@ -8,7 +8,6 @@ import {
 } from "../../src/modules/comments/comments.controller";
 import * as commentService from "../../src/modules/comments/comments.service";
 import { BaseError } from "../../src/shared/exceptions/base.error";
-import { ErrorMessage } from "../../src/shared/enums/constants/error-message.enum";
 import { HttpStatusCode } from "axios";
 import { SuccessMessage } from "../../src/shared/enums/constants/info-message.enum";
 

@@ -7,6 +7,9 @@ import config from "../config";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "../config/passport";
+import swaggerUI from "swagger-ui-express";
+import swaggerSpec from "../config/swagger";
+
 /**
  * Middleware loader function to set up various middleware for the Express application.
  * @param {Application} app - The Express application instance.
@@ -38,4 +41,5 @@ export const middlewareLoader = async (app: Application) => {
       signed: true,
     } as cookieParser.CookieParseOptions)
   );
+  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 };

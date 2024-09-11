@@ -3,8 +3,6 @@ import { routesLoader } from "./loaders/routes.loaders";
 import logger from "./shared/util/logger";
 import { errorHandlerMiddleware } from "./shared/middleware/error-Handler.middleware";
 import { sequelizeErrorHandlerMiddleware } from "./shared/middleware/Sequelize-Error-Handler.middleware";
-import swaggerUI from "swagger-ui-express";
-import swaggerSpec from "./config/swagger";
 import { middlewareLoader } from "./loaders/middleware.loaders";
 
 /**
@@ -18,8 +16,6 @@ const startServer = async () => {
 
   middlewareLoader(app);
   routesLoader(app);
-
-  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
   app.use(sequelizeErrorHandlerMiddleware);
   app.use(errorHandlerMiddleware);

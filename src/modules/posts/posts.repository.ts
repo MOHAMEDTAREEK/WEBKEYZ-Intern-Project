@@ -2,12 +2,11 @@ import Post from "../../database/models/post.model";
 import { BaseError } from "../../shared/exceptions/base.error";
 import * as userRepository from "../users/users.repository";
 import Mention from "../../database/models/mention.model";
-import { PostDto } from "./dtos/posts.dto";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
-import { extractMentions } from "../../shared/util/extract-mention";
 import User from "../../database/models/user.model";
-import { Sequelize } from "sequelize";
+import { Transaction } from "sequelize";
+import * as postService from "./posts.service";
 /**
  * Asynchronously retrieves all posts from the database.
  *
@@ -43,12 +42,30 @@ export const getPostById = async (id: number) => {
  * @returns The newly created post.
  * @throws BaseError if the post creation fails.
  */
-export const createPost = async (postData: any) => {
-  const user = await userRepository.getUserById(postData.userId);
+export const createPost = async (
+  userId: number,
+  description: string,
+  imageUrls: string[],
+  transaction: Transaction
+) => {
+  const user = await userRepository.getUserById(userId);
   if (!user) {
     throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  const post = await Post.create(postData);
+  // throw new BaseError(
+  //   ErrorMessage.FAILED_TO_CREATE_POST,
+  //   HttpStatusCode.InternalServerError
+  // );
+  const post = await Post.create(
+    {
+      description: description,
+      image: imageUrls,
+      userId: userId,
+      like: 0,
+      mentionedUser: [],
+    },
+    { transaction }
+  );
   if (!post) {
     throw new BaseError(
       ErrorMessage.FAILED_TO_CREATE_POST,
@@ -92,7 +109,7 @@ export const partiallyUpdatePost = async (
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   if (description !== undefined) post.description = description;
-  if (image !== undefined) post.image = image;
+  if (image !== undefined) post.image = [image];
   await post.save();
 
   return post;
@@ -109,6 +126,9 @@ export const deletePost = async (id: number) => {
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
+  const postPhotos = post.image as string[];
+  await postService.deleteUploadedImages(postPhotos);
+
   await post.destroy();
   return post;
 };
@@ -122,13 +142,19 @@ export const deletePost = async (id: number) => {
  */
 export const uploadPostPhoto = async (
   postId: number,
-  imageUrl: string
+  imageUrls: string[]
 ): Promise<Post> => {
   const post = await Post.findByPk(postId);
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  post.image = imageUrl;
+  if (!imageUrls) {
+    throw new BaseError(
+      ErrorMessage.IMAGE_URL_NOT_FOUND,
+      HttpStatusCode.NotFound
+    );
+  }
+  post.image = imageUrls;
   await post.save();
   return post;
 };
@@ -140,33 +166,29 @@ export const uploadPostPhoto = async (
  * @param mentions - An array of strings representing the names of users to be mentioned.
  * @returns An array of strings containing the names of users who were successfully mentioned.
  */
-export const createMentions = async (postId: number, mentions: string[]) => {
-  const post = await Post.findByPk(postId);
+export const createMentions = async (
+  postId: number,
+  mentionedUsers: User[],
+  transaction: Transaction
+) => {
+  const post = await Post.findByPk(postId, { transaction });
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  const mentionedUsers: any[] = [];
 
-  for (const name of mentions) {
-    const [firstName, lastName] = name.split(" ");
-    const user = await userRepository.findUserByName(firstName, lastName);
+  for (const mentionedUser of mentionedUsers) {
+    const user = await userRepository.getUserById(mentionedUser.id);
     if (user) {
       // Store the mention
-      await createMention(postId, user.id);
+      await createMention(postId, user.id, transaction);
 
       // Increment the user's mention count
       user.mentionCount += 1;
-      await user.save();
-      //mentionedUserNames.push(`${firstName} ${lastName}`);
-      mentionedUsers.push(user);
+      await user.save({ transaction });
     }
   }
 
-  // const mentionsList = await getMentions(postId);
-  // const mentionedUserIds = mentionsList.map(
-  //   (mention) => mention.mentionedUserId
-  // );
-  await post.update({ mentionedUser: mentionedUsers });
+  await post.update({ mentionedUser: mentionedUsers }, { transaction });
 
   return mentionedUsers;
 };
@@ -179,9 +201,10 @@ export const createMentions = async (postId: number, mentions: string[]) => {
  */
 export const createMention = async (
   postId: number,
-  userId: number
+  userId: number,
+  transaction: Transaction
 ): Promise<Mention> => {
-  const post = await Post.findByPk(postId);
+  const post = await Post.findByPk(postId, { transaction });
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
@@ -190,46 +213,12 @@ export const createMention = async (
   if (!user) {
     throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  const mention = await Mention.create({
-    postId: postId,
-    mentionedUserId: userId,
-  });
-  return mention;
-};
-/**
- * Retrieves all mentions associated with a specific post.
- *
- * @param postId - The ID of the post to retrieve mentions for.
- * @returns A Promise that resolves to an array of Mention instances.
- */
-export const getMentions = async (postId: number) => {
-  const post = await Post.findByPk(postId);
-  if (!post) {
-    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
-  }
-
-  const mentions = await Mention.findAll({
-    where: {
+  const mention = await Mention.create(
+    {
       postId: postId,
+      mentionedUserId: userId,
     },
-  });
-  return mentions;
-};
-/**
- * Creates a new post with a mention of a specific user.
- *
- * @param postData - The data for the new post.
- * @param userId - The ID of the user being mentioned in the post.
- * @returns An object containing the created post and the mention.
- */
-export const createPostWithMention = async (
-  postData: PostDto,
-  userId: number
-) => {
-  const createdPost = await createPost(postData);
-  const mentions = await createMention(createdPost.id, userId);
-  return {
-    post: createdPost,
-    mentions: mentions,
-  };
+    { transaction }
+  );
+  return mention;
 };

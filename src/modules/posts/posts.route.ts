@@ -1,21 +1,17 @@
-import { Router, RequestHandler } from "express";
+import { Router } from "express";
 import {
   createPost,
   deletePost,
   fullyUpdatePost,
-  getMentions,
   getPostById,
   getPosts,
   partiallyUpdatePost,
   uploadPostPhoto,
-  createPostWithMention,
 } from "./posts.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { fullyUpdatePostSchema } from "./schemas/fullyUpdatePost.schema";
-import { createPostSchema } from "./schemas/createPost.schema";
 import { idCheckingSchema } from "../../shared/helperSchemas/idChecking.schema";
 import { resizeImage } from "../../shared/middleware/image-preprocessing.middleware";
-import { s3Upload } from "../../shared/middleware/s3-image-upload.middleware";
 import upload from "../../shared/middleware/multer.middleware";
 import asyncWrapper from "../../shared/util/async-wrapper";
 
@@ -35,16 +31,7 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   description:
- *                     type: string
- *                   image:
- *                     type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       404:
  *         description: No posts found
  */
@@ -71,14 +58,7 @@ router.get("/", asyncWrapper(getPosts));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
- *                 image:
- *                   type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       404:
  *         description: Post not found
  */
@@ -92,55 +72,92 @@ router.get(
  * @swagger
  * /posts:
  *   post:
- *     summary: Create a new post
- *     description: Creates a new post with the provided data.
+ *     summary: Create a new post with optional mentions and hashtags
+ *     description: This route allows users to create a new post with descriptions, mentions, hashtags, and file uploads.
  *     tags:
  *       - Posts
+ *     consumes:
+ *       - multipart/form-data
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               description:
  *                 type: string
- *                 example: 'This is a new post'
+ *                 description: The description of the post which may include mentions and hashtags.
  *               userId:
- *                 type: integer
- *                 example: 1
- *               image:
- *                 type: string
- *                 example: link
+ *                 type: number
+ *                 description: ID of the user creating the post.
+ *               postPhoto:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Up to 2 image files to be uploaded.
  *     responses:
  *       201:
- *         description: The created post.
+ *         description: Post created successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 post:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Post created successfully.
+ *                 data:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                     description:
- *                       type: string
- *                     image:
- *                       type: string
- *                 mentionedUserNames:
- *                   type: array
- *                   items:
- *                     type: string
+ *                     post:
+ *                       $ref: '#/components/schemas/Post'
+ *                     mentioned:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Mention'
+ *                     hashtags:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Invalid data.
  *       500:
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Failed to create post.
  */
 
 router.post(
   "/",
-  validationMiddleware(createPostSchema),
-  asyncWrapper(createPost)
+  upload.array("postPhoto", 2),
+  resizeImage,
+  // validationMiddleware(createPostSchema),
+  createPost
 );
 /**
  * @swagger
@@ -162,28 +179,14 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'Updated post description'
- *               image:
- *                 type: string
- *                 example: 'https://example.com/image.jpg'
+ *               $ref: '#/components/schemas/updatePostSchema'
  *     responses:
  *       200:
  *         description: The updated post.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
- *                 image:
- *                   type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
@@ -213,26 +216,14 @@ router.put(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *               image:
- *                 type: string
+ *               $ref: '#/components/schemas/updatePostSchema'
  *     responses:
  *       200:
  *         description: The partially updated post.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
- *                 image:
- *                   type: string
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
@@ -261,11 +252,7 @@ router.patch(
  *         description: The deleted post.
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
+ *               $ref: '#/components/schemas/postSchema'
  *       500:
  *         description: Internal server error
  */
@@ -315,72 +302,10 @@ router.delete(
  *         description: Internal server error
  */
 router.post(
-  "/upload",
-  upload.single("photo"),
+  "/upload/:id",
+  upload.array("postPhoto", 2),
   resizeImage,
-  s3Upload.single("photo"),
   asyncWrapper(uploadPostPhoto)
 );
 
-router.get("/test/:id", asyncWrapper(getMentions));
-/**
- * @swagger
- * /posts/mentions/{userId}:
- *   post:
- *     summary: Create a post with a mention
- *     description: Creates a new post and mentions a user.
- *     tags:
- *       - Posts
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the user to mention
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'This is a post with a mention'
- *               userId:
- *                 type: integer
- *                 example: 123
- *                 description: The ID of the user being mentioned
- *               image:
- *                 type: string
- *                 example: 'https://example.com/image.jpg'
- *                 description: URL of the image to be associated with the post
- *     responses:
- *       200:
- *         description: The created post with mention information.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 post:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     description:
- *                       type: string
- *                 mentionedUser:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     name:
- *                       type: string
- *       500:
- *         description: Internal server error
- */
-
-router.post("/mentions/:userId", asyncWrapper(createPostWithMention));
 export default router;
