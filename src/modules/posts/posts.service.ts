@@ -1,7 +1,5 @@
 import * as postRepository from "./posts.repository";
 import { extractMentions } from "../../shared/util/extract-mention";
-import { PostDto } from "./dtos/posts.dto";
-import * as userService from "../users/users.service";
 import * as userRepository from "../users/users.repository";
 import { extractHashtags } from "../../shared/util/extract-hashtag";
 import { bucketName, s3Client } from "../../config/aws-s3.config";
@@ -175,3 +173,4 @@ export const deleteUploadedImages = async (imageUrls: string[]) => {
 
   await Promise.all(deletePromises);
 };
+

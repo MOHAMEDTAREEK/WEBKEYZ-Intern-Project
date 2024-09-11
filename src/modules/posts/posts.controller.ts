@@ -11,6 +11,7 @@ import { bucketName, s3Client } from "../../config/aws-s3.config";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { sequelize } from "../../database/models";
+import { QueryInterface } from "sequelize";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -240,7 +241,6 @@ export const uploadPostPhoto = async (req: Request, res: Response) => {
   );
   return res.send(response);
 };
-
 
 /**
  * Asynchronous function to upload images to an AWS S3 bucket and return the URLs of the uploaded images.
