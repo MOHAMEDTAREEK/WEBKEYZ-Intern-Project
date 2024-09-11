@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import * as postService from "./posts.service";
-import * as postRepository from "./posts.repository";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import { BaseError } from "../../shared/exceptions/base.error";
@@ -70,7 +69,7 @@ export const createPost = async (req: Request, res: Response) => {
 
   const transaction = await sequelize.transaction();
 
-  const imageUrls: string[] = await postService.getPostPhotoUrls(files);
+  const imageUrls: string[] = await postService.createPostPhotoUrls(files);
 
   try {
     const postData = {
@@ -242,48 +241,6 @@ export const uploadPostPhoto = async (req: Request, res: Response) => {
   return res.send(response);
 };
 
-/**
- * Retrieves mentions for a specific post ID.
- *
- * @param {Request} req - The request object.
- * @param {Response} res - The response object.
- * @returns {Promise<void>} A Promise that resolves when the mentions are retrieved and sent in the response.
- * @throws {BaseError} If failed to get mentions for the post ID.
- */
-export const getMentions = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const mentions = await postRepository.getMentions(id);
-  if (!mentions) {
-    throw new BaseError(
-      ErrorMessage.FAILED_TO_GET_MENTIONS,
-      HttpStatusCode.NotFound
-    );
-  }
-  const response: IResponse = createResponse(
-    HttpStatusCode.Ok,
-    SuccessMessage.MENTIONS_RETRIEVAL_SUCCESS,
-    mentions
-  );
-  return res.send(response);
-};
-
-// export const createPostWithMention = async (req: Request, res: Response) => {
-//   const userId = parseInt(req.params.userId);
-//   const postData = req.body;
-//   const { post, mentionedUser } = await postService.createPostWithMention(
-//     postData,
-//     userId
-//   );
-//   const response: IResponse = createResponse(
-//     HttpStatusCode.Ok,
-//     SuccessMessage.MENTIONS_CREATION_SUCCESS,
-//     {
-//       post: post,
-//       mentionedUser: mentionedUser,
-//     }
-//   );
-//   return res.send(response);
-// };
 
 /**
  * Asynchronous function to upload images to an AWS S3 bucket and return the URLs of the uploaded images.

@@ -3,7 +3,7 @@ import { Request } from "express";
 import { AllowedTypes } from "../enums/constants/types.enum";
 import { ErrorMessage } from "../enums/constants/error-message.enum";
 
-const storage = multer.memoryStorage(); // Store the image in memory temporarily
+const storage = multer.memoryStorage();
 
 /**
  * Middleware function to filter uploaded files based on allowed types.
@@ -30,5 +30,4 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB in bytes
   fileFilter: fileFilter,
 });
-export const uploadPhotos = upload.array("postPhoto", 2);
 export default upload;

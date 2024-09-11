@@ -12,7 +12,7 @@ class Post
 {
   public id!: number;
   public description!: string;
-  public image?: String[];
+  public image?: string[];
   public userId!: number;
   public like!: number;
   public mentionedUser!: Json;

@@ -15,7 +15,7 @@ import User from "../user.model";
 export interface PostAttributes {
   id: number;
   description: string;
-  image?: String[];
+  image?: string[];
   userId: number;
   like: number;
   mentionedUser: Json | Array<User>;

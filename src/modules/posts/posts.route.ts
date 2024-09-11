@@ -3,7 +3,6 @@ import {
   createPost,
   deletePost,
   fullyUpdatePost,
-  getMentions,
   getPostById,
   getPosts,
   partiallyUpdatePost,
@@ -13,7 +12,7 @@ import { validationMiddleware } from "../../shared/middleware/validation.middlew
 import { fullyUpdatePostSchema } from "./schemas/fullyUpdatePost.schema";
 import { idCheckingSchema } from "../../shared/helperSchemas/idChecking.schema";
 import { resizeImage } from "../../shared/middleware/image-preprocessing.middleware";
-import { uploadPhotos } from "../../shared/middleware/multer.middleware";
+import upload from "../../shared/middleware/multer.middleware";
 import asyncWrapper from "../../shared/util/async-wrapper";
 
 const router = Router();
@@ -155,7 +154,7 @@ router.get(
 
 router.post(
   "/",
-  uploadPhotos,
+  upload.array("postPhoto", 2),
   resizeImage,
   // validationMiddleware(createPostSchema),
   createPost
@@ -304,44 +303,9 @@ router.delete(
  */
 router.post(
   "/upload/:id",
-  uploadPhotos,
+  upload.array("postPhoto", 2),
   resizeImage,
   asyncWrapper(uploadPostPhoto)
 );
-
-router.get("/test/:id", asyncWrapper(getMentions));
-/**
- * @swagger
- * /posts/mentions/{userId}:
- *   post:
- *     summary: Create a post with a mention
- *     description: Creates a new post and mentions a user.
- *     tags:
- *       - Posts
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the user to mention
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *               $ref: '#/components/schemas/createPostSchema'
- *     responses:
- *       200:
- *         description: The created post with mention information.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/postSchema'
- *       500:
- *         description: Internal server error
- */
-
-// router.post("/mentions/:userId", asyncWrapper(createPostWithMention));
 
 export default router;

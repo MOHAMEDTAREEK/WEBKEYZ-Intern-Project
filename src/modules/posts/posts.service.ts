@@ -121,29 +121,7 @@ export const uploadPostPhoto = async (postId: number, imageUrl: string[]) => {
   const post = await postRepository.uploadPostPhoto(postId, imageUrl);
   return post;
 };
-/**
- * Creates a new post with mentions and retrieves the mentioned user.
- *
- * @param postData - The data for the new post.
- * @param userId - The ID of the user creating the post.
- * @returns An object containing the created post and the mentioned user.
- */
-// export const createPostWithMention = async (
-//   postData: PostDto,
-//   userId: number
-// ) => {
-//   const { post, mentions } = await postRepository.createPostWithMention(
-//     postData,
-//     userId
-//   );
-//   const mentionedUser = await userService.getUserById(userId);
-//   return {
-//     post: post,
-//     mentionedUser: mentionedUser,
-//   };
-// };
-
-export const getPostPhotoUrls = async (files: any) => {
+export const createPostPhotoUrls = async (files: any) => {
   const uploadedImageUrls: string[] = [];
 
   for (const file of files) {
