@@ -368,7 +368,7 @@ router.get(
  *       400:
  *         description: Invalid input
  */
-router.post("/", validationMiddleware(userSchema), createUser);
+router.post("/", validationMiddleware(userSchema), asyncWrapper(createUser));
 
 // /**
 //  * @swagger

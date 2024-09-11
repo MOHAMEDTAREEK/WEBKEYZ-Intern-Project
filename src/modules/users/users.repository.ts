@@ -96,7 +96,13 @@ export const getUserByEmail = async (email: string) => {
  */
 export const createUser = async (userData: CreateUserDto) => {
   const hashedPassword = await bcrypt.hash(userData.password ?? "", 10);
-
+  const userExists = await getUserByEmail(userData.email);
+  if (userExists) {
+    throw new BaseError(
+      ErrorMessage.USER_ALREADY_EXISTS,
+      HttpStatusCode.BadRequest
+    );
+  }
   const user = await User.create({
     ...userData,
     password: hashedPassword,

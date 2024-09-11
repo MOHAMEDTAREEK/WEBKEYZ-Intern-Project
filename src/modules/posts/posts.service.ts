@@ -113,3 +113,34 @@ export const createPostWithMention = async (
     mentionedUser: mentionedUser,
   };
 };
+<<<<<<< Updated upstream
+=======
+
+export const getMentionedUsers = async (mentions: string[], postId: number) => {
+  const mentionedUsers: User[] = [];
+
+  for (const name of mentions) {
+    const [firstName, lastName] = name.split(" ");
+    const user = await userRepository.findUserByName(firstName, lastName);
+    if (user) {
+      mentionedUsers.push(user);
+    }
+  }
+  return mentionedUsers;
+};
+
+export const deleteUploadedImages = async (imageUrls: string[]) => {
+  const deletePromises = imageUrls.map(async (url) => {
+    const key = extractKeyFromUrl(url);
+
+    const params = {
+      Bucket: bucketName,
+      Key: key,
+    };
+
+    await s3Client.send(new DeleteObjectCommand(params));
+  });
+
+  await Promise.all(deletePromises);
+};
+>>>>>>> Stashed changes
