@@ -12,6 +12,8 @@ import { bucketName, s3Client } from "../../config/aws-s3.config";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { sequelize } from "../../database/models";
+import Mention from "../../database/models/mention.model";
+import { QueryInterface } from "sequelize";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -302,3 +304,5 @@ export const getPostImagesUrl = async (req: Request, res: Response) => {
 
   return uploadedImageUrls;
 };
+
+

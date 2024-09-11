@@ -43,26 +43,7 @@ module.exports = {
         field: "updated_at",
       },
     });
-    await queryInterface.addConstraint("comment", {
-      fields: ["user_id"],
-      type: "foreign key",
-      name: "comments_user_id_fk",
-      references: {
-        table: "user",
-        field: "id",
-      },
-      onDelete: "CASCADE",
-    });
-    await queryInterface.addConstraint("comment", {
-      fields: ["post_id"],
-      type: "foreign key",
-      name: "comments_post_id_fk",
-      references: {
-        table: "post",
-        field: "id",
-      },
-      onDelete: "CASCADE",
-    });
+
   },
 
   async down(queryInterface, Sequelize) {

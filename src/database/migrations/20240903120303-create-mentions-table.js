@@ -18,6 +18,7 @@ module.exports = {
           key: "id",
         },
         field: "post_id",
+        onDelete: "CASCADE",
       },
       mentionedUserId: {
         type: Sequelize.INTEGER,
@@ -27,6 +28,7 @@ module.exports = {
           key: "id",
         },
         field: "mentioned_user_id",
+        onDelete: "CASCADE",
       },
       createdAt: {
         type: Sequelize.DATE,

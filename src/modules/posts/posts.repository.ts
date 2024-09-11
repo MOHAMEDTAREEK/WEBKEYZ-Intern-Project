@@ -2,12 +2,11 @@ import Post from "../../database/models/post.model";
 import { BaseError } from "../../shared/exceptions/base.error";
 import * as userRepository from "../users/users.repository";
 import Mention from "../../database/models/mention.model";
-import { PostDto } from "./dtos/posts.dto";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import User from "../../database/models/user.model";
 import { Transaction } from "sequelize";
-
+import * as postService from "./posts.service";
 /**
  * Asynchronously retrieves all posts from the database.
  *
@@ -127,6 +126,10 @@ export const deletePost = async (id: number) => {
   if (!post) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
+  const postPhotos = post.image as string[];
+  console.log(postPhotos);
+  await postService.deleteUploadedImages(postPhotos);
+
   await post.destroy();
   return post;
 };
