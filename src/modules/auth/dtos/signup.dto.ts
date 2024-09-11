@@ -6,4 +6,5 @@ export class SignupDto {
   email!: string;
   password!: string;
   role!: UserRole;
+  profilePicture!: string;
 }

@@ -17,6 +17,7 @@ import { SignupDto } from "./dtos/signup.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { UserRole } from "../../shared/enums/user-Role.enum";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import { profile } from "console";
 
 /**
  * Handles user sign-up by creating a new user, generating tokens, and updating the refresh token.
@@ -248,6 +249,7 @@ export const inviteHr = async (email: string) => {
     firstName: "hr",
     lastName: "User",
     password: randomPassword,
+    profilePicture: "example.com/image.jpg",
   };
   const userExists = await userRepository.getUserByEmail(email);
   if (userExists) {
