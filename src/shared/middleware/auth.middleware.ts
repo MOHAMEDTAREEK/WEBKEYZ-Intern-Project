@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import config from "../../config";
 import * as usersService from "../../modules/users/users.service";
 import { BaseError } from "../exceptions/base.error";
+import { ErrorMessage } from "../enums/constants/error-message.enum";
 
 /**
  * Middleware function to authenticate user requests using JWT access tokens.
@@ -21,7 +22,7 @@ export const authMiddleware = async (
   const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
-    throw new BaseError("Access token is required", 403);
+    throw new BaseError(ErrorMessage.ACCESS_TOKEN_REQUIRED, 403);
   }
 
   try {
@@ -32,12 +33,12 @@ export const authMiddleware = async (
 
     const userId = decoded.userId;
     if (!userId) {
-      throw new BaseError("Invalid access token", 403);
+      throw new BaseError(ErrorMessage.INVALID_ACCESS_TOKEN, 403);
     }
 
     const user = await usersService.getUserById(userId);
     if (!user) {
-      throw new BaseError("User not found", 404);
+      throw new BaseError(ErrorMessage.USER_NOT_FOUND, 404);
     }
 
     req.user = user;
@@ -45,11 +46,11 @@ export const authMiddleware = async (
     next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
-      throw new BaseError("Access token expired", 401);
+      throw new BaseError(ErrorMessage.ACCESS_TOKEN_EXPIRED, 401);
     } else if (err instanceof jwt.JsonWebTokenError) {
-      throw new BaseError("Invalid access token", 403);
+      throw new BaseError(ErrorMessage.INVALID_ACCESS_TOKEN, 403);
     } else {
-      throw new BaseError("Internal server error", 500);
+      throw new BaseError(ErrorMessage.INTERNAL_SERVER_ERROR, 500);
     }
   }
 };

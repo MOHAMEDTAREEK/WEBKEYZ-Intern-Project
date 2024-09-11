@@ -46,7 +46,7 @@ describe("validationMiddleware", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      errors: ['body: "name" is required'],
+      errors: ['body: "name" is required', 'body: "age" is not allowed'],
     });
     expect(next).not.toHaveBeenCalled();
   });
@@ -114,6 +114,7 @@ describe("validationMiddleware", () => {
     expect(res.json).toHaveBeenCalledWith({
       errors: [
         'body: "name" is required',
+        'body: "age" is not allowed',
         'params: "id" must be a number',
         'query: "page" must be greater than or equal to 1',
       ],

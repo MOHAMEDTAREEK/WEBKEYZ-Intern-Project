@@ -40,7 +40,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/User'
  *       404:
- *         description: No users found
+ *         $ref: '#/responses/404'
  */
 router.get("/", asyncWrapper(getUsers));
 
@@ -58,54 +58,11 @@ router.get("/", asyncWrapper(getUsers));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: integer
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: "Users retrieved successfully."
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         example: 1
- *                       name:
- *                         type: string
- *                         example: "John Doe"
- *                       mentionCount:
- *                         type: integer
- *                         example: 45
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: Users not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: integer
- *                   example: 404
- *                 message:
- *                   type: string
- *                   example: "Users not found."
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: integer
- *                   example: 500
- *                 message:
- *                   type: string
- *                   example: "Internal server error."
  */
 router.get("/leader-board", asyncWrapper(getUsersByMentionCount));
 /**
@@ -130,28 +87,7 @@ router.get("/leader-board", asyncWrapper(getUsersByMentionCount));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: integer
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: "Users retrieved successfully."
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         example: 1
- *                       firstName:
- *                         type: string
- *                         example: "John"
- *                       lastName:
- *                         type: string
- *                         example: "Doe"
+ *                 $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid search term
  *         content:
@@ -202,20 +138,7 @@ router.get("/search", asyncWrapper(searchUsers));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                   example: "Recognition number sent successfully."
- *                 data:
- *                   type: object
- *                   properties:
- *                     recognitionNumber:
- *                       type: integer
- *                       example: 123456
+ *                 $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found.
  *         content:
@@ -253,20 +176,7 @@ router.get("/recognition-number/:id", asyncWrapper(getUserRecognitionNumber));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                   example: "Number of posts retrieval successful."
- *                 data:
- *                   type: object
- *                   properties:
- *                     numberOfPosts:
- *                       type: integer
- *                       example: 42
+ *                 $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found.
  *         content:
@@ -303,14 +213,7 @@ router.get("/post-number/:id", asyncWrapper(getNumberOfPostsForUser));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 email:
- *                   type: string
- *                 name:
- *                   type: string
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found.
  *       500:
@@ -413,7 +316,7 @@ router.post("/", validationMiddleware(userSchema), asyncWrapper(createUser));
 
 /**
  * @swagger
- * /users/delete/{id}:
+ * /users/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [Users]
@@ -434,7 +337,7 @@ router.post("/", validationMiddleware(userSchema), asyncWrapper(createUser));
  *         description: User not found
  */
 router.delete(
-  "/delete/:id",
+  "/:id",
   validationMiddleware(idCheckingSchema),
   asyncWrapper(deleteUser)
 );

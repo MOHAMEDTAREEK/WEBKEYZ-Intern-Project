@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ValidationError, DatabaseError, ValidationErrorItem } from "sequelize";
+import { DatabaseError } from "sequelize";
 import { sequelizeErrorHandlerMiddleware } from "../../src/shared/middleware/Sequelize-Error-Handler.middleware"; // Adjust the path accordingly
 import logger from "../../src/shared/util/logger";
 import { DatabaseErrorParent } from "sequelize/types/errors/database-error";

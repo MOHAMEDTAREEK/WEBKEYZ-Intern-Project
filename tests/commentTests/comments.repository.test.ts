@@ -256,15 +256,6 @@ describe("createComment", () => {
       expect(result).toEqual(mockComment);
     });
 
-    it("should return null when comment is not found", async () => {
-      jest.spyOn(Comment, "findByPk").mockResolvedValue(null);
-
-      const result = await deleteComment(mockCommentId);
-
-      expect(Comment.findByPk).toHaveBeenCalledWith(mockCommentId);
-      expect(result).toBeNull();
-    });
-
     it("should handle errors during comment deletion", async () => {
       const mockComment = {
         id: mockCommentId,

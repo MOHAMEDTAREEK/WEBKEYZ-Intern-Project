@@ -3,7 +3,8 @@ import { errorHandlerMiddleware } from "../../src/shared/middleware/error-Handle
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import logger from "../../src/shared/util/logger";
 import { HttpStatusCode } from "axios";
-// Mock the logger to avoid actual logging during tests
+
+
 jest.mock("../../src/shared/util/logger");
 
 describe("errorHandlerMiddleware", () => {

@@ -33,5 +33,12 @@ export enum ErrorMessage {
   FAILED_TO_CREATE_MENTION = "Failed to create mention",
   FAILED_TO_GET_MENTIONS = "Failed to get mentions",
   COMMENT_NOT_FOUND = "Comment not found",
-  COMMENT_CREATION_FAILED  = "Failed to create comment",
+  COMMENT_CREATION_FAILED = "Failed to create comment",
+  INVALID_IMAGE_FORMAT = "Invalid file type. Only JPEG, PNG, and GIF are allowed",
+  INVALID_ACCESS_TOKEN = "Invalid access token",
+  ACCESS_TOKEN_EXPIRED = "Access token expired",
+  FORBIDDEN_ACTION = "Forbidden: You do not have access to this resource",
+  SOMETHING_WENT_WRONG = "Something went wrong",
+  DATABASE_ERROR_OCCURRED = "Database error occurred",
+  IMAGE_URL_NOT_FOUND = "Image URL not found",
 }

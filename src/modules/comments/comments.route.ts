@@ -29,14 +29,7 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   description:
- *                     type: string
+ *               $ref: '#/components/schemas/commentSchema'
  *       500:
  *         description: Internal server error
  */
@@ -55,42 +48,14 @@ router.get("/", asyncWrapper(getComments));
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'This is a new comment'
- *               userId:
- *                 type: integer
- *                 example: 1
- *               postId:
- *                 type: integer
- *                 example: 42
- *             required:
- *               - description
- *               - userId
- *               - postId
+ *               $ref: '#/components/schemas/commentSchema'
  *     responses:
  *       200:
  *         description: The created comment.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
- *                 userId:
- *                   type: integer
- *                 postId:
- *                   type: integer
- *               required:
- *                 - id
- *                 - description
- *                 - userId
- *                 - postId
+ *               $ref: '#/components/schemas/commentSchema'
  *       500:
  *         description: Internal server error
  */
@@ -119,23 +84,14 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'Updated comment description'
+ *               $ref: '#/components/schemas/updateCommentSchema'
  *     responses:
  *       200:
  *         description: The updated comment.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
+ *               $ref: '#/components/schemas/commentSchema'
  *       404:
  *         description: Comment not found
  *       500:
@@ -167,23 +123,14 @@ router.put(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 example: 'Updated comment description'
+ *               $ref: '#/components/schemas/updateCommentSchema'
  *     responses:
  *       200:
  *         description: The updated comment.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
+ *               $ref: '#/components/schemas/commentSchema'
  *       404:
  *         description: Comment not found
  *       500:
@@ -216,12 +163,7 @@ router.patch(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 description:
- *                   type: string
+ *               $ref: '#/components/schemas/commentSchema'
  *       404:
  *         description: Comment not found
  *       500:

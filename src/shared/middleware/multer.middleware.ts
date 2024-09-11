@@ -1,7 +1,9 @@
 import multer from "multer";
-import { Request, Response, NextFunction } from "express";
+import { Request } from "express";
+import { AllowedTypes } from "../enums/constants/types.enum";
+import { ErrorMessage } from "../enums/constants/error-message.enum";
 
-const storage = multer.memoryStorage(); // Store the image in memory temporarily
+const storage = multer.memoryStorage();
 
 /**
  * Middleware function to filter uploaded files based on allowed types.
@@ -10,21 +12,22 @@ const storage = multer.memoryStorage(); // Store the image in memory temporarily
  * @param cb - The callback function to execute.
  */
 const fileFilter = (req: Request, file: Express.Multer.File, cb: Function) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-  if (allowedTypes.includes(file.mimetype)) {
+  const allowedTypes = [
+    AllowedTypes.IMAGE_TYPE_jpeg,
+    AllowedTypes.IMAGE_TYPE_png,
+    AllowedTypes.IMAGE_TYPE_gif,
+    AllowedTypes.IMAGE_TYPE_jpg,
+  ];
+  if (allowedTypes.includes(file.mimetype as AllowedTypes)) {
     cb(null, true); // Accept file
   } else {
-    cb(
-      new Error("Invalid file type. Only JPEG, PNG, and GIF are allowed."),
-      false
-    ); // Reject file
+    cb(new Error(ErrorMessage.INVALID_IMAGE_FORMAT), false);
   }
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB in bytes
   fileFilter: fileFilter,
 });
-
 export default upload;

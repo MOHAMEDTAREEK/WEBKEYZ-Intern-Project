@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { BaseError } from "../exceptions/base.error";
 import { HttpStatusCode } from "axios";
 import logger from "../util/logger";
+import { ErrorMessage } from "../enums/constants/error-message.enum";
 
 /**
  * Middleware function to handle errors in the application.
@@ -19,7 +20,7 @@ export const errorHandlerMiddleware = (
   try {
     if (error instanceof BaseError) {
       const status = error.status || HttpStatusCode.InternalServerError;
-      const message = error.response || "Something went wrong";
+      const message = error.response || ErrorMessage.SOMETHING_WENT_WRONG;
       logger.error(
         `${status} - ${message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
       );
@@ -34,7 +35,7 @@ export const errorHandlerMiddleware = (
 
       return res.status(HttpStatusCode.InternalServerError).send({
         status: HttpStatusCode.InternalServerError,
-        message: "Something went wrong",
+        message: ErrorMessage.SOMETHING_WENT_WRONG,
       });
     }
   } catch (err: any) {

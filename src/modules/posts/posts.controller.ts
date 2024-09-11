@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import * as postService from "./posts.service";
-import * as postRepository from "./posts.repository";
 import { HttpStatusCode } from "axios";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { IResponse } from "../../shared/interfaces/IResponse.interface";
 import { createResponse } from "../../shared/util/create-response";
 import { SuccessMessage } from "../../shared/enums/constants/info-message.enum";
+import { v4 as uuidv4 } from "uuid";
+import { bucketName, s3Client } from "../../config/aws-s3.config";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { sequelize } from "../../database/models";
+import { QueryInterface } from "sequelize";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -60,21 +65,44 @@ export const getPostById = async (req: Request, res: Response) => {
  * @returns A promise that resolves with the created post or an error message.
  */
 export const createPost = async (req: Request, res: Response) => {
-  const postData = req.body;
-  const { post, mentionedUsers, hashtags } =
-    await postService.createPost(postData);
-  if (!post) {
-    throw new BaseError(
-      ErrorMessage.INTERNAL_SERVER_ERROR,
-      HttpStatusCode.InternalServerError
+  const { description, userId } = req.body;
+  const files = req.files as Express.Multer.File[];
+
+  const transaction = await sequelize.transaction();
+
+  const imageUrls: string[] = await postService.createPostPhotoUrls(files);
+
+  try {
+    const postData = {
+      description,
+      userId,
+      files,
+    };
+    const { post, mentioned, hashtags } = await postService.createPost(
+      postData,
+      transaction,
+      imageUrls
     );
+    if (!post) {
+      throw new BaseError(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+        HttpStatusCode.InternalServerError
+      );
+    }
+    await transaction.commit();
+    const response: IResponse = createResponse(
+      HttpStatusCode.Created,
+      SuccessMessage.POST_CREATION_SUCCESS,
+      { post, mentioned, hashtags }
+    );
+    return res.send(response);
+  } catch (error) {
+    await transaction.rollback();
+    if (imageUrls.length > 0) {
+      await postService.deleteUploadedImages(imageUrls);
+    }
+    return res.status(HttpStatusCode.InternalServerError).send(error);
   }
-  const response: IResponse = createResponse(
-    HttpStatusCode.Created,
-    SuccessMessage.POST_CREATION_SUCCESS,
-    { post, mentionedUsers, hashtags }
-  );
-  return res.send(response);
 };
 
 /**
@@ -161,16 +189,45 @@ export const deletePost = async (req: Request, res: Response) => {
   return res.send(response);
 };
 
+/**
+ * Uploads photo(s) for a post.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A response indicating the success or failure of the photo upload process.
+ */
 export const uploadPostPhoto = async (req: Request, res: Response) => {
-  if (!req.file) {
-    return res.status(HttpStatusCode.BadRequest).send("No file uploaded");
+  const files = req.files as Express.Multer.File[];
+
+  if (!files || files.length === 0) {
+    return res.status(HttpStatusCode.BadRequest).send("No photos uploaded");
   }
 
-  const file = req.file as Express.MulterS3.File;
-  const imageUrl = file.location;
+  const uploadedImageUrls: string[] = [];
 
-  const postId = parseInt(req.body.postId);
-  const post = await postService.uploadPostPhoto(postId, imageUrl);
+  for (const file of files) {
+    const fileKey = `${uuidv4()}-${file.originalname}`;
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    const imageUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({ Bucket: bucketName, Key: fileKey }),
+      { expiresIn: 3600 }
+    );
+
+    uploadedImageUrls.push(imageUrl);
+  }
+
+  const id = parseInt(req.params.id);
+  const post = await postService.uploadPostPhoto(id, uploadedImageUrls);
   if (!post) {
     throw new BaseError(
       ErrorMessage.INTERNAL_SERVER_ERROR,
@@ -185,37 +242,42 @@ export const uploadPostPhoto = async (req: Request, res: Response) => {
   return res.send(response);
 };
 
-export const getMentions = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const mentions = await postRepository.getMentions(id);
-  if (!mentions) {
-    throw new BaseError(
-      ErrorMessage.FAILED_TO_GET_MENTIONS,
-      HttpStatusCode.NotFound
-    );
-  }
-  const response: IResponse = createResponse(
-    HttpStatusCode.Ok,
-    SuccessMessage.MENTIONS_RETRIEVAL_SUCCESS,
-    mentions
-  );
-  return res.send(response);
-};
+/**
+ * Asynchronous function to upload images to an AWS S3 bucket and return the URLs of the uploaded images.
+ *
+ * @param req - The request object containing the image files to be uploaded.
+ * @param res - The response object to send back the uploaded image URLs.
+ * @returns An array of strings representing the URLs of the uploaded images.
+ */
+export const getPostImagesUrl = async (req: Request, res: Response) => {
+  const files = req.files as Express.Multer.File[];
 
-export const createPostWithMention = async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId);
-  const postData = req.body;
-  const { post, mentionedUser } = await postService.createPostWithMention(
-    postData,
-    userId
-  );
-  const response: IResponse = createResponse(
-    HttpStatusCode.Ok,
-    SuccessMessage.MENTIONS_CREATION_SUCCESS,
-    {
-      post: post,
-      mentionedUser: mentionedUser,
-    }
-  );
-  return res.send(response);
+  if (!files || files.length === 0) {
+    return res.status(HttpStatusCode.BadRequest).send("No photos uploaded");
+  }
+
+  const uploadedImageUrls: string[] = [];
+
+  for (const file of files) {
+    const fileKey = `${uuidv4()}-${file.originalname}`;
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    const imageUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({ Bucket: bucketName, Key: fileKey }),
+      { expiresIn: 3600 }
+    );
+
+    uploadedImageUrls.push(imageUrl);
+  }
+
+  return uploadedImageUrls;
 };

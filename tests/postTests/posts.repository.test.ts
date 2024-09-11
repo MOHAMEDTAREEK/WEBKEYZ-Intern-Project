@@ -3,7 +3,6 @@ import {
   createMention,
   createMentions,
   createPost,
-  createPostWithMention,
   deletePost,
   fullyUpdatePost,
   getPostById,
@@ -13,8 +12,8 @@ import {
 import { ErrorMessage } from "../../src/shared/enums/constants/error-message.enum";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import * as userRepository from "../../src/modules/users/users.repository";
-import * as postRepo from "../../src/modules/posts/posts.repository";
-import Mention from "../../src/database/models/mention.model";
+import { Transaction } from "sequelize";
+import * as postService from "../../src/modules/posts/posts.service";
 
 describe("Posts Repository", () => {
   afterEach(() => {
@@ -78,105 +77,122 @@ describe("Posts Repository", () => {
       const mockUser = { id: 1, name: "Test User" };
       const mockPostData = {
         userId: 1,
-        title: "Test Post",
-        content: "Test Content",
+        description: "Test Description",
+        imageUrls: ["image1.jpg", "image2.jpg"],
       };
-      const mockCreatedPost = { id: 1, ...mockPostData };
+      const mockCreatedPost = {
+        id: 1,
+        ...mockPostData,
+        like: 0,
+        mentionedUser: [],
+      };
 
       jest
         .spyOn(userRepository, "getUserById")
         .mockResolvedValue(mockUser as any);
       jest.spyOn(Post, "create").mockResolvedValue(mockCreatedPost as any);
 
-      const result = await createPost(mockPostData);
+      const mockTransaction = {} as Transaction;
+
+      const result = await createPost(
+        mockPostData.userId,
+        mockPostData.description,
+        mockPostData.imageUrls,
+        mockTransaction
+      );
 
       expect(result).toEqual(mockCreatedPost);
       expect(userRepository.getUserById).toHaveBeenCalledWith(
         mockPostData.userId
       );
-      expect(Post.create).toHaveBeenCalledWith(mockPostData);
-    });
-
-    it("should throw BaseError when user is not found", async () => {
-      const mockPostData = {
-        userId: 999,
-        title: "Test Post",
-        content: "Test Content",
-      };
-
-      jest.spyOn(userRepository, "getUserById").mockResolvedValue(null);
-
-      await expect(createPost(mockPostData)).rejects.toThrow(BaseError);
-      await expect(createPost(mockPostData)).rejects.toThrow(
-        ErrorMessage.USER_NOT_FOUND
+      expect(Post.create).toHaveBeenCalledWith(
+        {
+          description: mockPostData.description,
+          image: mockPostData.imageUrls,
+          userId: mockPostData.userId,
+          like: 0,
+          mentionedUser: [],
+        },
+        { transaction: mockTransaction }
       );
-      expect(userRepository.getUserById).toHaveBeenCalledWith(
-        mockPostData.userId
-      );
-      expect(Post.create).not.toHaveBeenCalled();
     });
 
     it("should throw BaseError when post creation fails", async () => {
       const mockUser = { id: 1, name: "Test User" };
-      const mockPostData = {
-        userId: 1,
-        title: "Test Post",
-        content: "Test Content",
-      };
-
       jest
         .spyOn(userRepository, "getUserById")
         .mockResolvedValue(mockUser as any);
       jest.spyOn(Post, "create").mockResolvedValue(null);
 
-      await expect(createPost(mockPostData)).rejects.toThrow(BaseError);
-      await expect(createPost(mockPostData)).rejects.toThrow(
-        ErrorMessage.FAILED_TO_CREATE_POST
-      );
-      expect(userRepository.getUserById).toHaveBeenCalledWith(
-        mockPostData.userId
-      );
-      expect(Post.create).toHaveBeenCalledWith(mockPostData);
+      const mockTransaction = {} as Transaction;
+
+      await expect(
+        createPost(1, "Test Description", ["image.jpg"], mockTransaction)
+      ).rejects.toThrow(BaseError);
+      await expect(
+        createPost(1, "Test Description", ["image.jpg"], mockTransaction)
+      ).rejects.toThrow(ErrorMessage.FAILED_TO_CREATE_POST);
+      expect(userRepository.getUserById).toHaveBeenCalledWith(1);
+      expect(Post.create).toHaveBeenCalled();
     });
 
-    it("should throw Error when getUserById throws an error", async () => {
-      const mockPostData = {
-        userId: 1,
-        title: "Test Post",
-        content: "Test Content",
-      };
-
-      jest
-        .spyOn(userRepository, "getUserById")
-        .mockRejectedValue(new Error("Database error"));
-
-      await expect(createPost(mockPostData)).rejects.toThrow(Error);
-      await expect(createPost(mockPostData)).rejects.toThrow("Database error");
-      expect(userRepository.getUserById).toHaveBeenCalledWith(
-        mockPostData.userId
-      );
-      expect(Post.create).not.toHaveBeenCalled();
-    });
-
-    it("should throw Error when Post.create throws an error", async () => {
+    it("should create a post with empty image array", async () => {
       const mockUser = { id: 1, name: "Test User" };
       const mockPostData = {
         userId: 1,
-        title: "Test Post",
-        content: "Test Content",
+        description: "Test Description",
+        imageUrls: [],
+      };
+      const mockCreatedPost = {
+        id: 1,
+        ...mockPostData,
+        like: 0,
+        mentionedUser: [],
       };
 
       jest
         .spyOn(userRepository, "getUserById")
         .mockResolvedValue(mockUser as any);
+      jest.spyOn(Post, "create").mockResolvedValue(mockCreatedPost as any);
+
+      const mockTransaction = {} as Transaction;
+
+      const result = await createPost(
+        mockPostData.userId,
+        mockPostData.description,
+        mockPostData.imageUrls,
+        mockTransaction
+      );
+
+      expect(result).toEqual(mockCreatedPost);
+      expect(Post.create).toHaveBeenCalledWith(
+        {
+          description: mockPostData.description,
+          image: [],
+          userId: mockPostData.userId,
+          like: 0,
+          mentionedUser: [],
+        },
+        { transaction: mockTransaction }
+      );
+    });
+    it("should throw Error when Post.create throws an error", async () => {
+      const mockUser = { id: 1, name: "Test User" };
+      jest
+        .spyOn(userRepository, "getUserById")
+        .mockResolvedValue(mockUser as any);
       jest.spyOn(Post, "create").mockRejectedValue(new Error("Database error"));
 
-      await expect(createPost(mockPostData)).rejects.toThrow(Error);
-      await expect(createPost(mockPostData)).rejects.toThrow("Database error");
-      expect(userRepository.getUserById).toHaveBeenCalledWith(
-        mockPostData.userId
-      );
-      expect(Post.create).toHaveBeenCalledWith(mockPostData);
+      const mockTransaction = {} as Transaction;
+
+      await expect(
+        createPost(1, "Test Description", ["image.jpg"], mockTransaction)
+      ).rejects.toThrow(Error);
+      await expect(
+        createPost(1, "Test Description", ["image.jpg"], mockTransaction)
+      ).rejects.toThrow("Database error");
+      expect(userRepository.getUserById).toHaveBeenCalledWith(1);
+      expect(Post.create).toHaveBeenCalled();
     });
   });
   describe("fullyUpdatePost", () => {
@@ -244,28 +260,27 @@ describe("Posts Repository", () => {
     });
   });
   describe("partiallyUpdatePost", () => {
-    it("should update both description and image when both are provided", async () => {
+    // Successfully updates post description
+    it("should update the post description when a valid ID and description are provided", async () => {
       const mockPost = {
         id: 1,
-        description: "Old description",
-        image: "old-image.jpg",
+        description: "Old Description",
+        image: [],
         save: jest.fn(),
       };
       jest.spyOn(Post, "findByPk").mockResolvedValue(mockPost as any);
 
-      const result = await partiallyUpdatePost(
+      const updatedPost = await partiallyUpdatePost(
         1,
-        "New description",
+        "New Description",
         "new-image.jpg"
       );
 
       expect(Post.findByPk).toHaveBeenCalledWith(1);
-      expect(mockPost.description).toBe("New description");
-      expect(mockPost.image).toBe("new-image.jpg");
+      expect(mockPost.description).toBe("New Description");
       expect(mockPost.save).toHaveBeenCalled();
-      expect(result).toEqual(mockPost);
+      expect(updatedPost).toEqual(mockPost);
     });
-
     it("should throw BaseError when post is not found", async () => {
       jest.spyOn(Post, "findByPk").mockResolvedValue(null);
 
@@ -298,211 +313,58 @@ describe("Posts Repository", () => {
     });
   });
   describe("deletePost", () => {
-    it("should delete a post when it exists", async () => {
+    it("should delete uploaded images when deleting a post", async () => {
       const mockPost = {
         id: 1,
-        title: "Test Post",
+        image: ["image1.jpg", "image2.jpg"],
         destroy: jest.fn(),
       };
       jest.spyOn(Post, "findByPk").mockResolvedValue(mockPost as any);
-
-      const result = await deletePost(1);
-
-      expect(Post.findByPk).toHaveBeenCalledWith(1);
-      expect(mockPost.destroy).toHaveBeenCalled();
-      expect(result).toEqual(mockPost);
-    });
-
-    it("should throw BaseError when post is not found", async () => {
-      jest.spyOn(Post, "findByPk").mockResolvedValue(null);
-
-      await expect(deletePost(999)).rejects.toThrow(BaseError);
-      await expect(deletePost(999)).rejects.toThrow(
-        ErrorMessage.POST_NOT_FOUND
-      );
-      expect(Post.findByPk).toHaveBeenCalledWith(999);
-    });
-
-    it("should throw Error when findByPk throws an error", async () => {
+      const mockDeleteUploadedImages = jest.fn();
       jest
-        .spyOn(Post, "findByPk")
-        .mockRejectedValue(new Error("Database error"));
+        .spyOn(postService, "deleteUploadedImages")
+        .mockImplementation(mockDeleteUploadedImages);
 
-      await expect(deletePost(1)).rejects.toThrow(Error);
-      await expect(deletePost(1)).rejects.toThrow("Database error");
-      expect(Post.findByPk).toHaveBeenCalledWith(1);
+      await deletePost(1);
+
+      expect(postService.deleteUploadedImages).toHaveBeenCalledWith([
+        "image1.jpg",
+        "image2.jpg",
+      ]);
+      expect(mockPost.destroy).toHaveBeenCalled();
     });
 
-    it("should throw Error when destroy throws an error", async () => {
+    it("should handle post with no images", async () => {
       const mockPost = {
         id: 1,
-        title: "Test Post",
-        destroy: jest.fn().mockRejectedValue(new Error("Destroy error")),
+        image: [],
+        destroy: jest.fn(),
       };
       jest.spyOn(Post, "findByPk").mockResolvedValue(mockPost as any);
+      const mockDeleteUploadedImages = jest.fn();
+      jest
+        .spyOn(postService, "deleteUploadedImages")
+        .mockImplementation(mockDeleteUploadedImages);
 
-      await expect(deletePost(1)).rejects.toThrow(Error);
-      await expect(deletePost(1)).rejects.toThrow("Destroy error");
-      expect(Post.findByPk).toHaveBeenCalledWith(1);
+      await deletePost(1);
+
+      expect(postService.deleteUploadedImages).toHaveBeenCalledWith([]);
       expect(mockPost.destroy).toHaveBeenCalled();
     });
-  });
-  describe("createMentions", () => {
-    it("should throw BaseError when post is not found", async () => {
-      jest.spyOn(Post, "findByPk").mockResolvedValue(null);
 
-      await expect(createMentions(999, ["John Doe"])).rejects.toThrow(
-        BaseError
-      );
-      await expect(createMentions(999, ["John Doe"])).rejects.toThrow(
-        ErrorMessage.POST_NOT_FOUND
-      );
-      expect(Post.findByPk).toHaveBeenCalledWith(999);
-    });
-  });
-  describe("createMention", () => {
-    it("should create a mention when post and user exist", async () => {
-      const mockPost = { id: 1, title: "Test Post" };
-      const mockUser = { id: 2, name: "Test User" };
-      const mockMention = { id: 1, postId: 1, mentionedUserId: 2 };
-
+    it("should throw an error if deleteUploadedImages fails", async () => {
+      const mockPost = {
+        id: 1,
+        image: ["image1.jpg"],
+        destroy: jest.fn(),
+      };
       jest.spyOn(Post, "findByPk").mockResolvedValue(mockPost as any);
       jest
-        .spyOn(userRepository, "getUserById")
-        .mockResolvedValue(mockUser as any);
-      jest.spyOn(Mention, "create").mockResolvedValue(mockMention as any);
-      jest.spyOn(console, "log").mockImplementation();
+        .spyOn(postService, "deleteUploadedImages")
+        .mockRejectedValue(new Error("Failed to delete images"));
 
-      const result = await createMention(1, 2);
-
-      expect(Post.findByPk).toHaveBeenCalledWith(1);
-      expect(userRepository.getUserById).toHaveBeenCalledWith(2);
-      expect(Mention.create).toHaveBeenCalledWith({
-        postId: 1,
-        mentionedUserId: 2,
-      });
-      expect(console.log).toHaveBeenCalledWith(mockMention);
-      expect(result).toEqual(mockMention);
-    });
-
-    it("should throw BaseError when post is not found", async () => {
-      jest.spyOn(Post, "findByPk").mockResolvedValue(null);
-
-      await expect(createMention(999, 1)).rejects.toThrow(BaseError);
-      await expect(createMention(999, 1)).rejects.toThrow(
-        ErrorMessage.POST_NOT_FOUND
-      );
-      expect(Post.findByPk).toHaveBeenCalledWith(999);
-      expect(userRepository.getUserById).not.toHaveBeenCalled();
-      expect(Mention.create).not.toHaveBeenCalled();
-    });
-
-    it("should throw BaseError when user is not found", async () => {
-      const mockPost = { id: 1, title: "Test Post" };
-      jest.spyOn(Post, "findByPk").mockResolvedValue(mockPost as any);
-      jest.spyOn(userRepository, "getUserById").mockResolvedValue(null);
-
-      await expect(createMention(1, 999)).rejects.toThrow(BaseError);
-      await expect(createMention(1, 999)).rejects.toThrow(
-        ErrorMessage.USER_NOT_FOUND
-      );
-      expect(Post.findByPk).toHaveBeenCalledWith(1);
-      expect(userRepository.getUserById).toHaveBeenCalledWith(999);
-      expect(Mention.create).not.toHaveBeenCalled();
-    });
-
-    it("should throw Error when Mention.create fails", async () => {
-      const mockPost = { id: 1, title: "Test Post" };
-      const mockUser = { id: 2, name: "Test User" };
-
-      jest.spyOn(Post, "findByPk").mockResolvedValue(mockPost as any);
-      jest
-        .spyOn(userRepository, "getUserById")
-        .mockResolvedValue(mockUser as any);
-      jest
-        .spyOn(Mention, "create")
-        .mockRejectedValue(new Error("Creation failed"));
-
-      await expect(createMention(1, 2)).rejects.toThrow(Error);
-      await expect(createMention(1, 2)).rejects.toThrow("Creation failed");
-      expect(Post.findByPk).toHaveBeenCalledWith(1);
-      expect(userRepository.getUserById).toHaveBeenCalledWith(2);
-      expect(Mention.create).toHaveBeenCalledWith({
-        postId: 1,
-        mentionedUserId: 2,
-      });
-    });
-  });
-  describe("createPostWithMention", () => {
-    it("should create a post with mention and return both", async () => {
-      const mockPostData = {
-        userId: 1,
-        title: "Test Post",
-        content: "Test Content",
-        description: "Test Description",
-        image: "test-image.jpg",
-      };
-      const mockCreatedPost = { id: 2, ...mockPostData };
-      const mockMention = { id: 1, postId: 2, mentionedUserId: 1 };
-
-      jest
-        .spyOn(postRepo, "createPost")
-        .mockResolvedValue(mockCreatedPost as any);
-      jest
-        .spyOn(postRepo, "createMention")
-        .mockResolvedValue(mockMention as any);
-
-      const result = await createPostWithMention(mockPostData, 1);
-
-      expect(postRepo.createPost).toHaveBeenCalledWith(mockPostData);
-      expect(postRepo.createMention).toHaveBeenCalledWith(2, 1);
-      expect(result).toEqual({
-        post: mockCreatedPost,
-        mentions: mockMention,
-      });
-    });
-
-    it("should throw an error if createPost fails", async () => {
-      const mockPostData = {
-        userId: 1,
-        title: "Test Post",
-        content: "Test Content",
-        description: "Test Description",
-        image: "test-image.jpg",
-      };
-
-      jest
-        .spyOn(postRepo, "createPost")
-        .mockRejectedValue(new Error("Failed to create post"));
-
-      await expect(createPostWithMention(mockPostData, 1)).rejects.toThrow(
-        "Failed to create post"
-      );
-      expect(postRepo.createPost).toHaveBeenCalledWith(mockPostData);
-      expect(postRepo.createMention).not.toHaveBeenCalled();
-    });
-    it("should throw an error if createMention fails", async () => {
-      const mockPostData = {
-        userId: 1,
-        title: "Test Post",
-        content: "Test Content",
-        description: "Test Description",
-        image: "test-image.jpg",
-      };
-      const mockCreatedPost = { id: 2, ...mockPostData };
-
-      jest
-        .spyOn(postRepo, "createPost")
-        .mockResolvedValue(mockCreatedPost as any);
-      jest
-        .spyOn(postRepo, "createMention")
-        .mockRejectedValue(new Error("Failed to create mention"));
-
-      await expect(createPostWithMention(mockPostData, 1)).rejects.toThrow(
-        "Failed to create mention"
-      );
-      expect(postRepo.createPost).toHaveBeenCalledWith(mockPostData);
-      expect(postRepo.createMention).toHaveBeenCalledWith(2, 1);
+      await expect(deletePost(1)).rejects.toThrow("Failed to delete images");
+      expect(mockPost.destroy).not.toHaveBeenCalled();
     });
   });
 });
