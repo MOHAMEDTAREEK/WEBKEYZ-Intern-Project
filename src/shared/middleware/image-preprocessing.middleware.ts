@@ -25,16 +25,23 @@ export const resizeImage = async (
   try {
     await Promise.all(
       files.map(async (file) => {
-        const filename = `images/${uuidv4()}-${Date.now()}.jpeg`;
-        file.buffer = await sharp(file.buffer)
-          .resize(800, 800, {
-            fit: sharp.fit.inside,
-            withoutEnlargement: true,
-          })
-          .toFormat("jpeg")
-          .jpeg({ quality: 90 })
-          .toBuffer();
-        file.filename = filename;
+        const filename = `images/${uuidv4()}-${Date.now()}`;
+        const fileExtension = file.mimetype.split("/")[1];
+        const outputFormat = fileExtension === "gif" ? "gif" : "jpeg";
+
+        let sharpInstance = sharp(file.buffer).resize(800, 800, {
+          fit: sharp.fit.inside,
+          withoutEnlargement: true,
+        });
+
+        if (outputFormat === "gif") {
+          sharpInstance = sharpInstance.toFormat("gif");
+        } else {
+          sharpInstance = sharpInstance.toFormat("jpeg").jpeg({ quality: 90 });
+        }
+
+        file.buffer = await sharpInstance.toBuffer();
+        file.filename = `${filename}.${outputFormat}`;
       })
     );
 
