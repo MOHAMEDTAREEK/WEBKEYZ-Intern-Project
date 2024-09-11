@@ -97,6 +97,7 @@ describe("User Controller", () => {
         lastName: "Test ",
         email: "test@example.com",
         role: UserRole.Admin,
+        profilePicture: ""
       };
       const mockCreatedUser = { id: "1", ...mockUserData };
       mockRequest.body = mockUserData;
@@ -118,6 +119,7 @@ describe("User Controller", () => {
         lastName: "Test ",
         email: "test@example.com",
         role: UserRole.Admin,
+        profilePicture: ""
       };
       mockRequest.body = mockUserData;
       (userService.createUser as jest.Mock).mockResolvedValue(null);
@@ -153,6 +155,7 @@ describe("User Controller", () => {
         lastName: "Test ",
         email: "test@example.com",
         role: UserRole.Admin,
+        profilePicture: ""
       };
       mockRequest.body = mockUserData;
       (userService.createUser as jest.Mock).mockRejectedValue(

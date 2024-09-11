@@ -3,7 +3,6 @@ import {
   createPost,
   deletePost,
   fullyUpdatePost,
-  getMentions,
   getPostById,
   getPosts,
   partiallyUpdatePost,
@@ -147,7 +146,7 @@ describe("Post Controller", () => {
       rollback = jest.fn();
       jest.spyOn(sequelize, "transaction").mockResolvedValue(transaction);
       jest
-        .spyOn(postService, "getPostPhotoUrls")
+        .spyOn(postService, "createPostPhotoUrls")
         .mockResolvedValue(["http://test.com/test.jpg"]);
       jest.spyOn(postService, "createPost").mockResolvedValue({
         post: {
@@ -170,7 +169,7 @@ describe("Post Controller", () => {
     it("should create a post successfully with images", async () => {
       await createPost(req as Request, res as Response);
 
-      expect(postService.getPostPhotoUrls).toHaveBeenCalledWith(req.files);
+      expect(postService.createPostPhotoUrls).toHaveBeenCalledWith(req.files);
       expect(postService.createPost).toHaveBeenCalledWith(
         {
           description: "Test description",
@@ -213,11 +212,11 @@ describe("Post Controller", () => {
 
     it("should create a post without images", async () => {
       req.files = [];
-      jest.spyOn(postService, "getPostPhotoUrls").mockResolvedValue([]);
+      jest.spyOn(postService, "createPostPhotoUrls").mockResolvedValue([]);
 
       await createPost(req as Request, res as Response);
 
-      expect(postService.getPostPhotoUrls).toHaveBeenCalledWith([]);
+      expect(postService.createPostPhotoUrls).toHaveBeenCalledWith([]);
       expect(postService.createPost).toHaveBeenCalledWith(
         {
           description: "Test description",
@@ -481,101 +480,4 @@ describe("Post Controller", () => {
       expect(send).not.toHaveBeenCalled();
     });
   });
-  describe("getMentions Controller", () => {
-    it("should return mentions when valid ID is provided", async () => {
-      const req = { params: { id: "1" } } as unknown as Request;
-      const res = { send: jest.fn() } as unknown as Response;
-      const mentions = [{ id: 1, text: "mention1" }];
-
-      jest
-        .spyOn(postRepository, "getMentions")
-        .mockResolvedValue(mentions as any);
-
-      await getMentions(req, res);
-
-      expect(postRepository.getMentions).toHaveBeenCalledWith(1);
-      expect(res.send).toHaveBeenCalledWith({
-        internalStatusCode: HttpStatusCode.Ok,
-        message: SuccessMessage.MENTIONS_RETRIEVAL_SUCCESS,
-        data: mentions,
-        errors: undefined,
-        dev: undefined,
-      });
-    });
-  });
-  // describe("createPostWithMention Controller", () => {
-  //   it("should create a post with mention successfully", async () => {
-  //     const mockUserId = 1;
-  //     const mockPostData = { title: "Test Post", content: "Test Content" };
-  //     const mockCreatedPost = { id: 1, ...mockPostData };
-  //     const mockMentionedUser = { id: 2, username: "testuser" };
-  //     req.params = { userId: mockUserId.toString() };
-  //     req.body = mockPostData;
-  //     (postService.createPostWithMention as jest.Mock).mockResolvedValue({
-  //       post: mockCreatedPost,
-  //       mentionedUser: mockMentionedUser,
-  //     });
-
-  //     await createPostWithMention(req as Request, res as Response);
-
-  //     expect(postService.createPostWithMention).toHaveBeenCalledWith(
-  //       mockPostData,
-  //       mockUserId
-  //     );
-  //     expect(send).toHaveBeenCalledWith({
-  //       internalStatusCode: HttpStatusCode.Ok,
-  //       message: SuccessMessage.MENTIONS_CREATION_SUCCESS,
-  //       data: {
-  //         post: mockCreatedPost,
-  //         mentionedUser: mockMentionedUser,
-  //       },
-  //     });
-  //   });
-
-  //   it("should handle errors from postService.createPostWithMention", async () => {
-  //     const mockUserId = 1;
-  //     const mockPostData = { title: "Test Post", content: "Test Content" };
-  //     req.params = { userId: mockUserId.toString() };
-  //     req.body = mockPostData;
-  //     const error = new Error("Database error");
-  //     (postService.createPostWithMention as jest.Mock).mockRejectedValue(error);
-
-  //     await expect(
-  //       createPostWithMention(req as Request, res as Response)
-  //     ).rejects.toThrow(error);
-
-  //     expect(postService.createPostWithMention).toHaveBeenCalledWith(
-  //       mockPostData,
-  //       mockUserId
-  //     );
-  //     expect(send).not.toHaveBeenCalled();
-  //   });
-
-  //   it("should handle case when no mentioned user is found", async () => {
-  //     const mockUserId = 1;
-  //     const mockPostData = { title: "Test Post", content: "Test Content" };
-  //     const mockCreatedPost = { id: 1, ...mockPostData };
-  //     req.params = { userId: mockUserId.toString() };
-  //     req.body = mockPostData;
-  //     (postService.createPostWithMention as jest.Mock).mockResolvedValue({
-  //       post: mockCreatedPost,
-  //       mentionedUser: null,
-  //     });
-
-  //     await createPostWithMention(req as Request, res as Response);
-
-  //     expect(postService.createPostWithMention).toHaveBeenCalledWith(
-  //       mockPostData,
-  //       mockUserId
-  //     );
-  //     expect(send).toHaveBeenCalledWith({
-  //       internalStatusCode: HttpStatusCode.Ok,
-  //       message: SuccessMessage.MENTIONS_CREATION_SUCCESS,
-  //       data: {
-  //         post: mockCreatedPost,
-  //         mentionedUser: null,
-  //       },
-  //     });
-  //   });
-  // });
 });

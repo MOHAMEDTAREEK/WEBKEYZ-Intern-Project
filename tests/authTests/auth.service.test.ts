@@ -27,6 +27,7 @@ describe("Auth Service", () => {
       firstName: "John",
       lastName: "Doe",
       role: UserRole.User,
+      profilePicture: "profile.jpg",
     };
 
     it("should create a new user, generate tokens, and update the refresh token", async () => {
@@ -444,6 +445,7 @@ describe("Auth Service", () => {
         firstName: "hr",
         lastName: "User",
         password: result.password,
+        profilePicture: "example.com/image.jpg",
       });
       expect(result.newUser).toEqual({ id: 1, email, role: "hr" });
     });

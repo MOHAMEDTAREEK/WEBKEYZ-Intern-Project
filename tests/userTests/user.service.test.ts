@@ -102,6 +102,7 @@ describe("User Service", () => {
         firstName: "John",
         lastName: "Doe",
         role: UserRole.User,
+        profilePicture: "",
       };
       const mockUser = { email: "test@example.com" };
 
@@ -120,6 +121,7 @@ describe("User Service", () => {
         firstName: "John",
         lastName: "Doe",
         role: UserRole.User,
+        profilePicture: "",
       };
       (userRepository.createUser as jest.Mock).mockRejectedValue(
         new Error("Repository error")

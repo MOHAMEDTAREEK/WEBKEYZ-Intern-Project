@@ -66,6 +66,7 @@ describe("auth Controller", () => {
         firstName: "John",
         lastName: "Doe",
         role: UserRole.User,
+        profilePicture: "profile.jpg",
       };
       req = {};
       req.body = mockSignupDto;
