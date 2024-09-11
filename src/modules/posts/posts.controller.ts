@@ -12,8 +12,6 @@ import { bucketName, s3Client } from "../../config/aws-s3.config";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { sequelize } from "../../database/models";
-import Mention from "../../database/models/mention.model";
-import { QueryInterface } from "sequelize";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -191,6 +189,13 @@ export const deletePost = async (req: Request, res: Response) => {
   return res.send(response);
 };
 
+/**
+ * Uploads photo(s) for a post.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A response indicating the success or failure of the photo upload process.
+ */
 export const uploadPostPhoto = async (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[];
 
@@ -237,6 +242,14 @@ export const uploadPostPhoto = async (req: Request, res: Response) => {
   return res.send(response);
 };
 
+/**
+ * Retrieves mentions for a specific post ID.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<void>} A Promise that resolves when the mentions are retrieved and sent in the response.
+ * @throws {BaseError} If failed to get mentions for the post ID.
+ */
 export const getMentions = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   const mentions = await postRepository.getMentions(id);
@@ -272,6 +285,13 @@ export const getMentions = async (req: Request, res: Response) => {
 //   return res.send(response);
 // };
 
+/**
+ * Asynchronous function to upload images to an AWS S3 bucket and return the URLs of the uploaded images.
+ *
+ * @param req - The request object containing the image files to be uploaded.
+ * @param res - The response object to send back the uploaded image URLs.
+ * @returns An array of strings representing the URLs of the uploaded images.
+ */
 export const getPostImagesUrl = async (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[];
 
@@ -304,5 +324,3 @@ export const getPostImagesUrl = async (req: Request, res: Response) => {
 
   return uploadedImageUrls;
 };
-
-

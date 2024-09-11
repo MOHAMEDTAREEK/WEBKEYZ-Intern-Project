@@ -186,7 +186,6 @@ export const getMentionedUsers = async (mentions: string[], postId: number) => {
 export const deleteUploadedImages = async (imageUrls: string[]) => {
   const deletePromises = imageUrls.map(async (url) => {
     const key = extractKeyFromUrl(url);
-    console.log(key)
 
     const params = {
       Bucket: bucketName,

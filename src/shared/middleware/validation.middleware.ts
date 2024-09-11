@@ -7,27 +7,28 @@ type ValidationTargets = {
   query?: Joi.ObjectSchema;
 };
 
-const validationErrors: string[] = [];
-
 /**
  * Validates a specific part of data against a Joi schema.
  *
  * @param schema The Joi schema to validate against.
  * @param data The data to be validated.
  * @param part A string indicating the part of data being validated.
- */ const validatePart = (
+ */
+const validatePart = (
   schema: Joi.ObjectSchema | undefined,
   data: any,
   part: string
-) => {
+): string[] => {
+  const errors: string[] = [];
   if (schema) {
-    const { error } = schema.validate(data, { abortEarly: true });
+    const { error } = schema.validate(data, { abortEarly: false });
     if (error) {
-      validationErrors.push(
+      errors.push(
         ...error.details.map((detail) => `${part}: ${detail.message}`)
       );
     }
   }
+  return errors;
 };
 
 /**
@@ -37,10 +38,13 @@ const validationErrors: string[] = [];
  */
 export const validationMiddleware = (schemas: ValidationTargets) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // Validate each part of the request
-    validatePart(schemas.body, req.body, "body");
-    validatePart(schemas.params, req.params, "params");
-    validatePart(schemas.query, req.query, "query");
+    const validationErrors: string[] = [];
+
+    validationErrors.push(...validatePart(schemas.body, req.body, "body"));
+    validationErrors.push(
+      ...validatePart(schemas.params, req.params, "params")
+    );
+    validationErrors.push(...validatePart(schemas.query, req.query, "query"));
 
     // If there are validation errors, respond with 400 and the detailed error messages
     if (validationErrors.length > 0) {

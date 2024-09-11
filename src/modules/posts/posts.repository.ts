@@ -127,7 +127,6 @@ export const deletePost = async (id: number) => {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   const postPhotos = post.image as string[];
-  console.log(postPhotos);
   await postService.deleteUploadedImages(postPhotos);
 
   await post.destroy();

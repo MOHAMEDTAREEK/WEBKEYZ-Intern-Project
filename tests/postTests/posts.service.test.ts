@@ -1,9 +1,9 @@
+import { Transaction } from "sequelize";
 import Post from "../../src/database/models/post.model";
-import { PostDto } from "../../src/modules/posts/dtos/posts.dto";
 import * as postRepository from "../../src/modules/posts/posts.repository";
+import * as userRepository from "../../src/modules/users/users.repository";
 import {
   createPost,
-  createPostWithMention,
   deletePost,
   fullyUpdatePost,
   getPostById,
@@ -86,61 +86,112 @@ describe("PostsService", () => {
     });
   });
   describe("createPost", () => {
-    it("should create a post without mentions when description is empty", async () => {
-      const postData: PostDto = {
-        description: "Hello @user1 and @user2!",
+    it("should create a post without mentions or hashtags", async () => {
+      const postData = {
         userId: 1,
-        image: null,
+        description: "Just a regular post",
       };
+      const transaction = {} as Transaction;
+      const imageUrls: string[] = [];
       const createdPost = { id: 1, ...postData };
 
       jest
         .spyOn(postRepository, "createPost")
         .mockResolvedValue(createdPost as any);
       jest.spyOn(postRepository, "createMentions").mockResolvedValue([]);
-
-      const result = await createPost(postData);
-
-      expect(result).toEqual({ post: createdPost, mentionedUserNames: [] });
-      expect(postRepository.createPost).toHaveBeenCalledWith(postData);
-      expect(postRepository.createMentions).toHaveBeenCalledWith(1, []);
-    });
-
-    it("should create a post without mentions when description is undefined", async () => {
-      const postData: PostDto = {
-        description: "Hello @user1 and @user2!",
-        userId: 1,
-        image: null,
-      };
-      const createdPost = { id: 1, ...postData };
-
       jest
-        .spyOn(postRepository, "createPost")
-        .mockResolvedValue(createdPost as any);
-      jest.spyOn(postRepository, "createMentions").mockResolvedValue([]);
+        .spyOn(userRepository, "findUserByName" as keyof typeof userService)
+        .mockResolvedValue([]);
 
-      const result = await createPost(postData);
+      const result = await createPost(postData, transaction, imageUrls);
 
-      expect(result).toEqual({ post: createdPost, mentionedUserNames: [] });
-      expect(postRepository.createPost).toHaveBeenCalledWith(postData);
-      expect(postRepository.createMentions).toHaveBeenCalledWith(1, []);
-    });
-
-    it("should handle errors from createPost", async () => {
-      const postData: PostDto = {
-        description: "Hello @user1 and @user2!",
-        userId: 1,
-        image: null,
-      };
-      const error = new Error("Failed to create post");
-
-      jest.spyOn(postRepository, "createPost").mockRejectedValue(error);
-
-      await expect(createPost(postData)).rejects.toThrow(
-        "Failed to create post"
+      expect(result).toEqual({
+        post: createdPost,
+        mentioned: [],
+        hashtags: [],
+      });
+      expect(postRepository.createPost).toHaveBeenCalledWith(
+        1,
+        "Just a regular post",
+        [],
+        transaction
       );
-      expect(postRepository.createPost).toHaveBeenCalledWith(postData);
-      expect(postRepository.createMentions).not.toHaveBeenCalled();
+      expect(postRepository.createMentions).toHaveBeenCalledWith(
+        1,
+        [],
+        transaction
+      );
+    });
+
+    it("should handle empty description", async () => {
+      const postData = {
+        userId: 1,
+        description: "",
+      };
+      const transaction = {} as Transaction;
+      const imageUrls = ["image.jpg"];
+      const createdPost = { id: 1, ...postData };
+
+      jest
+        .spyOn(postRepository, "createPost")
+        .mockResolvedValue(createdPost as any);
+      jest.spyOn(postRepository, "createMentions").mockResolvedValue([]);
+
+      const result = await createPost(postData, transaction, imageUrls);
+
+      expect(result).toEqual({
+        post: createdPost,
+        mentioned: [],
+        hashtags: [],
+      });
+      expect(postRepository.createPost).toHaveBeenCalledWith(
+        1,
+        "",
+        imageUrls,
+        transaction
+      );
+      expect(postRepository.createMentions).toHaveBeenCalledWith(
+        1,
+        [],
+        transaction
+      );
+    });
+
+    it("should handle non-existent mentioned users", async () => {
+      const postData = {
+        userId: 1,
+        description: "Hello @nonexistent",
+      };
+      const transaction = {} as Transaction;
+      const imageUrls: string[] = [];
+      const createdPost = { id: 1, ...postData };
+
+      jest
+        .spyOn(postRepository, "createPost")
+        .mockResolvedValue(createdPost as any);
+      jest.spyOn(postRepository, "createMentions").mockResolvedValue([]);
+      jest
+        .spyOn(userRepository, "findUserByName" as keyof typeof userService)
+        .mockResolvedValue([]);
+
+      const result = await createPost(postData, transaction, imageUrls);
+
+      expect(result).toEqual({
+        post: createdPost,
+        mentioned: [],
+        hashtags: [],
+      });
+      expect(postRepository.createPost).toHaveBeenCalledWith(
+        1,
+        "Hello @nonexistent",
+        [],
+        transaction
+      );
+      expect(postRepository.createMentions).toHaveBeenCalledWith(
+        1,
+        [],
+        transaction
+      );
     });
   });
   describe("fullyUpdatePost", () => {
@@ -362,117 +413,6 @@ describe("PostsService", () => {
       await expect(deletePost(invalidId)).rejects.toThrow("Invalid id type");
       expect(postRepository.deletePost).toHaveBeenCalledWith(invalidId);
       expect(postRepository.deletePost).toHaveBeenCalledTimes(1);
-    });
-  });
-  describe("createPostWithMention", () => {
-    it("should create a post with mention and return post and mentioned user", async () => {
-      const postData: PostDto = {
-        description: "Test post mentioning @user1",
-        userId: 1,
-        image: null,
-      };
-      const userId = 2;
-      const createdPost = { id: 1, ...postData };
-      const mentions = [{ id: 1, postId: 1, userId: 2 }];
-      const mentionedUser = { id: 2, username: "user1" };
-
-      jest.spyOn(postRepository, "createPostWithMention").mockResolvedValue({
-        post: createdPost,
-        mentions,
-      } as any);
-      jest
-        .spyOn(userService, "getUserById")
-        .mockResolvedValue(mentionedUser as any);
-
-      const result = await createPostWithMention(postData, userId);
-
-      expect(result).toEqual({
-        post: createdPost,
-        mentionedUser: mentionedUser,
-      });
-      expect(postRepository.createPostWithMention).toHaveBeenCalledWith(
-        postData,
-        userId
-      );
-      expect(userService.getUserById).toHaveBeenCalledWith(userId);
-    });
-
-    it("should handle case when no user is mentioned", async () => {
-      const postData: PostDto = {
-        description: "Test post without mention",
-        userId: 1,
-        image: null,
-      };
-      const userId = 2;
-      const createdPost = { id: 1, ...postData };
-
-      jest.spyOn(postRepository, "createPostWithMention").mockResolvedValue({
-        post: createdPost,
-        mentions: [],
-      } as any);
-      jest.spyOn(userService, "getUserById").mockResolvedValue(null);
-
-      const result = await createPostWithMention(postData, userId);
-
-      expect(result).toEqual({
-        post: createdPost,
-        mentionedUser: null,
-      });
-      expect(postRepository.createPostWithMention).toHaveBeenCalledWith(
-        postData,
-        userId
-      );
-      expect(userService.getUserById).toHaveBeenCalledWith(userId);
-    });
-
-    it("should throw an error when createPostWithMention fails", async () => {
-      const postData: PostDto = {
-        description: "Test post",
-        userId: 1,
-        image: null,
-      };
-      const userId = 2;
-      const error = new Error("Failed to create post with mention");
-
-      jest
-        .spyOn(postRepository, "createPostWithMention")
-        .mockRejectedValue(error);
-
-      await expect(createPostWithMention(postData, userId)).rejects.toThrow(
-        "Failed to create post with mention"
-      );
-      expect(postRepository.createPostWithMention).toHaveBeenCalledWith(
-        postData,
-        userId
-      );
-      expect(userService.getUserById).not.toHaveBeenCalled();
-    });
-
-    it("should handle case when getUserById fails", async () => {
-      const postData: PostDto = {
-        description: "Test post mentioning @user1",
-        userId: 1,
-        image: null,
-      };
-      const userId = 2;
-      const createdPost = { id: 1, ...postData };
-      const mentions = [{ id: 1, postId: 1, userId: 2 }];
-      const error = new Error("Failed to get user");
-
-      jest.spyOn(postRepository, "createPostWithMention").mockResolvedValue({
-        post: createdPost,
-        mentions,
-      } as any);
-      jest.spyOn(userService, "getUserById").mockRejectedValue(error);
-
-      await expect(createPostWithMention(postData, userId)).rejects.toThrow(
-        "Failed to get user"
-      );
-      expect(postRepository.createPostWithMention).toHaveBeenCalledWith(
-        postData,
-        userId
-      );
-      expect(userService.getUserById).toHaveBeenCalledWith(userId);
     });
   });
 });

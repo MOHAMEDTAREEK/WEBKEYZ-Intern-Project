@@ -1,7 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "./index";
 import User from "./user.model";
-import Mention from "./mention.model";
 import {
   PostAttributes,
   PostCreationAttributes,
