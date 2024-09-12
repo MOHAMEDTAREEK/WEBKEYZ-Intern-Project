@@ -192,9 +192,7 @@ export const getValidHashtags = async (hashtags: string[]) => {
  * @returns {Promise<void>} - A Promise that resolves once all images are deleted.
  */
 
-export const deleteUploadedImages = async (
-  imageUrls: string[]
-): Promise<void> => {
+export const deleteUploadedImages = async (imageUrls: string[]): Promise<void> => {
   const deletePromises = imageUrls.map(async (url) => {
     const key = extractKeyFromUrl(url);
 

@@ -79,7 +79,7 @@ export const createPost = async (
       userId: userId,
       like: 0,
       mentionedUser: [],
-      hashtag: validHashtags,
+      hashtag: validHashtags ?? [],
     },
     { transaction }
   );
