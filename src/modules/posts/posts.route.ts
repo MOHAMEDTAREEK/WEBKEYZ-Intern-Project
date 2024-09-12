@@ -14,6 +14,7 @@ import { idCheckingSchema } from "../../shared/helperSchemas/idChecking.schema";
 import { resizeImage } from "../../shared/middleware/image-preprocessing.middleware";
 import upload from "../../shared/middleware/multer.middleware";
 import asyncWrapper from "../../shared/util/async-wrapper";
+import { createPostSchema } from "./schemas/createPost.schema";
 
 const router = Router();
 
@@ -156,7 +157,7 @@ router.post(
   "/",
   upload.array("postPhoto", 2),
   resizeImage,
-  // validationMiddleware(createPostSchema),
+  validationMiddleware(createPostSchema),
   createPost
 );
 /**

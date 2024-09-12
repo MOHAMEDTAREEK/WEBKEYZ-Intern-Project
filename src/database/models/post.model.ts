@@ -15,6 +15,7 @@ class Post
   public image?: string[];
   public userId!: number;
   public like!: number;
+  public hashtag!: Json | string[];
   public mentionedUser!: Json;
   public createdAt!: Date;
   public updatedAt!: Date;
@@ -66,6 +67,11 @@ Post.init(
       type: DataTypes.JSON,
       allowNull: true,
       field: "mentioned_user",
+    },
+    hashtag: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      field: "hashtag",
     },
   },
   {

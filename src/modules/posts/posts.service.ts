@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import User from "../../database/models/user.model";
 import { Transaction } from "sequelize";
 import { extractKeyFromUrl } from "../../shared/util/extract-key-from-url";
+import { predefinedHashtags } from "../../shared/enums/hashtag-list.enum";
 
 /**
  * Asynchronous function to retrieve all posts.
@@ -47,13 +48,6 @@ export const createPost = async (
   transaction: Transaction,
   imageUrls: string[]
 ) => {
-  const post = await postRepository.createPost(
-    postData.userId,
-    postData.description,
-    imageUrls,
-    transaction
-  );
-
   const mentions = postData.description
     ? extractMentions(postData.description)
     : [];
@@ -61,14 +55,23 @@ export const createPost = async (
     ? extractHashtags(postData.description)
     : [];
 
-  const mentionedUsers = await getMentionedUsers(mentions, post.id);
+  const mentionedUsers = await getMentionedUsers(mentions);
+  const validHashtags = await getValidHashtags(hashtags);
+  const post = await postRepository.createPost(
+    postData.userId,
+    postData.description,
+    imageUrls,
+    validHashtags,
+    transaction
+  );
+
   const mentioned = await postRepository.createMentions(
     post.id,
     mentionedUsers,
     transaction
   );
 
-  return { post, mentioned, hashtags };
+  return { post, mentioned };
 };
 /**
  * Updates a post with new data.
@@ -119,6 +122,13 @@ export const uploadPostPhoto = async (postId: number, imageUrl: string[]) => {
   const post = await postRepository.uploadPostPhoto(postId, imageUrl);
   return post;
 };
+
+/**
+ * Asynchronously uploads files to an S3 bucket and returns the signed URLs of the uploaded images.
+ *
+ * @param files Array of files to be uploaded
+ * @returns Array of signed URLs for the uploaded images
+ */
 export const createPostPhotoUrls = async (files: any) => {
   const uploadedImageUrls: string[] = [];
 
@@ -146,7 +156,13 @@ export const createPostPhotoUrls = async (files: any) => {
   return uploadedImageUrls;
 };
 
-export const getMentionedUsers = async (mentions: string[], postId: number) => {
+/**
+ * Retrieves users mentioned in the provided list of mentions.
+ *
+ * @param {string[]} mentions - List of mentions to search for users.
+ * @returns {Promise<User[]>} - A promise that resolves to an array of User objects representing the mentioned users.
+ */
+export const getMentionedUsers = async (mentions: string[]) => {
   const mentionedUsers: User[] = [];
 
   for (const name of mentions) {
@@ -159,7 +175,26 @@ export const getMentionedUsers = async (mentions: string[], postId: number) => {
   return mentionedUsers;
 };
 
-export const deleteUploadedImages = async (imageUrls: string[]) => {
+/**
+ * Filters out invalid hashtags from the given array of hashtags.
+ *
+ * @param hashtags - An array of hashtags to filter.
+ * @returns An array of valid hashtags that exist in the predefined list of hashtags.
+ */
+export const getValidHashtags = async (hashtags: string[]) => {
+  return hashtags.filter((hashtag) => predefinedHashtags.includes(hashtag));
+};
+
+/**
+ * Deletes images uploaded to an S3 bucket.
+ *
+ * @param {string[]} imageUrls - An array of URLs of the images to be deleted.
+ * @returns {Promise<void>} - A Promise that resolves once all images are deleted.
+ */
+
+export const deleteUploadedImages = async (
+  imageUrls: string[]
+): Promise<void> => {
   const deletePromises = imageUrls.map(async (url) => {
     const key = extractKeyFromUrl(url);
 
@@ -173,4 +208,3 @@ export const deleteUploadedImages = async (imageUrls: string[]) => {
 
   await Promise.all(deletePromises);
 };
-

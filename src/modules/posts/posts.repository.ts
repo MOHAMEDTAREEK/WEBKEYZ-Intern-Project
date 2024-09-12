@@ -7,6 +7,8 @@ import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import User from "../../database/models/user.model";
 import { Transaction } from "sequelize";
 import * as postService from "./posts.service";
+import Comment from "../../database/models/comment.model";
+import { sequelize } from "../../database/models";
 /**
  * Asynchronously retrieves all posts from the database.
  *
@@ -14,13 +16,26 @@ import * as postService from "./posts.service";
  * @throws {BaseError} If no posts are found, an error with message "Posts not found" and status HttpStatus.NOT_FOUND is thrown.
  */
 export const getPosts = async (): Promise<Post[]> => {
-  const posts = await Post.findAll();
+  const posts = await Post.findAll({
+    attributes: {
+      include: [
+        [sequelize.fn("COUNT", sequelize.col("comment.id")), "commentCount"],
+      ],
+    },
+    include: [
+      {
+        model: Comment,
+        as: "comment",
+        attributes: [],
+      },
+    ],
+    group: ["Post.id"],
+  });
   if (!posts) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
   }
   return posts;
 };
-
 /**
  * Retrieves a post by its ID asynchronously.
  *
@@ -46,6 +61,7 @@ export const createPost = async (
   userId: number,
   description: string,
   imageUrls: string[],
+  validHashtags: string[],
   transaction: Transaction
 ) => {
   const user = await userRepository.getUserById(userId);
@@ -63,6 +79,7 @@ export const createPost = async (
       userId: userId,
       like: 0,
       mentionedUser: [],
+      hashtag: validHashtags,
     },
     { transaction }
   );

@@ -11,7 +11,6 @@ import { bucketName, s3Client } from "../../config/aws-s3.config";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { sequelize } from "../../database/models";
-import { QueryInterface } from "sequelize";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -78,7 +77,7 @@ export const createPost = async (req: Request, res: Response) => {
       userId,
       files,
     };
-    const { post, mentioned, hashtags } = await postService.createPost(
+    const { post, mentioned } = await postService.createPost(
       postData,
       transaction,
       imageUrls
@@ -93,7 +92,7 @@ export const createPost = async (req: Request, res: Response) => {
     const response: IResponse = createResponse(
       HttpStatusCode.Created,
       SuccessMessage.POST_CREATION_SUCCESS,
-      { post, mentioned, hashtags }
+      { post, mentioned }
     );
     return res.send(response);
   } catch (error) {
