@@ -12,7 +12,7 @@ class Nomination
 {
   public id!: number;
   public nominationType!: NominationType;
-  public photoUrl!: Text;
+  public photoUrl!: string;
   public description!: string;
   public lastNominationDay!: Date;
   public winnerAnnouncementDate!: Date;

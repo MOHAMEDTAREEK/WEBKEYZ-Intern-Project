@@ -12,9 +12,7 @@ export const createNomination = async (
   lastNominationDay: Date,
   winnerAnnouncementDate: Date
 ) => {
-  const nominationTypePhoto = getNominationTypePhoto(
-    nominationType
-  ) as unknown as Text;
+  const nominationTypePhoto = getNominationTypePhoto(nominationType);
   const nomination = await nominationRepository.createNomination(
     nominationType,
     nominationTypePhoto,

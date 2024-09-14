@@ -3,7 +3,7 @@ import { NominationType } from "../../../shared/enums/nomination.type.enum";
 export interface NominationAttributes {
   id: number;
   nominationType: NominationType;
-  photoUrl: Text;
+  photoUrl: string;
   description: string;
   lastNominationDay: Date;
   winnerAnnouncementDate: Date;

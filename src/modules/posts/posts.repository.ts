@@ -30,6 +30,7 @@ export const getPosts = async (): Promise<Post[]> => {
       },
     ],
     group: ["Post.id"],
+    order: [["createdAt", "DESC"]],
   });
   if (!posts) {
     throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
@@ -68,10 +69,7 @@ export const createPost = async (
   if (!user) {
     throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
-  // throw new BaseError(
-  //   ErrorMessage.FAILED_TO_CREATE_POST,
-  //   HttpStatusCode.InternalServerError
-  // );
+
   const post = await Post.create(
     {
       description: description,

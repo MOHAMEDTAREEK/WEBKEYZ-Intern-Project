@@ -11,6 +11,7 @@ import { bucketName, s3Client } from "../../config/aws-s3.config";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { sequelize } from "../../database/models";
+import { PostDto } from "./dtos/posts.dto";
 
 /**
  * Retrieves all posts and sends them as a response.
@@ -72,7 +73,7 @@ export const createPost = async (req: Request, res: Response) => {
   const imageUrls: string[] = await postService.createPostPhotoUrls(files);
 
   try {
-    const postData = {
+    const postData: PostDto = {
       description,
       userId,
       files,

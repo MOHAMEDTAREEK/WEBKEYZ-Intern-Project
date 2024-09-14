@@ -14,6 +14,7 @@ import User from "../../database/models/user.model";
 import { Transaction } from "sequelize";
 import { extractKeyFromUrl } from "../../shared/util/extract-key-from-url";
 import { predefinedHashtags } from "../../shared/enums/hashtag-list.enum";
+import { PostDto } from "./dtos/posts.dto";
 
 /**
  * Asynchronous function to retrieve all posts.
@@ -44,7 +45,7 @@ export const getPostById = async (id: number): Promise<any> => {
  */
 
 export const createPost = async (
-  postData: any,
+  postData: PostDto,
   transaction: Transaction,
   imageUrls: string[]
 ) => {
@@ -192,7 +193,9 @@ export const getValidHashtags = async (hashtags: string[]) => {
  * @returns {Promise<void>} - A Promise that resolves once all images are deleted.
  */
 
-export const deleteUploadedImages = async (imageUrls: string[]): Promise<void> => {
+export const deleteUploadedImages = async (
+  imageUrls: string[]
+): Promise<void> => {
   const deletePromises = imageUrls.map(async (url) => {
     const key = extractKeyFromUrl(url);
 

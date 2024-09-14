@@ -11,7 +11,16 @@ import Post from "../../database/models/post.model";
  * Retrieves all users from the database.
  */
 export const getUsers = async () => {
-  const users = await User.findAll();
+  const users = await User.findAll({
+    attributes: [
+      "id",
+      "firstName",
+      "lastName",
+      "profilePicture",
+      "email",
+      "role",
+    ],
+  });
 
   if (!users) {
     throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
@@ -26,6 +35,14 @@ export const getUsers = async () => {
 export const getUsersByMentionCount = async (): Promise<User[]> => {
   const users = User.findAll({
     order: [["mentionCount", "DESC"]],
+    attributes: [
+      "id",
+      "firstName",
+      "lastName",
+      "profilePicture",
+      "email",
+      "role",
+    ],
   });
   return users;
 };
@@ -43,6 +60,14 @@ export const searchUsers = async (searchTerm: string) => {
         { lastName: { [Op.like]: `%${searchTerm}%` } },
       ],
     },
+    attributes: [
+      "id",
+      "firstName",
+      "lastName",
+      "profilePicture",
+      "email",
+      "role",
+    ],
   });
   return users;
 };
@@ -53,9 +78,14 @@ export const searchUsers = async (searchTerm: string) => {
  */
 export const getUserById = async (userId: number) => {
   const user = await User.findByPk(userId, {
-    attributes: {
-      exclude: ["password"],
-    },
+    attributes: [
+      "id",
+      "firstName",
+      "lastName",
+      "profilePicture",
+      "email",
+      "role",
+    ],
   });
 
   return user;
@@ -74,6 +104,14 @@ export const findUserByName = async (
 ): Promise<User | null> => {
   const user = await User.findOne({
     where: { firstName: firstName, lastName: lastName },
+    attributes: [
+      "id",
+      "firstName",
+      "lastName",
+      "profilePicture",
+      "email",
+      "role",
+    ],
   });
   return user;
 };
@@ -85,6 +123,14 @@ export const findUserByName = async (
 export const getUserByEmail = async (email: string) => {
   const user = await User.findOne({
     where: { email },
+    attributes: [
+      "id",
+      "firstName",
+      "lastName",
+      "profilePicture",
+      "email",
+      "role",
+    ],
   });
 
   return user;
@@ -211,8 +257,6 @@ export const getNumberOfPostsForUser = async (userId: number) => {
 
 export const updateUser = async (userId: number, userData: any) => {
   const user = await User.findByPk(userId);
-  console.log("userData", userData);
-  console.log("user", user);
   if (!user)
     throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   await user.update(userData);

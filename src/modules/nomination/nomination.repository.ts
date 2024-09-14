@@ -4,14 +4,18 @@ import Nomination from "../../database/models/nomination.model";
 import { NominationType } from "../../shared/enums/nomination.type.enum";
 import { BaseError } from "../../shared/exceptions/base.error";
 import User from "../../database/models/user.model";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import { HttpStatusCode } from "axios";
 export const getAllNominations = async () => {
-  const nominations = await Nomination.findAll();
+  const nominations = await Nomination.findAll({
+    order: [["createdAt", "DESC"]],
+  });
   return nominations;
 };
 
 export const createNomination = async (
   nominationType: NominationType,
-  nominationTypePhoto: Text,
+  nominationTypePhoto: string,
   description: string,
   lastNominationDay: Date,
   winnerAnnouncementDate: Date
@@ -35,7 +39,10 @@ export const voteForUser = async (
     where: { userId, nominationId },
   });
   if (existingVote) {
-    throw new BaseError("User has already voted for this nomination", 404);
+    throw new BaseError(
+      ErrorMessage.USER_ALREADY_VOTED,
+      HttpStatusCode.BadRequest
+    );
   }
   const vote = await NominationVote.create({
     userId: userId,

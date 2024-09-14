@@ -23,4 +23,8 @@ export enum SuccessMessage {
   USER_DELETION_SUCCESS = "User deleted successfully",
   RECOGNITION_NUMBER_SENT_SUCCESS = "Recognition number sent successfully",
   NUMBER_OF_POSTS_RETRIEVAL_SUCCESS = "Number of posts retrieved successfully",
+  VOTE_SUBMITTED_SUCCESSFULLY = "Vote submitted successfully",
+  NOMINATION_SUBMITTED_SUCCESSFULLY = "Nomination submitted successfully",
+  WINNER_DATA_RETRIEVAL_SUCCESS = "Winner data retrieval successful",
+  NOMINATIONS_RETRIEVED_SUCCESSFULLY = "Nominations retrieved successfully",
 }
