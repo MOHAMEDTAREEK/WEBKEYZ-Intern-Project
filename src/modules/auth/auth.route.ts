@@ -8,17 +8,17 @@ import {
   googleAuthCallback,
   customInviteHr,
   customLogin,
-  customIogout,
+  customLogout,
   customRefreshTokens,
   customResetPassword,
   customResetPasswordWithoutToken,
   customSignUp,
-  getGoogleRefreshToken,
 } from "./auth.controller";
 import { emailCheckingSchema } from "./schemas/email-checking.schema";
 import { resetPasswordSchema } from "./schemas/reset-password.schema";
 import passport from "passport";
 import asyncWrapper from "../../shared/util/async-wrapper";
+import { googleAccessTokenSchema } from "./schemas/google-access-token.schema";
 
 /**
  * Defines the routes for user authentication operations.
@@ -29,8 +29,8 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: Auth
- *   description: Authentication and Authorization
+ *   name: Auth WebKeyz
+ *   description: Authentication
  */
 
 /**
@@ -38,19 +38,20 @@ const router = Router();
  * /auth/signup:
  *   post:
  *     summary: User signup
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/RegisterSchema'
+ *             $ref: '#/components/schemas/RegisterSchema'
  *     responses:
  *       201:
  *         description: Successfully signed up
  *       400:
  *         description: Validation error
  */
+
 router.post(
   "/signup",
   validationMiddleware(registerSchema),
@@ -62,21 +63,28 @@ router.post(
  * /auth/login:
  *   post:
  *     summary: User login
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/LoginSchema'
+ *             $ref: '#/components/schemas/LoginSchema'
  *     responses:
  *       200:
  *         description: Successfully logged in
+ *         headers:
+ *           Set-Cookie:
+ *             description: Set-Cookie header with tokens
+ *             schema:
+ *               type: string
+ *               example: accessToken=yourAccessToken; refreshToken=yourRefreshToken
  *       400:
  *         description: Validation error
  *       401:
  *         description: Unauthorized
  */
+
 router.post(
   "/login",
   validationMiddleware(loginSchema),
@@ -88,13 +96,24 @@ router.post(
  * /auth/refresh-token:
  *   post:
  *     summary: Refresh access token
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
+ *     security:
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Successfully refreshed token
+ *         headers:
+ *           Set-Cookie:
+ *             description: Set-Cookie header with new access token
+ *             schema:
+ *               type: string
+ *               example: accessToken=newAccessToken
+ *       400:
+ *         description: Refresh token is missing
  *       401:
  *         description: Unauthorized
  */
+
 router.post("/refresh-token", asyncWrapper(customRefreshTokens));
 
 /**
@@ -102,18 +121,34 @@ router.post("/refresh-token", asyncWrapper(customRefreshTokens));
  * /auth/forgot-password:
  *   post:
  *     summary: Request password reset
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/EmailCheckingSchema'
+ *             $ref: '#/components/schemas/EmailCheckingSchema'
  *     responses:
  *       200:
- *         description: Password reset link sent
+ *         description: Password reset link sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 resetToken:
+ *                   type: string
+ *                   example: "yourResetToken"
+ *         headers:
+ *           Set-Cookie:
+ *             description: Optional - Set-Cookie header with reset token if stored in cookies
+ *             schema:
+ *               type: string
+ *               example: resetToken=yourResetToken; HttpOnly; Secure
  *       400:
  *         description: Validation error
+ *       404:
+ *         description: User not found
  */
 router.post(
   "/forgot-password",
@@ -126,7 +161,7 @@ router.post(
  * /auth/reset-password/{token}:
  *   post:
  *     summary: Reset password using token
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     parameters:
  *       - in: path
  *         name: token
@@ -139,15 +174,38 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/ResetPasswordSchema'
+ *             $ref: '#/components/schemas/ResetPasswordSchema'
  *     responses:
  *       200:
  *         description: Password successfully reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Password reset successfully
  *       400:
- *         description: Validation error
+ *         description: Validation error or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Invalid or expired token
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Unauthorized
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: User not found
  */
+
 router.post(
   "/reset-password/:token",
   validationMiddleware(resetPasswordSchema),
@@ -159,13 +217,13 @@ router.post(
  * /auth/reset-password:
  *   post:
  *     summary: Reset password without token
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/ResetPasswordSchema'
+ *             $ref: '#/components/schemas/ResetPasswordSchema'
  *     responses:
  *       200:
  *         description: Password successfully reset
@@ -185,25 +243,26 @@ router.post(
  * /auth/logout:
  *   post:
  *     summary: Logout users
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     responses:
  *       200:
  *         description: Successfully logged out
+ *
  */
-router.post("/logout", asyncWrapper(customIogout));
+router.post("/logout", asyncWrapper(customLogout));
 
 /**
  * @swagger
  * /auth/invite-hr:
  *   post:
  *     summary: Invite HR to the platform
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/auth/EmailCheckingSchema'
+ *             $ref: '#/components/schemas/EmailCheckingSchema'
  *     responses:
  *       200:
  *         description: Invitation sent
@@ -221,7 +280,7 @@ router.post(
  * /auth/google:
  *   get:
  *     summary: Google authentication
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     description: |
  *       Redirects to Google for authentication. This is a redirection endpoint and cannot be tested via Swagger UI.
  *     responses:
@@ -249,7 +308,7 @@ router.get(
  * /auth/google/callback:
  *   get:
  *     summary: Google authentication callback
- *     tags: [Auth]
+ *     tags: [Auth PlayGround]
  *     description: |
  *       Handles the OAuth callback from Google. This endpoint will redirect the user and cannot be tested directly in Swagger UI.
  *     responses:
@@ -275,10 +334,12 @@ router.get(
 
 /**
  * @swagger
- * /auth/signup/access-token:
+ * /signup/access-token:
  *   post:
- *     summary: Get access token
- *     tags: [Auth]
+ *     summary: Get Google Access Token
+ *     description: Endpoint to handle Google access token and either log in or create a new user.
+ *     tags:
+ *       - Auth WebKeyz
  *     requestBody:
  *       required: true
  *       content:
@@ -286,18 +347,38 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               token:
+ *               idToken:
  *                 type: string
- *             required:
- *               - token
+ *                 example: your-google-id-token
  *     responses:
  *       200:
- *         description: Access token issued
- *       400:
- *         description: Invalid request
+ *         description: User login success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userAccessToken:
+ *                   type: string
+ *                   example: your-jwt-token
+ *       201:
+ *         description: User creation success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   description: The newly created user object
+ *                 userAccessToken:
+ *                   type: string
+ *                   example: your-jwt-token
  */
-router.post("/signup/access-token", asyncWrapper(getGoogleAccessToken));
-
-router.post("/login/refresh-token", asyncWrapper(getGoogleRefreshToken));
+router.post(
+  "/signup/access-token",
+  validationMiddleware(googleAccessTokenSchema),
+  asyncWrapper(getGoogleAccessToken)
+);
 
 export default router;

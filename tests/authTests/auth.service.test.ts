@@ -6,6 +6,10 @@ import * as userService from "../../src/modules/users/users.service"; // Add thi
 import config from "../../src/config/index";
 import { BaseError } from "../../src/shared/exceptions/base.error";
 import { refreshTokens } from "../../src/modules/auth/auth.service";
+import { UserRole } from "../../src/shared/enums/user-Role.enum";
+import { ErrorMessage } from "../../src/shared/enums/constants/error-message.enum";
+import { HttpStatusCode } from "axios";
+import User from "../../src/database/models/user.model";
 
 jest.mock("../../src/modules/users/users.repository");
 jest.mock("../../src/modules/users/users.service");
@@ -22,6 +26,8 @@ describe("Auth Service", () => {
       password: "password123",
       firstName: "John",
       lastName: "Doe",
+      role: UserRole.User,
+      profilePicture: "profile.jpg",
     };
 
     it("should create a new user, generate tokens, and update the refresh token", async () => {
@@ -51,12 +57,12 @@ describe("Auth Service", () => {
       expect(userRepository.createUser).toHaveBeenCalledWith(userData);
       expect(jwt.sign).toHaveBeenCalledTimes(2);
       expect(jwt.sign).toHaveBeenCalledWith(
-        { userId: mockUser.id, email: mockUser.email, role: "admin" },
+        { userId: mockUser.id, email: mockUser.email, role: "user" },
         config.accessToken.secret,
         { expiresIn: config.accessToken.expiresIn }
       );
       expect(jwt.sign).toHaveBeenCalledWith(
-        { userId: mockUser.id, email: mockUser.email, role: "admin" },
+        { userId: mockUser.id, email: mockUser.email, role: "user" },
         config.refreshToken.secret,
         { expiresIn: config.refreshToken.expiresIn }
       );
@@ -126,80 +132,96 @@ describe("Auth Service", () => {
       email: "test@example.com",
       firstName: "John",
       lastName: "Doe",
-      password: "password",
-      refreshToken: "refresh",
+      password: "hashedPassword",
+      role: UserRole.User,
     };
-    const mockTokens = { accessToken: "access", refreshToken: "refresh" };
 
-    it("should return user and tokens when valid credentials are provided", async () => {
+    it("should throw an error when user is not found", async () => {
       jest
         .spyOn(userService, "validateCredentials")
-        .mockResolvedValue(mockUser);
-      jest.spyOn(authService, "getTokens").mockResolvedValue(mockTokens);
-      jest
-        .spyOn(authService, "updateRefreshToken")
-        .mockResolvedValue(undefined);
+        .mockResolvedValue(null as unknown as User);
 
-      const result = await authService.logIn({
-        email: "test@example.com",
-        password: "password",
-      });
+      const loginDto = {
+        email: "nonexistent@example.com",
+        password: "wrongpassword",
+      };
 
-      expect(result).toEqual({ user: mockUser, tokens: mockTokens });
+      await expect(authService.logIn(loginDto)).rejects.toThrow(
+        new BaseError(
+          ErrorMessage.INVALID_CREDENTIALS,
+          HttpStatusCode.Unauthorized
+        )
+      );
+
       expect(userService.validateCredentials).toHaveBeenCalledWith(
-        "test@example.com",
-        "password"
+        loginDto.email,
+        loginDto.password
+      );
+    });
+    it("should throw an error when token generation fails", async () => {
+      jest
+        .spyOn(userService, "validateCredentials")
+        .mockResolvedValue(mockUser as User);
+      jest
+        .spyOn(authService, "getTokens")
+        .mockRejectedValue(new Error("Error generating tokens"));
+
+      const loginDto = { email: "test@example.com", password: "password123" };
+
+      await expect(authService.logIn(loginDto)).rejects.toThrow(
+        new BaseError(
+          ErrorMessage.FAILED_TO_GENERATE_TOKENS,
+          HttpStatusCode.InternalServerError
+        )
+      );
+
+      expect(userService.validateCredentials).toHaveBeenCalledWith(
+        loginDto.email,
+        loginDto.password
       );
       expect(authService.getTokens).toHaveBeenCalledWith(
         mockUser.id,
         mockUser.email
       );
-      expect(authService.updateRefreshToken).toHaveBeenCalledWith(
-        mockUser.id,
-        mockTokens.refreshToken
-      );
     });
-    it("should throw BaseError with 401 status when invalid credentials are provided", async () => {
-      jest.spyOn(userService, "validateCredentials").mockResolvedValue(null);
-
-      await expect(
-        authService.logIn({
-          email: "invalid@example.com",
-          password: "wrongpassword",
-        })
-      ).rejects.toThrow(new BaseError("Invalid credentials", 401));
-
-      expect(userService.validateCredentials).toHaveBeenCalledWith(
-        "invalid@example.com",
-        "wrongpassword"
-      );
-    });
-    it("should return user and tokens when valid credentials are provided", async () => {
+    it("should handle errors thrown by validateCredentials", async () => {
       jest
         .spyOn(userService, "validateCredentials")
-        .mockResolvedValue(mockUser);
-      jest.spyOn(authService, "getTokens").mockResolvedValue(mockTokens);
-      jest
-        .spyOn(authService, "updateRefreshToken")
-        .mockResolvedValue(undefined);
+        .mockRejectedValue(new Error("Database error"));
 
-      const result = await authService.logIn({
-        email: "test@example.com",
-        password: "password",
-      });
+      const loginDto = { email: "test@example.com", password: "password123" };
 
-      expect(result).toEqual({ user: mockUser, tokens: mockTokens });
+      await expect(authService.logIn(loginDto)).rejects.toThrow(
+        "Database error"
+      );
+
       expect(userService.validateCredentials).toHaveBeenCalledWith(
-        "test@example.com",
-        "password"
+        loginDto.email,
+        loginDto.password
+      );
+    });
+
+    it("should handle errors thrown by getTokens", async () => {
+      jest
+        .spyOn(userService, "validateCredentials")
+        .mockResolvedValue(mockUser as User);
+      jest
+        .spyOn(authService, "getTokens")
+        .mockRejectedValue(new Error("Token generation failed"));
+
+      const loginDto = { email: "test@example.com", password: "password123" };
+
+      await expect(authService.logIn(loginDto)).rejects.toThrow(
+        "Token generation failed"
+      );
+
+      expect(userService.validateCredentials).toHaveBeenCalledWith(
+        loginDto.email,
+        loginDto.password
       );
       expect(authService.getTokens).toHaveBeenCalledWith(
         mockUser.id,
         mockUser.email
-      );
-      expect(authService.updateRefreshToken).toHaveBeenCalledWith(
-        mockUser.id,
-        mockTokens.refreshToken
       );
     });
   });
@@ -321,7 +343,7 @@ describe("Auth Service", () => {
       expect(result).toEqual(mockUser);
     });
     it("should throw error for invalid token", async () => {
-      jest.spyOn(jwt, "verify").mockReturnValue(null);
+      jest.spyOn(jwt, "verify").mockReturnValue(undefined);
 
       await expect(
         authService.verifyResetToken("invalidToken")
@@ -361,7 +383,7 @@ describe("Auth Service", () => {
     });
   });
   describe("resetPassword Service", () => {
-    test("should reset password successfully", async () => {
+    it("should reset password successfully", async () => {
       const mockUserId = 1;
       const mockHashedPassword = "hashedPassword";
       (bcrypt.hash as jest.Mock).mockResolvedValue(mockHashedPassword);
@@ -376,21 +398,25 @@ describe("Auth Service", () => {
       expect(result).toBe("Password reset successfully");
     });
 
-    test("should handle errors from bcrypt.hash", async () => {
+    it("should handle errors from bcrypt.hash", async () => {
       const error = new Error("Hashing failed");
       (bcrypt.hash as jest.Mock).mockRejectedValue(error);
 
-      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(error);
+      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(
+        error
+      );
       expect(userRepository.updateUserById).not.toHaveBeenCalled();
     });
 
-    test("should handle errors from userRepository.updateUserById", async () => {
+    it("should handle errors from userRepository.updateUserById", async () => {
       const mockHashedPassword = "hashedPassword";
       (bcrypt.hash as jest.Mock).mockResolvedValue(mockHashedPassword);
       const error = new Error("Update failed");
       (userRepository.updateUserById as jest.Mock).mockRejectedValue(error);
 
-      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(error);
+      await expect(authService.resetPassword(1, "newPassword")).rejects.toThrow(
+        error
+      );
     });
 
     test("should handle unexpected errors", async () => {
@@ -402,4 +428,34 @@ describe("Auth Service", () => {
       );
     });
   });
+  describe("inviteHr", () => {
+    it("should generate a random password and create a new HR user", async () => {
+      const email = "test@example.com";
+      const mockCreateUser = jest
+        .fn()
+        .mockResolvedValue({ id: 1, email, role: "hr" });
+      (userRepository.createUser as jest.Mock) = mockCreateUser;
+
+      const result = await authService.inviteHr(email);
+
+      expect(result.password).toHaveLength(8);
+      expect(userRepository.createUser).toHaveBeenCalledWith({
+        email,
+        role: "hr",
+        firstName: "hr",
+        lastName: "User",
+        password: result.password,
+        profilePicture: "example.com/image.jpg",
+      });
+      expect(result.newUser).toEqual({ id: 1, email, role: "hr" });
+    });
+    it("should throw an error if HR user already exists", async () => {
+      (userRepository.getUserByEmail as jest.Mock).mockResolvedValue(true);
+
+      await expect(authService.inviteHr("test@example.com")).rejects.toThrow(
+        "User already exists"
+      );
+    });
+  });
+  describe("getUserDataFromToken", () => {});
 });

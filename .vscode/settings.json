@@ -1,3 +1,8 @@
 {
-  "docify.commentService.programmingLanguage": "javascript"
+  "docify.commentService.programmingLanguage": "javascript",
+  "cSpell.words": [
+    "dtos",
+    "uuidv",
+    "WebKeyz"
+  ]
 }

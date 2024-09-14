@@ -1,22 +1,46 @@
-import { DataTypes, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "sequelize";
 import { sequelize } from "./index";
-import UserImage from "./user-image.modle";
-const User = sequelize.define(
-  "User",
+import {
+  UserAttributes,
+  UserCreationAttributes,
+} from "./interfaces/user.interface";
+import Post from "./post.model";
+class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
+  public id!: number;
+  public firstName?: string;
+  public lastName?: string;
+  public email!: string;
+  public password?: string;
+  public profilePicture?: string;
+  public refreshToken?: string;
+  public resetToken?: string;
+  public role!: "admin" | "hr" | "user";
+  public createdAt!: Date;
+  public updatedAt!: Date;
+  public googleId?: string;
+  public mentionCount!: number;
+}
+
+User.init(
   {
     id: {
-      allowNull: false,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     firstName: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: "first_name",
     },
     lastName: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: "last_name",
     },
     email: {
       type: DataTypes.STRING,
@@ -30,14 +54,17 @@ const User = sequelize.define(
     profilePicture: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: "profile_picture",
     },
     refreshToken: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: "refresh_token",
     },
     resetToken: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: "reset_token",
     },
     role: {
       type: DataTypes.ENUM("admin", "hr", "user"),
@@ -48,22 +75,31 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.fn("now"),
+      field: "created_at",
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.fn("now"),
+      field: "updated_at",
     },
     googleId: {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true,
+      field: "google_id",
+    },
+    mentionCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      field: "mention_count",
     },
   },
   {
+    sequelize,
     tableName: "user",
+    timestamps: true,
   }
 );
-User.hasOne(UserImage, { foreignKey: "user_id", sourceKey: "id" });
-UserImage.belongsTo(User, { foreignKey: "user_id", targetKey: "id" });
 export default User;

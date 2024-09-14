@@ -1,22 +1,54 @@
 import User from "../../database/models/user.model";
-import { IUser, IUserWithoutPassword } from "./user.interface";
 import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
-import fs from "fs";
-import path from "path";
-import UserImage from "../../database/models/user-image.modle";
-import { HttpStatus } from "../../shared/enums/http-Status.enum";
-import logger from "../../shared/util/logger";
+import { HttpStatusCode } from "axios";
+import { Op } from "sequelize";
+import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
+import Post from "../../database/models/post.model";
+import { USER_ATTRIBUTES } from "../../shared/types/user-attributes";
 
 /**
  * Retrieves all users from the database.
  */
 export const getUsers = async () => {
-  const users = await User.findAll();
+  const users = await User.findAll({
+    attributes: USER_ATTRIBUTES,
+  });
+
   if (!users) {
-    throw new BaseError("No users found", HttpStatus.NOT_FOUND);
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   }
+  return users;
+};
+
+/**
+ * Retrieves users from the database based on their mention count in descending order.
+ * @returns {Promise<User[]>} A promise that resolves with an array of users sorted by mention count in descending order.
+ */
+export const getUsersByMentionCount = async (): Promise<User[]> => {
+  const users = User.findAll({
+    order: [["mentionCount", "DESC"]],
+    attributes: USER_ATTRIBUTES,
+  });
+  return users;
+};
+
+/**
+ * Asynchronously searches for users based on a given search term.
+ * @param searchTerm The term to search for in user's first name or last name.
+ * @returns A promise that resolves to an array of users matching the search term.
+ */
+export const searchUsers = async (searchTerm: string) => {
+  const users = await User.findAll({
+    where: {
+      [Op.or]: [
+        { firstName: { [Op.like]: `%${searchTerm}%` } },
+        { lastName: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+    attributes: USER_ATTRIBUTES,
+  });
   return users;
 };
 
@@ -24,21 +56,29 @@ export const getUsers = async () => {
  * Retrieves a user by ID from the database.
  * @param {number} userId - The ID of the user to retrieve.
  */
-export const getUserById = async (
-  userId: number
-): Promise<IUserWithoutPassword> => {
-  const user: IUserWithoutPassword = (await User.findByPk(userId, {
-    attributes: {
-      exclude: ["password"],
-    },
-    include: {
-      model: UserImage,
-      attributes: ["image"],
-    },
-  })) as unknown as IUserWithoutPassword;
-  if (!user) {
-    throw new BaseError("User not found", HttpStatus.NOT_FOUND);
-  }
+export const getUserById = async (userId: number) => {
+  const user = await User.findByPk(userId, {
+    attributes: USER_ATTRIBUTES,
+  });
+
+  return user;
+};
+
+/**
+ * Asynchronously finds a user by their first name and last name.
+ *
+ * @param {string} firstName - The first name of the user to search for.
+ * @param {string} lastName - The last name of the user to search for.
+ * @returns {Promise<User | null>} A promise that resolves with the user if found, or null if not found.
+ */
+export const findUserByName = async (
+  firstName: string,
+  lastName: string
+): Promise<User | null> => {
+  const user = await User.findOne({
+    where: { firstName: firstName, lastName: lastName },
+    attributes: USER_ATTRIBUTES,
+  });
   return user;
 };
 
@@ -49,7 +89,9 @@ export const getUserById = async (
 export const getUserByEmail = async (email: string) => {
   const user = await User.findOne({
     where: { email },
+    attributes: USER_ATTRIBUTES,
   });
+
   return user;
 };
 
@@ -57,20 +99,22 @@ export const getUserByEmail = async (email: string) => {
  * Creates a new user in the database.
  * @param {CreateUserDto} userData - The data for the new user.
  */
-export const createUser = async (
-  userData: CreateUserDto
-): Promise<IUserWithoutPassword> => {
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
-
+export const createUser = async (userData: CreateUserDto) => {
+  const hashedPassword = await bcrypt.hash(userData.password ?? "", 10);
+  const userExists = await getUserByEmail(userData.email);
+  if (userExists) {
+    throw new BaseError(
+      ErrorMessage.USER_ALREADY_EXISTS,
+      HttpStatusCode.BadRequest
+    );
+  }
   const user = await User.create({
     ...userData,
     password: hashedPassword,
   });
 
-  logger.info(`User with email ${userData.email} created successfully.`);
-
   const { password, ...userWithoutPassword } = user.toJSON();
-  return userWithoutPassword as IUserWithoutPassword;
+  return userWithoutPassword;
 };
 
 /**
@@ -80,7 +124,8 @@ export const createUser = async (
  */
 export const updateUserById = async (userId: number, updatedData: any) => {
   const user = await User.findByPk(userId);
-  if (!user) throw new BaseError("User not found", 404);
+  if (!user)
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   await user.update(updatedData);
   return user;
 };
@@ -90,43 +135,26 @@ export const updateUserById = async (userId: number, updatedData: any) => {
  * @param {number} email - The ID of the user to delete.
  */
 export const validateCredentials = async (email: string, password: string) => {
-  const user: IUser = (await User.findOne({
+  const user = await User.findOne({
     where: { email },
-  })) as unknown as IUser;
+  });
 
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid) throw new BaseError("Invalid credentials", 401);
+  if (!user)
+    throw new BaseError(
+      ErrorMessage.INVALID_CREDENTIALS,
+      HttpStatusCode.Unauthorized
+    );
 
-  user.password = undefined;
+  const isValid = await bcrypt.compare(password, user.password || "");
+  if (!isValid)
+    throw new BaseError(
+      ErrorMessage.INVALID_CREDENTIALS,
+      HttpStatusCode.Unauthorized
+    );
+
+  user.password = "";
 
   return user;
-};
-
-/**
- * Saves an image to the specified directory after sanitizing the filename.
- *
- * @param imageBuffer The image data to be saved as a Buffer.
- * @param filename The name of the file to be saved.
- * @returns An object containing the sanitized filename and the full path where the image is saved.
- */
-export const saveImage = async (
-  imageBuffer: Buffer,
-  filename: string,
-  user_id: number
-) => {
-  const sanitizedFilename = filename.replace(/[^\w.-]/g, "_");
-  console.log(user_id);
-  const userExists = await User.findByPk(user_id);
-  if (!userExists) {
-    throw new BaseError("User does not exist", HttpStatus.BAD_REQUEST);
-  }
-
-  const userImage = await UserImage.create({
-    user_id: user_id,
-    image: imageBuffer,
-    filename: sanitizedFilename,
-  });
-  return { id: userImage.dataValues.id, filename: sanitizedFilename };
 };
 
 /**
@@ -137,17 +165,59 @@ export const saveImage = async (
  */
 export const deleteUser = async (userId: number) => {
   const user = await User.findByPk(userId);
-  if (!user) throw new BaseError("User not found", 404);
+  if (!user)
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
   await user.destroy();
   return user;
 };
 
-export const getUserByRefreshToken = async (refreshToken: string) => {
-  const user = (await User.findOne({
-    where: {
-      refreshToken,
-    },
-  })) as unknown as IUserWithoutPassword;
+//This is new
+/**
+ * Retrieves the recognition number of a user based on the provided user ID.
+ *
+ * @param {number} userId - The ID of the user to retrieve the recognition number for.
+ * @throws {BaseError} When the user is not found.
+ */
 
+export const getUserRecognitionNumber = async (userId: number) => {
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const mentionCount = await User.findOne({
+    where: {
+      id: userId,
+    },
+    attributes: ["mentionCount"],
+  });
+  return mentionCount;
+};
+
+//This is new
+/**
+ * Asynchronously retrieves the number of posts for a specific user.
+ *
+ * @param {number} userId - The unique identifier of the user.
+ * @throws {BaseError} When the user is not found.
+ */
+export const getNumberOfPostsForUser = async (userId: number) => {
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const postCount = await Post.count({
+    where: {
+      userId: userId,
+    },
+  });
+
+  return postCount;
+};
+
+export const updateUser = async (userId: number, userData: any) => {
+  const user = await User.findByPk(userId);
+  if (!user)
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  await user.update(userData);
   return user;
 };

@@ -1,4 +1,4 @@
-import { HttpStatus } from "../enums/http-Status.enum";
+import { HttpStatusCode } from "axios";
 
 /**
  * Represents a custom error class that extends the built-in Error class.
@@ -7,9 +7,9 @@ import { HttpStatus } from "../enums/http-Status.enum";
  */
 export class BaseError extends Error {
   public response: string;
-  public status: HttpStatus;
+  public status: HttpStatusCode;
 
-  constructor(response: string, status: HttpStatus) {
+  constructor(response: string, status: HttpStatusCode) {
     {
       super(response);
       this.response = response;

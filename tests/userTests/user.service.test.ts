@@ -7,6 +7,7 @@ import {
 } from "../../src/modules/users/users.service";
 import * as userRepository from "../../src/modules/users/users.repository";
 import { BaseError } from "../../src/shared/exceptions/base.error";
+import { UserRole } from "../../src/shared/enums/user-Role.enum";
 
 jest.mock("../../src/modules/users/users.repository");
 
@@ -100,6 +101,8 @@ describe("User Service", () => {
         password: "password123",
         firstName: "John",
         lastName: "Doe",
+        role: UserRole.User,
+        profilePicture: "",
       };
       const mockUser = { email: "test@example.com" };
 
@@ -117,6 +120,8 @@ describe("User Service", () => {
         password: "password123",
         firstName: "John",
         lastName: "Doe",
+        role: UserRole.User,
+        profilePicture: "",
       };
       (userRepository.createUser as jest.Mock).mockRejectedValue(
         new Error("Repository error")

@@ -3,24 +3,19 @@ import { routesLoader } from "./loaders/routes.loaders";
 import logger from "./shared/util/logger";
 import { errorHandlerMiddleware } from "./shared/middleware/error-Handler.middleware";
 import { sequelizeErrorHandlerMiddleware } from "./shared/middleware/Sequelize-Error-Handler.middleware";
-import swaggerUI from "swagger-ui-express";
-import swaggerSpec from "./config/swagger";
 import { middlewareLoader } from "./loaders/middleware.loaders";
-import { sendEmail } from "./shared/util/send-email";
 
 /**
  * Starts the server and listens for incoming requests.
  *
- * @returns {Promise<void>} A promise that resolves when the server is started.
+ * @returns  A promise that resolves when the server is started.
  */
 const startServer = async () => {
   const app = express();
-  const port = process.env.PORT;
+  const port = process.env.PORT || 3000;
 
   middlewareLoader(app);
   routesLoader(app);
-
-  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
   app.use(sequelizeErrorHandlerMiddleware);
   app.use(errorHandlerMiddleware);

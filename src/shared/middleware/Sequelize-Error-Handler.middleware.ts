@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { ValidationError, DatabaseError } from "sequelize";
-import { HttpStatus } from "../enums/http-Status.enum";
+import { HttpStatusCode } from "axios";
 import logger from "../util/logger";
+import { ErrorMessage } from "../enums/constants/error-message.enum";
 
 /**
  * Middleware to handle Sequelize errors in the Express application.
@@ -24,8 +25,8 @@ export const sequelizeErrorHandlerMiddleware = (
   if (err instanceof ValidationError) {
     // Handle Sequelize validation errors
     logger.error(`Sequelize Validation Error: ${err.message}`);
-    return res.status(HttpStatus.BAD_REQUEST).json({
-      status: HttpStatus.BAD_REQUEST,
+    return res.status(HttpStatusCode.BadRequest).json({
+      status: HttpStatusCode.BadRequest,
       message: err.message,
       errors: err.errors.map((error) => ({
         path: error.path,
@@ -35,9 +36,9 @@ export const sequelizeErrorHandlerMiddleware = (
   } else if (err instanceof DatabaseError) {
     // Handle Sequelize database errors
     logger.error(`Sequelize Database Error: ${err.message}`);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: "Database error occurred",
+    return res.status(HttpStatusCode.InternalServerError).json({
+      status: HttpStatusCode.InternalServerError,
+      message: ErrorMessage.DATABASE_ERROR_OCCURRED,
     });
   } else {
     // Pass the error to the next error handler if it's not a Sequelize error
