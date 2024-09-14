@@ -92,6 +92,14 @@ const swaggerDefinition = {
             format: "link",
             description: "Image file to upload",
           },
+          like: {
+            type: "integer",
+            example: 1,
+          },
+          pinnedPost: {
+            type: "boolean",
+            example: false,
+          },
           mentionedUsers: {
             type: "array",
             items: {

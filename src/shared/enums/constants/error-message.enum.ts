@@ -43,4 +43,5 @@ export enum ErrorMessage {
   IMAGE_URL_NOT_FOUND = "Image URL not found",
   USER_ALREADY_VOTED = "User has already voted for this nomination",
   NOMINATION_POST_NOT_FOUND = "Nomination post not found",
+  POST_NOT_PINNED = "Post not pinned",
 }

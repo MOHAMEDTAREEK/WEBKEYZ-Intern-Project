@@ -77,6 +77,7 @@ export const createPost = async (
       userId: userId,
       like: 0,
       mentionedUser: [],
+      pinnedPost: false,
       hashtag: validHashtags ?? [],
     },
     { transaction }
@@ -236,4 +237,49 @@ export const createMention = async (
     { transaction }
   );
   return mention;
+};
+
+/**
+ * Updates the pinned post by changing the currently pinned post to unpinned and pinning a new post.
+ * Throws an error if the post with the given ID is not found.
+ *
+ * @param id - The ID of the post to be pinned.
+ * @returns The updated post that is now pinned.
+ */
+export const pinPost = async (id: number) => {
+  const post = await Post.findByPk(id);
+  if (!post) {
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  // Unpin the currently pinned post (only one post is pinned)
+  await Post.update({ pinnedPost: false }, { where: { pinnedPost: true } });
+
+  //pin the new post.
+  await Post.update({ pinnedPost: true }, { where: { id: id } });
+
+  await post.save();
+  return await Post.findByPk(id);
+};
+
+/**
+ * Asynchronously unpins a post by updating its pinned status to false.
+ *
+ * @param {number} id - The ID of the post to be unpinned.
+ * @returns {Promise<Post>} - A promise that resolves to the updated post without pinning.
+ * @throws {BaseError} - If the post with the given ID is not found or if the post is not currently pinned.
+ */
+export const unPinPost = async (id: number) => {
+  const post = await Post.findByPk(id);
+  if (!post) {
+    throw new BaseError(ErrorMessage.POST_NOT_FOUND, HttpStatusCode.NotFound);
+  }
+  const isPinned = post.pinnedPost;
+  if (!isPinned) {
+    throw new BaseError(
+      ErrorMessage.POST_NOT_PINNED,
+      HttpStatusCode.BadRequest
+    );
+  }
+  await Post.update({ pinnedPost: false }, { where: { id: id } });
+  return await Post.findByPk(id);
 };

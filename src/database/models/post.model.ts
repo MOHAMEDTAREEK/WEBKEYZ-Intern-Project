@@ -15,6 +15,7 @@ class Post
   public image?: string[];
   public userId!: number;
   public like!: number;
+  public pinnedPost!: boolean;
   public hashtag!: Json | string[];
   public mentionedUser!: Json;
   public createdAt!: Date;
@@ -45,6 +46,12 @@ Post.init(
       },
       field: "user_id",
       onDelete: "CASCADE",
+    },
+    pinnedPost: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: "pinned_post",
     },
     like: {
       type: DataTypes.INTEGER,

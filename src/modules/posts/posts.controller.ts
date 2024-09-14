@@ -281,3 +281,50 @@ export const getPostImagesUrl = async (req: Request, res: Response) => {
 
   return uploadedImageUrls;
 };
+
+/**
+ * Asynchronously pins a post identified by the provided ID.
+ *
+ * @param {Request} req - The request object containing the post ID in the parameters.
+ * @param {Response} res - The response object to send the pinned post information.
+ * @throws {BaseError} If the post cannot be pinned, an internal server error is thrown.
+ */
+export const pinPost = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const post = await postService.pinPost(id);
+  if (!post) {
+    throw new BaseError(
+      ErrorMessage.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.InternalServerError
+    );
+  }
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.PIN_POST_SUCCESS,
+    post
+  );
+  return res.send(response);
+};
+
+/**
+ * Asynchronously unpins a post by its ID.
+ *
+ * @param {Request} req - The request object containing the post ID in the parameters.
+ * @param {Response} res - The response object to send the result.
+ */
+export const unPinPost = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const post = await postService.unPinPost(id);
+  if (!post) {
+    throw new BaseError(
+      ErrorMessage.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.InternalServerError
+    );
+  }
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.UNPIN_POST_SUCCESS,
+    post
+  );
+  return res.send(response);
+};

@@ -19,6 +19,7 @@ export interface PostAttributes {
   userId: number;
   like: number;
   mentionedUser: Json | Array<User>;
+  pinnedPost: boolean;
   hashtag: Json | string[];
   createdAt?: Date;
   updatedAt?: Date;

@@ -6,7 +6,9 @@ import {
   getPostById,
   getPosts,
   partiallyUpdatePost,
+  pinPost,
   uploadPostPhoto,
+  unPinPost,
 } from "./posts.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
 import { fullyUpdatePostSchema } from "./schemas/fullyUpdatePost.schema";
@@ -314,5 +316,65 @@ router.post(
   resizeImage,
   asyncWrapper(uploadPostPhoto)
 );
+
+/**
+ * @swagger
+ * /posts/{id}/pin:
+ *   post:
+ *     summary: Pin a post
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the post to be pinned
+ *     responses:
+ *       200:
+ *         description: Successfully pinned the post
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/postSchema'
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post("/:id/pin", asyncWrapper(pinPost));
+
+/**
+ * @swagger
+ * /posts/{id}/unpin:
+ *   post:
+ *     summary: Unpin a post
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the post to be unpinned
+ *     responses:
+ *       200:
+ *         description: Successfully unpinned the post
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/postSchema'
+ *       404:
+ *         description: Post not found
+ *       400:
+ *         description: Post is not currently pinned
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post("/:id/unpin", asyncWrapper(unPinPost));
 
 export default router;

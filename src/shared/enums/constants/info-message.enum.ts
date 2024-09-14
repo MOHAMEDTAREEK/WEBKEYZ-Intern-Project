@@ -27,4 +27,6 @@ export enum SuccessMessage {
   NOMINATION_SUBMITTED_SUCCESSFULLY = "Nomination submitted successfully",
   WINNER_DATA_RETRIEVAL_SUCCESS = "Winner data retrieval successful",
   NOMINATIONS_RETRIEVED_SUCCESSFULLY = "Nominations retrieved successfully",
+  PIN_POST_SUCCESS = "Post pinned successfully",
+  UNPIN_POST_SUCCESS = "Post unpinned successfully",
 }

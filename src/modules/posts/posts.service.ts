@@ -209,3 +209,25 @@ export const deleteUploadedImages = async (
 
   await Promise.all(deletePromises);
 };
+
+/**
+ * Asynchronously pins a post identified by the given ID.
+ *
+ * @param {number} id - The ID of the post to be pinned.
+ * @returns {Promise<PostDto>} The pinned post.
+ */
+export const pinPost = async (id: number) => {
+  const post = await postRepository.pinPost(id);
+  return post;
+};
+
+/**
+ * Asynchronously unpins a post by its ID.
+ *
+ * @param id - The ID of the post to be unpinned.
+ * @returns A promise that resolves with the unpinned post.
+ */
+export const unPinPost = async (id: number) => {
+  const post = await postRepository.unPinPost(id);
+  return post;
+};
