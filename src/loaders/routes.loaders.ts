@@ -3,6 +3,7 @@ import usersRouter from "../modules/users/users.route";
 import authRouter from "../modules/auth/auth.route";
 import postRouter from "../modules/posts/posts.route";
 import commentsRouter from "../modules/comments/comments.route";
+import nominationRouter from "../modules/nomination/nomination.route";
 
 /**
  * Loads routes for the Express application.
@@ -15,4 +16,5 @@ export const routesLoader = async (app: Application) => {
   app.use("/auth", authRouter);
   app.use("/posts", postRouter);
   app.use("/comments", commentsRouter);
+  app.use("/nominations", nominationRouter);
 };

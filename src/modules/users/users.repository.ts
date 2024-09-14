@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { HttpStatusCode } from "axios";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import Post from "../../database/models/post.model";
 
@@ -207,4 +207,14 @@ export const getNumberOfPostsForUser = async (userId: number) => {
   });
 
   return postCount;
+};
+
+export const updateUser = async (userId: number, userData: any) => {
+  const user = await User.findByPk(userId);
+  console.log("userData", userData);
+  console.log("user", user);
+  if (!user)
+    throw new BaseError(ErrorMessage.USER_NOT_FOUND, HttpStatusCode.NotFound);
+  await user.update(userData);
+  return user;
 };

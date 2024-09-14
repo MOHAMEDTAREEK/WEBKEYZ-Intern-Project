@@ -124,3 +124,8 @@ export const getNumberOfPostsForUser = async (userId: number) => {
   const numberOfPosts = await userRepository.getNumberOfPostsForUser(userId);
   return numberOfPosts;
 };
+
+export const updateUser = async (userId: number, userData: any) => {
+  const updatedUser = await userRepository.updateUser(userId, userData);
+  return updatedUser;
+};

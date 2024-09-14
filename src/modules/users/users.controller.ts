@@ -246,3 +246,15 @@ export const getNumberOfPostsForUser = async (req: Request, res: Response) => {
   );
   res.send(response);
 };
+
+export const updateUser = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.id);
+  console.log(userId);
+  const user = await userService.updateUser(userId, req.body);
+  const response: IResponse = createResponse(
+    HttpStatusCode.Ok,
+    SuccessMessage.USER_UPDATED_SUCCESS,
+    user
+  );
+  res.send(response);
+};

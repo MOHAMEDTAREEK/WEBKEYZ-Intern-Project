@@ -8,6 +8,7 @@ import {
   getUsers,
   getUsersByMentionCount,
   searchUsers,
+  updateUser,
 } from "./users.controller";
 import { createUser } from "./users.controller";
 import { validationMiddleware } from "../../shared/middleware/validation.middleware";
@@ -21,7 +22,7 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Users
- *   description: User management API
+ *   description: User Management API
  */
 
 /**
@@ -341,5 +342,7 @@ router.delete(
   validationMiddleware(idCheckingSchema),
   asyncWrapper(deleteUser)
 );
+
+router.put("/:id", asyncWrapper(updateUser));
 
 export default router;

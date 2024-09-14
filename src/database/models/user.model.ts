@@ -4,6 +4,7 @@ import {
   UserAttributes,
   UserCreationAttributes,
 } from "./interfaces/user.interface";
+import Post from "./post.model";
 class User
   extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes
@@ -101,5 +102,4 @@ User.init(
     timestamps: true,
   }
 );
-
 export default User;
