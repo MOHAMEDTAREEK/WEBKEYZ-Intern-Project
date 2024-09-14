@@ -105,23 +105,22 @@ const swaggerDefinition = {
                   type: "string",
                   example: "user@example.com",
                 },
-                name: {
+                firstName: {
                   type: "string",
-                  example: "John Doe",
+                  example: "John ",
+                },
+                lastName: {
+                  type: "string",
+                  example: "Doe",
                 },
                 role: {
                   type: "string",
                   example: "user",
                 },
-                createdAt: {
+                profilePicture: {
                   type: "string",
-                  format: "date-time",
-                  example: "2024-08-26T12:00:00Z",
-                },
-                updatedAt: {
-                  type: "string",
-                  format: "date-time",
-                  example: "2024-08-26T12:00:00Z",
+                  format: "link",
+                  description: "example.com/image.jpg",
                 },
               },
             },
@@ -190,16 +189,6 @@ const swaggerDefinition = {
             format: "link",
             description: "Image file to upload",
           },
-          createdAt: {
-            type: "string",
-            format: "date-time",
-            example: "2024-08-26T12:00:00Z",
-          },
-          updatedAt: {
-            type: "string",
-            format: "date-time",
-            example: "2024-08-26T12:00:00Z",
-          },
           mentionCount: {
             type: "integer",
             example: 1,
@@ -232,6 +221,156 @@ const swaggerDefinition = {
           lastName: {
             type: "string",
             example: "Doe",
+          },
+        },
+      },
+      NominationSchema: {
+        type: "object",
+        properties: {
+          id: {
+            type: "integer",
+            example: 1,
+          },
+          nominationType: {
+            type: "enum",
+            example: "BestEmployee",
+          },
+          photoUrl: {
+            type: "string",
+            format: "link",
+            description: "https://example.com/photos/best_employee.jpg",
+          },
+          description: {
+            type: "string",
+            example: "Best Employee of the month",
+          },
+          lastNominationDay: {
+            type: "string",
+            format: "date",
+            example: "2023-06-10",
+          },
+          winnerAnnouncementDate: {
+            type: "string",
+            format: "date",
+            example: "2023-06-15",
+          },
+        },
+      },
+      CreateNominationSchema: {
+        type: "object",
+        required: [
+          "nominationType",
+          "photoUrl",
+          "description",
+          "lastNominationDay",
+          "winnerAnnouncementDate",
+        ],
+        properties: {
+          nominationType: {
+            type: "enum",
+            example: "BestEmployee",
+          },
+          description: {
+            type: "string",
+            example: "Best Employee of the month",
+          },
+          lastNominationDay: {
+            type: "string",
+            format: "date",
+            example: "2023-06-10",
+          },
+          winnerAnnouncementDate: {
+            type: "string",
+            format: "date",
+            example: "2023-06-15",
+          },
+        },
+      },
+      VoteForUserSchema: {
+        type: "object",
+        required: ["userId", "nominatedUserId", "nominationId"],
+        properties: {
+          userId: {
+            type: "integer",
+            example: 1,
+          },
+          nominatedUserId: {
+            type: "integer",
+            example: 2,
+          },
+          nominationId: {
+            type: "integer",
+            example: 1,
+          },
+        },
+      },
+      createdVoteForUser: {
+        type: "object",
+        properties: {
+          id: {
+            type: "integer",
+            example: 1,
+          },
+          userId: {
+            type: "integer",
+            example: 1,
+          },
+          nominatedUserId: {
+            type: "integer",
+            example: 2,
+          },
+          nominationId: {
+            type: "integer",
+            example: 1,
+          },
+          createdAt: {
+            type: "string",
+            format: "date-time",
+            example: "2023-06-10T12:00:00.000Z",
+          },
+          updatedAt: {
+            type: "string",
+            format: "date-time",
+            example: "2023-06-10T12:00:00.000Z",
+          },
+        },
+      },
+      TopNominatedUserSchema: {
+        type: "object",
+        properties: {
+          nominatedUserId: {
+            type: "integer",
+            example: 1,
+          },
+          nominationCount: {
+            type: "integer",
+            example: 1,
+          },
+          User: {
+            type: "object",
+            properties: {
+              id: {
+                type: "integer",
+                example: 1,
+              },
+              email: {
+                type: "string",
+                example: "user@example.com",
+              },
+              firstName: {
+                type: "string",
+                example: "John",
+              },
+              lastName: {
+                type: "string",
+                example: "Doe",
+              },
+              profilePicture: {
+                type: "string",
+                format: "link",
+                description: "https://example.com/photos/profile.jpg",
+              },
+            },
           },
         },
       },

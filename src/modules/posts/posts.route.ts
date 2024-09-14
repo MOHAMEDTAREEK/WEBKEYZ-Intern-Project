@@ -17,6 +17,12 @@ import asyncWrapper from "../../shared/util/async-wrapper";
 import { createPostSchema } from "./schemas/createPost.schema";
 
 const router = Router();
+/**
+ * @swagger
+ * tags:
+ *   name: Posts
+ *   description: Posts Management API
+ */
 
 /**
  * @swagger

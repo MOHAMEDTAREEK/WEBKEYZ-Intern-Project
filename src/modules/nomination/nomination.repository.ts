@@ -35,6 +35,13 @@ export const voteForUser = async (
   nominatedUserId: number,
   nominationId: number
 ) => {
+  const existingNomination = await Nomination.findByPk(nominationId);
+  if (!existingNomination) {
+    throw new BaseError(
+      ErrorMessage.NOMINATION_POST_NOT_FOUND,
+      HttpStatusCode.BadRequest
+    );
+  }
   const existingVote = await NominationVote.findOne({
     where: { userId, nominationId },
   });

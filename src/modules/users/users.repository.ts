@@ -3,23 +3,17 @@ import bcrypt from "bcrypt";
 import { BaseError } from "../../shared/exceptions/base.error";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { HttpStatusCode } from "axios";
-import { Op, where } from "sequelize";
+import { Op } from "sequelize";
 import { ErrorMessage } from "../../shared/enums/constants/error-message.enum";
 import Post from "../../database/models/post.model";
+import { USER_ATTRIBUTES } from "../../shared/types/user-attributes";
 
 /**
  * Retrieves all users from the database.
  */
 export const getUsers = async () => {
   const users = await User.findAll({
-    attributes: [
-      "id",
-      "firstName",
-      "lastName",
-      "profilePicture",
-      "email",
-      "role",
-    ],
+    attributes: USER_ATTRIBUTES,
   });
 
   if (!users) {
@@ -35,14 +29,7 @@ export const getUsers = async () => {
 export const getUsersByMentionCount = async (): Promise<User[]> => {
   const users = User.findAll({
     order: [["mentionCount", "DESC"]],
-    attributes: [
-      "id",
-      "firstName",
-      "lastName",
-      "profilePicture",
-      "email",
-      "role",
-    ],
+    attributes: USER_ATTRIBUTES,
   });
   return users;
 };
@@ -60,14 +47,7 @@ export const searchUsers = async (searchTerm: string) => {
         { lastName: { [Op.like]: `%${searchTerm}%` } },
       ],
     },
-    attributes: [
-      "id",
-      "firstName",
-      "lastName",
-      "profilePicture",
-      "email",
-      "role",
-    ],
+    attributes: USER_ATTRIBUTES,
   });
   return users;
 };
@@ -78,14 +58,7 @@ export const searchUsers = async (searchTerm: string) => {
  */
 export const getUserById = async (userId: number) => {
   const user = await User.findByPk(userId, {
-    attributes: [
-      "id",
-      "firstName",
-      "lastName",
-      "profilePicture",
-      "email",
-      "role",
-    ],
+    attributes: USER_ATTRIBUTES,
   });
 
   return user;
@@ -104,14 +77,7 @@ export const findUserByName = async (
 ): Promise<User | null> => {
   const user = await User.findOne({
     where: { firstName: firstName, lastName: lastName },
-    attributes: [
-      "id",
-      "firstName",
-      "lastName",
-      "profilePicture",
-      "email",
-      "role",
-    ],
+    attributes: USER_ATTRIBUTES,
   });
   return user;
 };
@@ -123,14 +89,7 @@ export const findUserByName = async (
 export const getUserByEmail = async (email: string) => {
   const user = await User.findOne({
     where: { email },
-    attributes: [
-      "id",
-      "firstName",
-      "lastName",
-      "profilePicture",
-      "email",
-      "role",
-    ],
+    attributes: USER_ATTRIBUTES,
   });
 
   return user;

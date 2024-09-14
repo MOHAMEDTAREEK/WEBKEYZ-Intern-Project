@@ -41,5 +41,6 @@ export enum ErrorMessage {
   SOMETHING_WENT_WRONG = "Something went wrong",
   DATABASE_ERROR_OCCURRED = "Database error occurred",
   IMAGE_URL_NOT_FOUND = "Image URL not found",
-  USER_ALREADY_VOTED = "User has already voted for this nomination"
+  USER_ALREADY_VOTED = "User has already voted for this nomination",
+  NOMINATION_POST_NOT_FOUND = "Nomination post not found",
 }

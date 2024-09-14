@@ -17,6 +17,12 @@ const router = Router();
 
 /**
  * @swagger
+ * tags:
+ *   name: Comments
+ *   description: Comments Management API
+ */
+/**
+ * @swagger
  * /comments:
  *   get:
  *     summary: Retrieve all comments
