@@ -12,11 +12,8 @@ This project was developed during my internship at Webkeyz. It focuses on buildi
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [API Endpoints](#api-endpoints)
 - [Database Schema](#database-schema)
 - [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Project Purpose
 
@@ -73,23 +70,14 @@ The purpose of this project is to provide an efficient backend infrastructure th
 
 5. **Start the server**:
    ```bash
-   npm run dev
+   npm start:dev
    ```
 
 ## Usage
 
 - The backend server will run on `http://localhost:3000`.
 - You can use tools like Postman or Curl to interact with the API endpoints.
-
-## API Endpoints
-
-| Endpoint              | Method | Description                       | Authentication |
-|-----------------------|--------|-----------------------------------|----------------|
-| `/api/auth/register`   | POST   | Register a new user               | No             |
-| `/api/auth/login`      | POST   | Login and get access/refresh token| No             |
-| `/api/user/profile`    | GET    | Get user profile                  | Yes            |
-| `/api/user/mention`    | POST   | Mention another user              | Yes            |
-
+- 
 ## Database Schema
 
 The project uses **MySQL** with Sequelize for database management. The core tables are:
@@ -103,13 +91,5 @@ This project uses **Jest** for unit and integration tests.
 
 - Run tests:
   ```bash
-  npm run test
+  npm test
   ```
-
-## Contributing
-
-Feel free to fork this repository and create a pull request for any enhancements, bug fixes, or new features.
-
-## License
-
-This project is licensed under the MIT License.
