@@ -1,0 +1,1168 @@
+{
+	"info": {
+		"_postman_id": "35ba0bfa-a484-4e2b-b7a8-91c78ebf229a",
+		"name": "Webkeyz-Intern-Apis",
+		"description": "This is THE Documintation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33455836",
+		"_collection_link": "https://webkeyz-socity.postman.co/workspace/WebKeyz-Socity-Workspace~19a4a12a-050f-48fc-8c19-019cb3e90913/collection/33455836-35ba0bfa-a484-4e2b-b7a8-91c78ebf229a?action=share&source=collection_link&creator=33455836"
+	},
+	"item": [
+		{
+			"name": "WebKeyz Intern",
+			"item": [
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Get a List of Users",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/user/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"user",
+										""
+									]
+								},
+								"description": "## Get Users\n\nThis endpoint makes an HTTP GET request to retrieve a list of users.\n\n### Request Body\n\nThis request does not require a request body.\n\n### Response Body\n\n- `id`: The unique identifier for the user.\n    \n- `name`: The name of the user.\n    \n- `email`: The email address of the user.\n    \n- `role`: The role of the user in the system."
+							},
+							"response": []
+						},
+						{
+							"name": "Get a User By Id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/user/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"user",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								},
+								"description": "This endpoint sends an HTTP GET request to retrieve user details based on the provided user ID.\n\n### Request\n\n- The request does not contain a request body.\n    \n- The user ID is specified as a path parameter in the request URL.\n    \n\n### Response\n\nUpon a successful request, the server responds with a status code of 200 and a JSON object containing the user details including ID, first name, last name, email, profile picture, refresh token, reset token, role, creation and update timestamps, and Google ID.\n\nExample Response:\n\n``` json\n{\n    \"id\": 0,\n    \"firstName\": null,\n    \"lastName\": null,\n    \"email\": \"\",\n    \"profilePicture\": null,\n    \"refreshToken\": null,\n    \"resetToken\": null,\n    \"role\": \"\",\n    \"createdAt\": \"\",\n    \"updatedAt\": \"\",\n    \"googleId\": null,\n    \"UserImage\": null\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Get a User By Email",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/user/email?email=user@example.com",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"email"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "user@example.com"
+										}
+									]
+								},
+								"description": "### GET /users/email\n\nThis endpoint retrieves user information based on the provided email.\n\n#### Request\n\n- Method: GET\n    \n- URL: `http://localhost:{{portNumber}}/users/email`\n    \n- Headers:\n    \n    - Content-Type: application/json\n        \n- { \"email\": \"\"}\n    \n\n#### Response\n\nThe response is in JSON format and follows the schema below:\n\n``` json\n {\n    \"id\": {\n      \"type\": \"integer\"\n    },\n    \"firstName\": {\n      \"type\": [\"string\", \"null\"]\n    },\n    \"lastName\": {\n      \"type\": [\"string\", \"null\"]\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"password\": {\n      \"type\": \"string\"\n    },\n    \"profilePicture\": {\n      \"type\": [\"string\", \"null\"]\n    },\n    \"refreshToken\": {\n      \"type\": \"string\"\n    },\n    \"resetToken\": {\n      \"type\": \"string\"\n    },\n    \"role\": {\n      \"type\": \"string\"\n    },\n    \"createdAt\": {\n      \"type\": \"string\"\n    },\n    \"updatedAt\": {\n      \"type\": \"string\"\n    },\n    \"googleId\": {\n      \"type\": [\"string\", \"null\"]\n    }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Get The leader Board of the users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/user/leader-board",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"leader-board"
+									]
+								},
+								"description": "# Get Leaderboard Users\n\nThis endpoint retrieves the leaderboard users' information.\n\n## Request\n\n### Request URL\n\n- `GET` {{API_BASE_URL}}/users/leader-board\n    \n\n## Response\n\n- Status: 200 OK\n    \n- Content-Type: application/json\n    \n\n### Response Body\n\nThe response will contain an array of user objects, each including the following fields:\n\n- `id` (number): The unique identifier of the user.\n    \n- `firstName` (string): The first name of the user.\n    \n- `lastName` (string): The last name of the user.\n    \n- `email` (string): The email address of the user.\n    \n- `password` (string): The password of the user.\n    \n- `profilePicture` (string): The URL of the user's profile picture.\n    \n- `refreshToken` (string): The refresh token for the user's authentication.\n    \n- `resetToken` (string): The reset token for the user's authentication.\n    \n- `role` (string): The role of the user.\n    \n- `createdAt` (string): The timestamp of when the user was created.\n    \n- `updatedAt` (string): The timestamp of when the user was last updated.\n    \n- `googleId` (string): The Google ID of the user, if available.\n    \n- `mentionCount` (number): The count of mentions associated with the user.\n    \n\n``` json\n{\n  \"internalStatusCode\": 0,\n  \"message\": \"\",\n  \"data\": [\n    {\n      \"id\": 0,\n      \"firstName\": \"\",\n      \"lastName\": \"\",\n      \"email\": \"\",\n      \"password\": \"\",\n      \"profilePicture\": \"\",\n      \"refreshToken\": null,\n      \"resetToken\": null,\n      \"role\": \"\",\n      \"createdAt\": \"\",\n      \"updatedAt\": \"\",\n      \"googleId\": null,\n      \"mentionCount\": 0\n    }\n  ]\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Get list of User by search query",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/user/search?searchTerm=J",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"search"
+									],
+									"query": [
+										{
+											"key": "searchTerm",
+											"value": "J"
+										}
+									]
+								},
+								"description": "### GET /users/search\n\nThis endpoint retrieves a list of users based on the search term provided.\n\n#### Request\n\n- Parameters\n    \n    - searchTerm (string, required): The search term to filter users.\n        \n\n#### Response\n\nThe response is in JSON format and follows the schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"internalStatusCode\": {\n      \"type\": \"number\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    },\n    \"data\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n            \"type\": \"number\"\n          },\n          \"firstName\": {\n            \"type\": \"string\"\n          },\n          \"lastName\": {\n            \"type\": \"string\"\n          },\n          \"email\": {\n            \"type\": \"string\"\n          },\n          \"password\": {\n            \"type\": \"string\"\n          },\n          \"profilePicture\": {\n            \"type\": [\"string\", \"null\"]\n          },\n          \"refreshToken\": {\n            \"type\": [\"string\", \"null\"]\n          },\n          \"resetToken\": {\n            \"type\": [\"string\", \"null\"]\n          },\n          \"role\": {\n            \"type\": \"string\"\n          },\n          \"createdAt\": {\n            \"type\": \"string\"\n          },\n          \"updatedAt\": {\n            \"type\": \"string\"\n          },\n          \"googleId\": {\n            \"type\": [\"string\", \"null\"]\n          },\n          \"mentionCount\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    }\n  }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete a User By Id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/user/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"user",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "18"
+										}
+									]
+								},
+								"description": "### Delete User\n\nThis endpoint is used to delete a user by their ID.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\n- `success`: A boolean indicating whether the deletion was successful.\n    \n- `message`: A string providing information about the deletion status."
+							},
+							"response": []
+						},
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"user14@example.com\",\r\n    \"password\": \"password123\",\r\n    \"firstName\": \"mohamed\",\r\n    \"lastName\": \"tarek\",\r\n    \"profilePicture\": \"example.com/image.jpg\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/user/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"user",
+										""
+									]
+								},
+								"description": "### Create New User\n\nThis API endpoint is used to create a new user.\n\n#### Request Body\n\n- **email**: (string) The email address of the user.\n    \n- **password**: (string) The password for the user account.\n    \n- **firstName**: (string) The first name of the user.\n    \n- **lastName**: (string) The last name of the user.\n    \n\n#### Response\n\nThe response will contain the details of the newly created user.\n\n#### Headers\n\n- Content-Type: application/json\n    \n\n#### API Endpoint\n\n`POST http://localhost:{{portNumber}}/users/`"
+							},
+							"response": []
+						},
+						{
+							"name": "New Request",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"profilePicture\": \"example.com/image.jpg\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/users/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"users",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "User Cruds"
+				},
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "Signup using Google Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"idToken\": \"string\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/auth/signup/access-token",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"auth",
+										"signup",
+										"access-token"
+									]
+								},
+								"description": "### Auth Signup Access Token\n\nThis endpoint is used to sign up and obtain an access token.\n\n#### Request\n\n- Method: POST\n    \n- Endpoint: `http://localhost:{{portNumber}}/auth/signup/access-token`\n    \n- Body:\n    \n    - idToken (string, required): The ID token for authentication.\n        \n\n#### Response\n\nThe response for this request is a JSON object with the following schema:\n\n``` json\n{\n  \"user\": object\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Login Using Refresh Token",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/login/refresh-token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"login",
+										"refresh-token"
+									]
+								},
+								"description": "### Auth Refresh Token\n\nThis endpoint is used to refresh the authentication token.\n\n#### Request\n\n- Method: POST\n    \n- URL: `http://localhost:{{portNumber}}/auth/login/refresh-token`\n    \n- Body:\n    \n    - refreshToken (string, required): The refresh token used to generate a new authentication token.\n        \n\n#### Response\n\nThe response for this request is a JSON object with the following schema:\n\n``` json\n{\n  \"accessToken\": \"string\",\n  \"tokenType\": \"string\",\n  \"expiresIn\": \"integer\"\n}\n\n ```"
+							},
+							"response": []
+						}
+					],
+					"description": "signup and login using Tokens provided by the front-end"
+				},
+				{
+					"name": "Posts",
+					"item": [
+						{
+							"name": "Get All Posts",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										""
+									]
+								},
+								"description": "### Get Posts\n\nThis endpoint retrieves a list of posts.\n\n#### Request Body\n\nThis is a GET request and does not require a request body.\n\n#### Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\nExample response body:\n\n``` json\n{\n    \"internalStatusCode\": 0,\n    \"message\": \"\",\n    \"data\": [\n        {\n            \"id\": 0,\n            \"description\": \"\",\n            \"image\": null,\n            \"userId\": 0,\n            \"like\": 0,\n            \"createdAt\": \"\",\n            \"updatedAt\": \"\"\n        }\n    ]\n}\n\n ```\n\nThe response includes an array of posts, where each post object contains an ID, description, image, user ID, number of likes, creation timestamp, and update timestamp."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Post By id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "12"
+										}
+									]
+								},
+								"description": "### GET /posts/:id\n\nThis endpoint retrieves a specific post by its ID.\n\n#### Request\n\nNo request body is required for this endpoint.\n\n- `id` (path parameter) : The ID of the post to be retrieved.\n    \n\n#### Response\n\nThe response will be a JSON object with the following schema:\n\n``` json\n{\n    \"internalStatusCode\": number,\n    \"message\": string,\n    \"data\": {\n        \"id\": number,\n        \"description\": string,\n        \"image\": string,\n        \"userId\": number,\n        \"like\": number,\n        \"createdAt\": string,\n        \"updatedAt\": string\n    }\n}\n\n ```\n\n- `internalStatusCode` : The internal status code of the response.\n    \n- `message` : A message related to the response.\n    \n- `data` : An object containing the details of the retrieved post.\n    \n    - `id` : The ID of the post.\n        \n    - `description` : The description of the post.\n        \n    - `image` : The URL of the image associated with the post.\n        \n    - `userId` : The ID of the user who created the post.\n        \n    - `like` : The number of likes received by the post.\n        \n    - `createdAt` : The date and time when the post was created.\n        \n    - `updatedAt` : The date and time when the post was last updated."
+							},
+							"response": []
+						},
+						{
+							"name": "Create a Post",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "description",
+											"value": "This is a new post @mohamed tarek asdnasndkjnaskjdnkasjdnkjasndkjansjkdnaskjdnkjasndkjanskjdnaskjdnas",
+											"type": "text"
+										},
+										{
+											"key": "userId",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										""
+									]
+								},
+								"description": "### Add New Post\n\nThis endpoint allows you to add a new post.\n\n#### Request Body\n\n- `description` (string, optional): The description for the post.\n    \n- `userId` (integer, required): The ID of the user creating the post.\n    \n- `image` (string, optional): The image URL for the post.\n    \n\nExample:\n\n``` json\n{\n  \"description\": \"\",\n  \"userId\": 0,\n  \"image\": \"\"\n}\n\n ```\n\n#### Response\n\n- `internalStatusCode` (integer): The internal status code.\n    \n- `message` (string): Any additional message related to the response.\n    \n- `data` (object): The data object containing post details.\n    \n    - `post` (object): Details of the newly created post.\n        \n        - `createdAt` (string): The timestamp of post creation.\n            \n        - `updatedAt` (string): The timestamp of post update.\n            \n        - `like` (integer): The number of likes for the post.\n            \n        - `id` (integer): The ID of the post.\n            \n        - `description` (string): The description of the post.\n            \n        - `userId` (integer): The ID of the user who created the post.\n            \n        - `image` (string): The image URL for the post.\n            \n    - `mentionedUserNames` (array): An array of mentioned user names in the post.\n        \n\nExample:\n\n``` json\n{\n  \"internalStatusCode\": 0,\n  \"message\": \"\",\n  \"data\": {\n    \"post\": {\n      \"createdAt\": \"\",\n      \"updatedAt\": \"\",\n      \"like\": 0,\n      \"id\": 0,\n      \"description\": \"\",\n      \"userId\": 0,\n      \"image\": \"\"\n    },\n    \"mentionedUserNames\": []\n  }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Fully Update a Post",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"description\": \"Updated post description\",\r\n    \"image\": \"https://example.com/image.jpg\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "12"
+										}
+									]
+								},
+								"description": "### Update Post\n\n---\n\nThis endpoint allows the client to update a specific post by providing the post ID.\n\n#### Request\n\n- Method: PUT\n    \n- URL: {{API_BASE_URL}}/posts/:id\n    \n- Body:\n    \n    - description (string, optional): A brief description of the post.\n        \n    - image (string, optional): The URL of the image to be associated with the post.\n        \n\n#### Response\n\nThe response is in JSON format and follows the schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"internalStatusCode\": {\n      \"type\": \"number\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    },\n    \"data\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"id\": {\n          \"type\": \"number\"\n        },\n        \"description\": {\n          \"type\": \"string\"\n        },\n        \"image\": {\n          \"type\": \"string\"\n        },\n        \"userId\": {\n          \"type\": \"number\"\n        },\n        \"like\": {\n          \"type\": \"number\"\n        },\n        \"createdAt\": {\n          \"type\": \"string\"\n        },\n        \"updatedAt\": {\n          \"type\": \"string\"\n        }\n      }\n    }\n  }\n}\n\n ```\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\nThe response includes the updated post details with the specified post ID, including its description, image URL, user ID, like count, creation date, and last update date."
+							},
+							"response": []
+						},
+						{
+							"name": "Partially Update a Post",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"description\": \"string\",\r\n    \"image\": \"string\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "12"
+										}
+									]
+								},
+								"description": "### Update Post Details\n\nThis endpoint allows you to update the details of a specific post.\n\n#### Request Body\n\n- `description` (string, optional): The updated description for the post.\n    \n- `image` (string, optional): The updated image URL for the post.\n    \n\n#### Response\n\n- Status: 200 OK\n    \n- Content-Type: application/json\n    \n\nExample Response Body:\n\n``` json\n{\n    \"internalStatusCode\": 0,\n    \"message\": \"\",\n    \"data\": {\n        \"id\": 0,\n        \"description\": \"\",\n        \"image\": \"\",\n        \"userId\": 0,\n        \"like\": 0,\n        \"createdAt\": \"\",\n        \"updatedAt\": \"\"\n    }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete A Post",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "9"
+										}
+									]
+								},
+								"description": "### Delete Post by ID\n\nThis endpoint is used to delete a specific post by its ID.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response Body\n\nThe response will be a JSON object with the following schema:\n\n``` json\n{\n    \"internalStatusCode\": 0,\n    \"message\": \"\",\n    \"data\": {\n        \"id\": 0,\n        \"description\": \"\",\n        \"image\": null,\n        \"userId\": 0,\n        \"like\": 0,\n        \"createdAt\": \"\",\n        \"updatedAt\": \"\"\n    }\n}\n\n ```\n\n- `internalStatusCode` (number): Internal status code.\n    \n- `message` (string): Message related to the response.\n    \n- `data` (object): Object containing the details of the deleted post.\n    \n    - `id` (number): ID of the post.\n        \n    - `description` (string): Description of the post.\n        \n    - `image` (string or null): Image associated with the post, if any.\n        \n    - `userId` (number): ID of the user who created the post.\n        \n    - `like` (number): Number of likes on the post.\n        \n    - `createdAt` (string): Timestamp of post creation.\n        \n    - `updatedAt` (string): Timestamp of post update."
+							},
+							"response": []
+						},
+						{
+							"name": "upload a photo to post",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "postPhoto",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/upload/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										"upload",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "73"
+										}
+									]
+								},
+								"description": "### Upload Post Photo\n\nThis endpoint allows the user to upload a photo for a specific post.\n\n#### Request Body\n\n- **postPhoto** (file) - The photo to be uploaded.\n    \n\n#### Response\n\nUpon successful upload, the server returns a 200 status code along with a JSON response containing the following fields:\n\n- **internalStatusCode** - The internal status code of the response.\n    \n- **message** - A message related to the response.\n    \n- **data**\n    \n    - **id** - The ID of the uploaded photo.\n        \n    - **description** - Description of the photo.\n        \n    - **image** - An array containing the image details.\n        \n    - **userId** - The ID of the user who uploaded the photo.\n        \n    - **like** - The number of likes for the photo.\n        \n    - **createdAt** - The creation timestamp of the photo.\n        \n    - **updatedAt** - The update timestamp of the photo.\n        \n    - **mentionedUser** - An array containing details of mentioned users.\n        \n        - **id** - The ID of the mentioned user.\n            \n        - **role** - The role of the mentioned user.\n            \n        - **email** - The email address of the mentioned user.\n            \n        - **googleId** - The Google ID of the mentioned user.\n            \n        - **lastName** - The last name of the mentioned user.\n            \n        - **password** - The password of the mentioned user.\n            \n        - **createdAt** - The creation timestamp of the mentioned user.\n            \n        - **firstName** - The first name of the mentioned user.\n            \n        - **updatedAt** - The update timestamp of the mentioned user.\n            \n        - **resetToken** - The reset token of the mentioned user.\n            \n        - **mentionCount** - The count of mentions for the mentioned user.\n            \n        - **refreshToken** - The refresh token of the mentioned user.\n            \n        - **profilePicture** - The profile picture of the mentioned user."
+							},
+							"response": []
+						},
+						{
+							"name": "Pin a Post",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/:id/pin",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										":id",
+										"pin"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "13"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add like to post",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"userId\":1,\r\n    \"postId\": 15\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/post/like",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"post",
+										"like"
+									]
+								},
+								"description": "The API endpoint `{{API_BASE_URL}}/post/like` is a POST request used to like a post. The request requires a JSON payload with the keys `userId` and `postId` to specify the user and post to be liked.\n\n### Request Body\n\n- `userId` (number): The ID of the user liking the post.\n    \n- `postId` (number): The ID of the post to be liked.\n    \n\n### Response\n\nThe response is in JSON format with the following schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"internalStatusCode\": {\n      \"type\": \"number\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    },\n    \"data\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"id\": {\n          \"type\": \"number\"\n        },\n        \"description\": {\n          \"type\": \"string\"\n        },\n        \"image\": {\n          \"type\": \"array\"\n        },\n        \"userId\": {\n          \"type\": \"number\"\n        },\n        \"pinnedPost\": {\n          \"type\": \"boolean\"\n        },\n        \"like\": {\n          \"type\": \"number\"\n        },\n        \"createdAt\": {\n          \"type\": \"string\"\n        },\n        \"updatedAt\": {\n          \"type\": \"string\"\n        },\n        \"mentionedUser\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"id\": {\n                \"type\": \"number\"\n              },\n              \"role\": {\n                \"type\": \"string\"\n              },\n              \"email\": {\n                \"type\": \"string\"\n              },\n              \"googleId\": {\n                \"type\": [\"string\", \"null\"]\n              },\n              \"lastName\": {\n                \"type\": \"string\"\n              },\n              \"password\": {\n                \"type\": \"string\"\n              },\n              \"createdAt\": {\n                \"type\": \"string\"\n              },\n              \"firstName\": {\n                \"type\": \"string\"\n              },\n              \"updatedAt\": {\n                \"type\": \"string\"\n              },\n              \"resetToken\": {\n                \"type\": [\"string\", \"null\"]\n              },\n              \"mentionCount\": {\n                \"type\": \"number\"\n              },\n              \"refreshToken\": {\n                \"type\": [\"string\", \"null\"]\n              },\n              \"profilePicture\": {\n                \"type\": \"string\"\n              }\n            }\n          }\n        },\n        \"hashtag\": {\n          \"type\": \"array\"\n        }\n      }\n    }\n  }\n}\n\n ```"
+							},
+							"response": []
+						}
+					],
+					"description": "User Post"
+				},
+				{
+					"name": "Comments",
+					"item": [
+						{
+							"name": "Get all Comments",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/comment/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"comment",
+										""
+									]
+								},
+								"description": "### GET /comments/\n\nThis endpoint retrieves a list of comments.\n\n#### Request\n\nNo request body is required for this endpoint.\n\n#### Response\n\nThe response will be a JSON array containing comment objects with the following properties:\n\n- `id` (number): The unique identifier for the comment.\n    \n- `description` (string): The content of the comment.\n    \n- `userId` (number): The unique identifier of the user who created the comment.\n    \n- `postId` (number): The unique identifier of the post to which the comment belongs.\n    \n- `createdAt` (string): The timestamp indicating when the comment was created.\n    \n- `updatedAt` (string): The timestamp indicating when the comment was last updated.\n    \n\nExample response:\n\n``` json\n[\n  {\n    \"id\": 0,\n    \"description\": \"\",\n    \"userId\": 0,\n    \"postId\": 0,\n    \"createdAt\": \"\",\n    \"updatedAt\": \"\"\n  }\n]\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Create A Comment",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"description\": \"This is a new comment\",\r\n    \"userId\": 1,\r\n    \"postId\": 7\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/comment/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"comment",
+										""
+									]
+								},
+								"description": "This endpoint allows you to create a new comment by sending an HTTP POST request to {{API_BASE_URL}}/comments/. The request should include a JSON payload in the raw request body type with the following parameters:\n\n- `description` (string): The description of the comment.\n    \n- `userId` (number): The ID of the user who created the comment.\n    \n- `postId` (number): The ID of the post to which the comment is being added.\n    \n\nThe response to the request will have a status code of 200 and a content type of application/json. The response body will contain the following parameters:\n\n- `internalStatusCode` (number): The internal status code of the response.\n    \n- `message` (string): A message related to the response.\n    \n- `data` (object): An object containing the details of the newly created comment, including:\n    \n    - `createdAt` (string): The timestamp of when the comment was created.\n        \n    - `updatedAt` (string): The timestamp of when the comment was last updated.\n        \n    - `id` (number): The ID of the newly created comment.\n        \n    - `description` (string): The description of the comment.\n        \n    - `userId` (number): The ID of the user who created the comment.\n        \n    - `postId` (number): The ID of the post to which the comment belongs."
+							},
+							"response": []
+						},
+						{
+							"name": "Fully Update a Comment",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"description\": \"Updated comment description\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/comment/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"comment",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "12"
+										}
+									]
+								},
+								"description": "This endpoint allows you to update a specific comment by its ID. The request should be sent as an HTTP PUT to the specified URL. The request body should include a JSON payload with the updated \"description\" field.\n\n### Request Body\n\n- `description` (string, required): The new description for the comment.\n    \n\n### Response\n\nUpon a successful update, the server will respond with a status code of 200 and a JSON object containing the updated comment details, including the ID, description, user ID, post ID, creation timestamp, and last update timestamp.\n\nExample Response:\n\n``` json\n{\n    \"internalStatusCode\": 0,\n    \"message\": \"\",\n    \"data\": {\n        \"id\": 0,\n        \"description\": \"\",\n        \"userId\": 0,\n        \"postId\": 0,\n        \"createdAt\": \"\",\n        \"updatedAt\": \"\"\n    }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Partially Update a Comment",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"description\": \"Updated comment description\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/comment/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"comment",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "12"
+										}
+									]
+								},
+								"description": "### PATCH /comments/:id\n\nThis endpoint is used to update the description of a specific comment.\n\n#### Request Body\n\n- `description` (string, required): The updated description for the comment.\n    \n\n#### Response\n\nThe response is in JSON format and follows the schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"internalStatusCode\": {\n      \"type\": \"number\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    },\n    \"data\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"id\": {\n          \"type\": \"number\"\n        },\n        \"description\": {\n          \"type\": \"string\"\n        },\n        \"userId\": {\n          \"type\": \"number\"\n        },\n        \"postId\": {\n          \"type\": \"number\"\n        },\n        \"createdAt\": {\n          \"type\": \"string\"\n        },\n        \"updatedAt\": {\n          \"type\": \"string\"\n        }\n      }\n    }\n  }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete a Comment",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/comment/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"comment",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								},
+								"description": "The endpoint sends an HTTP DELETE request to delete a specific comment identified by its ID.\n\n### Response\n\nThe response is in JSON format and has the following schema:\n\n``` json\n{\n    \"type\": \"object\",\n    \"properties\": {\n        \"internalStatusCode\": {\n            \"type\": \"integer\"\n        },\n        \"message\": {\n            \"type\": \"string\"\n        },\n        \"data\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"id\": {\n                    \"type\": \"integer\"\n                },\n                \"description\": {\n                    \"type\": \"string\"\n                },\n                \"userId\": {\n                    \"type\": \"integer\"\n                },\n                \"postId\": {\n                    \"type\": \"integer\"\n                },\n                \"createdAt\": {\n                    \"type\": \"string\"\n                },\n                \"updatedAt\": {\n                    \"type\": \"string\"\n                }\n            }\n        }\n    }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Comments by post Id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/comment/post/:id",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"comment",
+										"post",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "7"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "User Comments"
+				},
+				{
+					"name": "Nomination",
+					"item": [
+						{
+							"name": "get all nominations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/nomination/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"nomination",
+										""
+									]
+								},
+								"description": "The `GET` request to `/nominations/` endpoint retrieves a list of nominations. The response is a JSON object with a `data` array containing nomination details. Each nomination object in the array includes `id`, `nominationType`, `photoUrl`, `description`, `lastNominationDay`, `winnerAnnouncementDate`, `createdAt`, and `updatedAt` properties.\n\n``` json\n{\n    \"type\": \"object\",\n    \"properties\": {\n        \"internalStatusCode\": {\n            \"type\": \"number\"\n        },\n        \"message\": {\n            \"type\": \"string\"\n        },\n        \"data\": {\n            \"type\": \"array\",\n            \"items\": {\n                \"type\": \"object\",\n                \"properties\": {\n                    \"id\": {\n                        \"type\": \"number\"\n                    },\n                    \"nominationType\": {\n                        \"type\": \"string\"\n                    },\n                    \"photoUrl\": {\n                        \"type\": \"string\"\n                    },\n                    \"description\": {\n                        \"type\": \"string\"\n                    },\n                    \"lastNominationDay\": {\n                        \"type\": \"string\"\n                    },\n                    \"winnerAnnouncementDate\": {\n                        \"type\": \"string\"\n                    },\n                    \"createdAt\": {\n                        \"type\": \"string\"\n                    },\n                    \"updatedAt\": {\n                        \"type\": \"string\"\n                    }\n                }\n            }\n        }\n    }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Nomination",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nominationType\": \"BestEmployee\",\r\n    \"description\": \"BestEmployee of the month\",\r\n    \"lastNominationDay\": \"2024-09-30\",\r\n    \"winnerAnnouncementDate\": \"2024-09-30\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/nomination/",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"nomination",
+										""
+									]
+								},
+								"description": "### Add Nomination\n\nThis endpoint allows you to add a nomination with the specified details.\n\n#### Request Body\n\n- `nominationType` (string, required): The type of nomination.\n    \n- `description` (string, required): Description of the nomination.\n    \n- `lastNominationDay` (string, required): Date of the last nomination day.\n    \n- `winnerAnnouncementDate` (string, required): Date of the winner announcement.\n    \n\n#### Response\n\nUpon successful execution, the endpoint returns a status code of 200 and a JSON object with the following fields:\n\n- `internalStatusCode` (number): Internal status code of the response.\n    \n- `message` (string): Any additional message related to the response.\n    \n- `data` (object): An object containing the details of the newly created nomination, including `createdAt`, `updatedAt`, `id`, `nominationType`, `photoUrl`, `description`, `lastNominationDay`, and `winnerAnnouncementDate`."
+							},
+							"response": []
+						},
+						{
+							"name": "Vote for a user",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"userId\":4,\r\n    \"nominatedUserId\": 2,\r\n    \"nominationId\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/nomination/vote",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"nomination",
+										"vote"
+									]
+								},
+								"description": "The `POST /nominations/vote` endpoint is used to submit a vote for a nomination. The request should include the `userId`, `nominatedUserId`, and `nominationId` in the request body. The expected input format for the request body is as follows:\n\n``` json\n{\n    \"userId\": 0,\n    \"nominatedUserId\": 0,\n    \"nominationId\": 0\n}\n\n ```\n\nThe response to this request will have a status code of 200 and a content type of `application/json`. The response body will contain an `internalStatusCode`, a `message`, and a `data` object with the following format:\n\n``` json\n{\n    \"internalStatusCode\": 0,\n    \"message\": \"\",\n    \"data\": {\n        \"id\": 0,\n        \"userId\": 0,\n        \"nominatedUserId\": 0,\n        \"nominationId\": 0,\n        \"updatedAt\": \"\",\n        \"createdAt\": \"\"\n    }\n}\n\n ```\n\nThe `data` object will include the `id`, `userId`, `nominatedUserId`, `nominationId`, `updatedAt`, and `createdAt` for the submitted vote."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Top nominated member",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/nomination/{id}/top-nominated",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"nomination",
+										"{id}",
+										"top-nominated"
+									]
+								},
+								"description": "### Get Top Nominated User Vote\n\nThis endpoint retrieves the top nominated user for voting based on the provided ID.\n\n**Request Body**  \nThis endpoint does not require a request body.\n\n**Response**\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\n``` json\n{\n    \"internalStatusCode\": 0,\n    \"message\": \"\",\n    \"data\": [\n        {\n            \"nominated_user_id\": 0,\n            \"nominationCount\": 0,\n            \"User\": {\n                \"id\": 0,\n                \"firstName\": \"\",\n                \"lastName\": \"\",\n                \"profilePicture\": \"\"\n            }\n        }\n    ]\n}\n\n ```\n\nThe response contains the internal status code, a message, and data for the top nominated user including their ID, nomination count, first name, last name, and profile picture."
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "This is the real one"
+		},
+		{
+			"name": "My PlayGround",
+			"item": [
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "User SignUp",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"user@example.com\",\r\n    \"password\": \"string\",\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/signup",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"signup"
+									]
+								},
+								"description": "## Auth Signup\n\nThis endpoint is used to register a new user.\n\n### Request Body\n\n- `email` (string, required): The email address of the user.\n    \n- `password` (string, required): The password for the user account.\n    \n- `firstName` (string, required): The first name of the user.\n    \n- `lastName` (string, required): The last name of the user.\n    \n\n### Response\n\nThe response will contain the status of the signup operation."
+							},
+							"response": []
+						},
+						{
+							"name": "User Login",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"user@example.com\",\r\n    \"password\": \"string\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"login"
+									]
+								},
+								"description": "### Auth Login\n\nThis endpoint is used to authenticate a user by providing their email and password.\n\n#### Request Body\n\n- `email` (string): The email of the user.\n    \n- `password` (string): The password of the user.\n    \n\n#### Response\n\nUpon a successful authentication, the server returns a JSON object with the following structure:\n\n``` json\n{\n    \"user\": {\n        \"id\": 0,\n        \"firstName\": null,\n        \"lastName\": null,\n        \"email\": \"\",\n        \"password\": \"\",\n        \"profilePicture\": null,\n        \"refreshToken\": \"\",\n        \"resetToken\": \"\",\n        \"role\": \"\",\n        \"createdAt\": \"\",\n        \"updatedAt\": \"\",\n        \"googleId\": null\n    },\n    \"tokens\": {\n        \"accessToken\": \"\",\n        \"refreshToken\": \"\"\n    }\n}\n\n ```\n\n- `user` (object): Contains the user information with fields like id, firstName, lastName, email, password, profilePicture, refreshToken, resetToken, role, createdAt, updatedAt, and googleId.\n    \n- `tokens` (object): Contains the access token and refresh token for the authenticated user.\n    \n\n#### Response Status\n\n- 200: The request was successful.\n    \n\n#### Response Content-Type\n\n- application/json"
+							},
+							"response": []
+						},
+						{
+							"name": "Refresh Access Token",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/refresh-token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"refresh-token"
+									]
+								},
+								"description": "### Refresh Access Token\n\nThis endpoint is used to refresh the access token by sending a POST request to the specified URL.\n\n#### Request Body\n\n- No request body parameters are required for this request.\n    \n- The request requires to have a refresh token in req.cookies\n    \n\n#### Response\n\nThe response will be in JSON format with the following schema:\n\n``` json\n{\n  \"newAccessToken\": \"string\"\n}\n\n ```\n\n- `newAccessToken` (string): The new access token generated for authentication."
+							},
+							"response": []
+						},
+						{
+							"name": "Forgot Password Api",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"user@example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/forgot-password",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"forgot-password"
+									]
+								},
+								"description": "This endpoint is used to initiate the process of resetting a user's password by sending a reset link to the provided email address.\n\n### Request Body\n\n- email (string, required): The email address for which the reset link will be sent.\n    \n\n### Response\n\nThe response is in JSON format and includes the following key:\n\n- resetToken (string): The reset token that will be used to verify the user's identity and allow them to reset their password.\n    \n\n### JSON Schema\n\n``` json\n{\n    \"type\": \"object\",\n    \"properties\": {\n        \"resetToken\": {\n            \"type\": \"string\"\n        }\n    }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "Reset Password with Token",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"password\": \"string\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/reset-password/:token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"reset-password",
+										":token"
+									],
+									"variable": [
+										{
+											"key": "token",
+											"value": ""
+										}
+									]
+								},
+								"description": "# Reset Password\n\nThis endpoint is used to reset the password by providing the token and new password.\n\n## Request\n\n- Method: POST\n    \n- URL: `http://localhost:{{portNumber}}/auth/reset-password/:token`\n    \n- Body:\n    \n    - `password` (string, required): The new password for the user.\n        \n\n## Response\n\nThe response for this request is a JSON object with the following schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"status\": {\n      \"type\": \"integer\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```\n\n### Response Body\n\n- `status` (integer): The status code of the response.\n    \n- `message` (string): A message indicating the result of the password reset request."
+							},
+							"response": []
+						},
+						{
+							"name": "Reset Password Without Token",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/reset-password",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"reset-password"
+									]
+								},
+								"description": "### Reset Password\n\nThis endpoint is used to reset the password for a user.\n\n#### Request Body\n\n- `email` (string, required): The email address of the user for whom the password needs to be reset.\n    \n- `password` (string, required): The new password for the user account.\n    \n\n#### Response\n\nUpon successful password reset, the endpoint returns a status code of 200 and the content type is `text/html`. The response message will indicate \"Password reset successfully\"."
+							},
+							"response": []
+						},
+						{
+							"name": "Logout Api",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/logout",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"logout"
+									]
+								},
+								"description": "### Auth Logout\n\nThis endpoint is used to log out the user from the application by clearing the tokens\n\n#### Request Body\n\n- No request body is required for this endpoint.\n    \n\n#### Response\n\n- **Status**: 200\n    \n- **Content-Type**: text/html\n    \n- **Body**: \"Logged out successfully\""
+							},
+							"response": []
+						},
+						{
+							"name": "Invite Hr api",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"user@example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{portNumber}}/auth/invite-hr",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{portNumber}}",
+									"path": [
+										"auth",
+										"invite-hr"
+									]
+								},
+								"description": "### Auth Invite HR\n\nThis endpoint is used to send an invitation to HR.\n\n#### Request Body\n\n- `email` (string, required): The email address of the recipient.\n    \n\n#### Response\n\nThe response will contain the status of the invitation request."
+							},
+							"response": []
+						},
+						{
+							"name": "Access Google Auth Page",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"description": "### Auth Google\n\nThis endpoint sends an HTTP GET request to authenticate using Google.\n\n#### Request\n\nThe request does not require a request body. The endpoint should be called with the specified URL.\n\n- `portNumber` (path parameter) - The port number for the local server.\n    \n\n#### Response\n\nThe response for this request is a JSON schema, which includes the following properties:\n\n- `property1` (type: string) - Description of property1.\n    \n- `property2` (type: number) - Description of property2.\n    \n- `property3` (type: boolean) - Description of property3.\n    \n- ..."
+							},
+							"response": []
+						},
+						{
+							"name": "Google Auth Callback api",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					],
+					"description": "Custom Auth (singup, login , forgotPassword, refresh tokens, reset password \\*with and without tokens\\*, logout, invite Hr, google auth)"
+				}
+			],
+			"description": "This is just me trying out things"
+		}
+	]
+}
